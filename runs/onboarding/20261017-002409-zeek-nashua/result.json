@@ -1,0 +1,74 @@
+{
+  "source_id": "zeek-nashua",
+  "channel": "pull",
+  "sample_records": 194,
+  "outcome": {
+    "decision": "reused",
+    "template": "zeek",
+    "dataset": "zeek",
+    "reason": "All 194 sampled records are Zeek JSON logs (@proc=zeek, @stream in conn/x509/files/ssl/dce_rpc, ts epoch seconds). The existing 'zeek' template matches at ratio 1.0 and passed validation on all 194 records (timestamp parsed from ts via UNIX format, host.name/observer.name from @system, event.module=zeek, event.dataset=zeek, event.original kept, hunt.template set, no processor failures).",
+    "validation": {
+      "records": 194,
+      "records_ok": 194,
+      "match_ratio": 1.0
+    }
+  },
+  "created_templates": [],
+  "tool_trace": [
+    {
+      "step": 1,
+      "tool": "inspect_sample",
+      "args": {},
+      "result_summary": {
+        "records": 194
+      }
+    },
+    {
+      "step": 1,
+      "tool": "list_templates",
+      "args": {},
+      "result_summary": "list of 5"
+    },
+    {
+      "step": 2,
+      "tool": "get_template",
+      "args": {
+        "name": "zeek"
+      },
+      "result_summary": {}
+    },
+    {
+      "step": 2,
+      "tool": "test_template",
+      "args": {
+        "name": "zeek"
+      },
+      "result_summary": {
+        "passed": true,
+        "records": 194,
+        "records_ok": 194,
+        "match_ratio": 1.0,
+        "failure_counts": {}
+      }
+    },
+    {
+      "step": 3,
+      "tool": "register_source",
+      "args": {
+        "template": "zeek",
+        "reason": "All 194 sampled records are Zeek JSON logs (@proc=zeek, @stream in conn/x509/files/ssl/dce_rpc, ts epoch seconds). The existing 'zeek' template matches at ratio 1.0 and passed validation on all 194 records (timestamp parsed from ts via UNIX format, host.name/observer.name from @system, event.module=zeek, event.dataset=zeek, event.original kept, hunt.template set, no processor failures)."
+      },
+      "result_summary": {
+        "registered": true,
+        "decision": "reused",
+        "template": "zeek"
+      }
+    }
+  ],
+  "llm_calls": 3,
+  "llm_tokens": {
+    "prompt": 10633,
+    "completion": 321
+  },
+  "model": "deepseek-flash"
+}

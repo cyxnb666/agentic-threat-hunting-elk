@@ -1,0 +1,8 @@
+{
+  "tactics": [
+    "credential-access"
+  ],
+  "restated": "An adversary with access to Windows hosts on this network stole credentials from those hosts.",
+  "what_would_confirm": "Observable evidence such as LSASS process access or memory dumps, suspicious use of credential-dumping tools (e.g., Mimikatz, ProcDump, comsvcs.dll), access to SAM/SECURITY/SYSTEM registry hives or NTDS.dit, Kerberoasting or AS-REP roasting attempts, or anomalous authentication using stolen credentials from compromised Windows hosts.",
+  "what_would_refute": "Observable absence of credential theft indicators on the compromised Windows hosts, including no LSASS access or memory dumping, no credential-dump tool execution, no unauthorized access to credential stores or registry hives, and no authentication or privilege escalation activity attributable to stolen credentials."
+}

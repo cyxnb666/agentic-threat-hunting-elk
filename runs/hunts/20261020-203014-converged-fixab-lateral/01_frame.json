@@ -1,0 +1,8 @@
+{
+  "tactics": [
+    "lateral-movement"
+  ],
+  "restated": "An adversary with existing access to compromised Windows hosts is using remote execution or authentication mechanisms to pivot to additional hosts on the network.",
+  "what_would_confirm": "Remote service creation or SMB/PsExec/WinRM/RDP/SSH logons from a compromised host to other hosts, remote scheduled task or WMI execution, pass-the-hash/ticket authentication to new hosts, or service/process artifacts on destination hosts originating from the source host.",
+  "what_would_refute": "No remote logons or remote execution events originating from compromised hosts to other hosts, no new host-to-host authentication or service creation, and no evidence of credential reuse or remote session establishment beyond normal baseline."
+}

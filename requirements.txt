@@ -1,0 +1,5 @@
+# Direct dependencies, pinned to the versions current on PyPI on 2026-10-16/17.
+elasticsearch==9.5.1   # Elasticsearch Python client (ingest, MCP server, evaluation)
+mcp==2.3.0             # official Model Context Protocol Python SDK (MCP server + client)
+openai==3.31.0         # client for DeepSeek's OpenAI-compatible chat API
+pytest==8.4.2          # unit tests

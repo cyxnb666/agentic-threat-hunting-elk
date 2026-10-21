@@ -1,0 +1,144 @@
+# Single-node Elastic Stack (Elasticsearch + Kibana + Logstash) with TLS on HTTP and transport.
+# Base: the official Elastic docker-compose example
+#   https://github.com/elastic/elasticsearch/blob/main/docs/reference/setup/install/docker/docker-compose.yml
+# Changes from the official file (each one is recorded in the project log):
+#   - 3 Elasticsearch nodes -> 1 node (discovery.type=single-node)
+#   - the one-shot "setup" service is split in two: "certs" (runs before es01) and "setup" (runs after es01 is
+#     healthy). The official single service relies on a healthcheck of a container that exits; on a re-run
+#     it exits before Compose sees it healthy and dependants fail with "dependency failed to start".
+#   - added a Logstash service that writes to Elasticsearch as a least-privilege user over TLS
+#   - every published port is bound to 127.0.0.1 (values come from .env)
+#   - obsolete top-level "version" key removed (Compose v2 ignores it)
+
+services:
+  certs:
+    image: docker.elastic.co/elasticsearch/elasticsearch:${STACK_VERSION}
+    volumes:
+      - certs:/usr/share/elasticsearch/config/certs
+      - ./elk/setup/certs.sh:/usr/share/elasticsearch/certs.sh:ro
+    user: "0"
+    command: bash /usr/share/elasticsearch/certs.sh
+
+  setup:
+    depends_on:
+      es01:
+        condition: service_healthy
+    image: docker.elastic.co/elasticsearch/elasticsearch:${STACK_VERSION}
+    volumes:
+      - certs:/usr/share/elasticsearch/config/certs
+      - ./elk/setup/setup.sh:/usr/share/elasticsearch/setup.sh:ro
+    user: "0"
+    environment:
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+      - KIBANA_PASSWORD=${KIBANA_PASSWORD}
+      - LOGSTASH_WRITER_PASSWORD=${LOGSTASH_WRITER_PASSWORD}
+      - HUNT_AGENT_PASSWORD=${HUNT_AGENT_PASSWORD}
+      - HUNT_MCP_PASSWORD=${HUNT_MCP_PASSWORD}
+    command: bash /usr/share/elasticsearch/setup.sh
+
+  es01:
+    depends_on:
+      certs:
+        condition: service_completed_successfully
+    image: docker.elastic.co/elasticsearch/elasticsearch:${STACK_VERSION}
+    volumes:
+      - certs:/usr/share/elasticsearch/config/certs
+      - esdata01:/usr/share/elasticsearch/data
+    ports:
+      - ${ES_PORT}:9200
+    environment:
+      - node.name=es01
+      - cluster.name=${CLUSTER_NAME}
+      - discovery.type=single-node
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+      - bootstrap.memory_lock=true
+      - xpack.security.enabled=true
+      - xpack.security.http.ssl.enabled=true
+      - xpack.security.http.ssl.key=certs/es01/es01.key
+      - xpack.security.http.ssl.certificate=certs/es01/es01.crt
+      - xpack.security.http.ssl.certificate_authorities=certs/ca/ca.crt
+      - xpack.security.transport.ssl.enabled=true
+      - xpack.security.transport.ssl.key=certs/es01/es01.key
+      - xpack.security.transport.ssl.certificate=certs/es01/es01.crt
+      - xpack.security.transport.ssl.certificate_authorities=certs/ca/ca.crt
+      - xpack.security.transport.ssl.verification_mode=certificate
+      - xpack.license.self_generated.type=${LICENSE}
+      - xpack.ml.use_auto_machine_memory_percent=true
+    mem_limit: ${ES_MEM_LIMIT}
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -s --cacert config/certs/ca/ca.crt https://localhost:9200 | grep -q 'missing authentication credentials'",
+        ]
+      interval: 10s
+      timeout: 10s
+      retries: 120
+
+  kibana:
+    depends_on:
+      setup:
+        condition: service_completed_successfully   # kibana_system password is set by setup
+    image: docker.elastic.co/kibana/kibana:${STACK_VERSION}
+    volumes:
+      - certs:/usr/share/kibana/config/certs
+      - kibanadata:/usr/share/kibana/data
+    ports:
+      - ${KIBANA_PORT}:5601
+    environment:
+      - SERVERNAME=kibana
+      - ELASTICSEARCH_HOSTS=https://es01:9200
+      - ELASTICSEARCH_USERNAME=kibana_system
+      - ELASTICSEARCH_PASSWORD=${KIBANA_PASSWORD}
+      - ELASTICSEARCH_SSL_CERTIFICATEAUTHORITIES=config/certs/ca/ca.crt
+    mem_limit: ${KIBANA_MEM_LIMIT}
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -s -I http://localhost:5601 | grep -q 'HTTP/1.1 302 Found'",
+        ]
+      interval: 10s
+      timeout: 10s
+      retries: 120
+
+  logstash:
+    depends_on:
+      setup:
+        condition: service_completed_successfully   # logstash_internal user must exist first
+    image: docker.elastic.co/logstash/logstash:${STACK_VERSION}
+    volumes:
+      - certs:/usr/share/logstash/config/certs:ro
+      - ./elk/logstash/config/pipelines.yml:/usr/share/logstash/config/pipelines.yml:ro
+      - ./elk/logstash/pipeline:/usr/share/logstash/pipeline:ro
+      - lsdata:/usr/share/logstash/data
+      # pull channel: files dropped into ./dropzone/<source_id>/ are read, then deleted (read mode,
+      # file_completed_action log_and_delete, so the mount is writable; see 10-pull-input.conf)
+      - ./dropzone:/usr/share/logstash/dropzone
+      # source registry written by the onboarding agent, read by the translate filter
+      - ./registry:/usr/share/logstash/registry:ro
+    ports:
+      - "127.0.0.1:8080:8080"         # push channel (http input, basic auth)
+      - "127.0.0.1:5514:5514/tcp"     # stream channel (syslog input)
+      - "127.0.0.1:5514:5514/udp"
+    environment:
+      - LS_JAVA_OPTS=${LS_JAVA_OPTS}
+      - ES_HOSTS=https://es01:9200
+      - LOGSTASH_WRITER_PASSWORD=${LOGSTASH_WRITER_PASSWORD}
+      - PUSH_PASSWORD=${PUSH_PASSWORD}
+    mem_limit: ${LS_MEM_LIMIT}
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:9600/_node/pipelines | grep -q '\"pipelines\"'"]
+      interval: 10s
+      timeout: 10s
+      retries: 60
+
+volumes:
+  certs:
+  esdata01:
+  kibanadata:
+  lsdata:

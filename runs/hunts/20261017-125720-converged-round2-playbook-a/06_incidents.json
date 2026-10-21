@@ -1,0 +1,240 @@
+[
+  {
+    "title": "LSASS memory access with full-access masks by PowerShell on scranton",
+    "technique": "T1003.001",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F01",
+      "F10",
+      "F20",
+      "F30",
+      "F34",
+      "F58"
+    ],
+    "rationale": "All describe the same action: PowerShell.exe (PID 2976) on scranton.dmevals.local opened lsass.exe with GrantedAccess 0x1f3fff/0x1fffff at 2020-05-02T03:05:16Z (plus the 4663 audit record of the same handle open). F10/F34 also include the nashua wsmprovhost LSASS open, but the dominant shared action is the scranton LSASS full-access open, which best fits T1003.001 (LSASS Memory).",
+    "incident_id": "I01"
+  },
+  {
+    "title": "PowerShell LSASS full-access open during hands-on-keyboard intrusion (T1212 framing)",
+    "technique": "T1003.001",
+    "in_scope": true,
+    "assessment": "suspicious",
+    "confidence": "low",
+    "finding_ids": [
+      "F21"
+    ],
+    "rationale": "Describes wsmprovhost.exe on nashua opening lsass.exe with 0x1F3FFF; the observed action is LSASS memory access, best fit T1003.001 (finding itself notes no dump payload observed, hence suspicious).",
+    "incident_id": "I02"
+  },
+  {
+    "title": "No Kerberos ticket theft/forgery; LSASS handle access by PowerShell on scranton",
+    "technique": "T1003.001",
+    "in_scope": true,
+    "assessment": "suspicious",
+    "confidence": "medium",
+    "finding_ids": [
+      "F45"
+    ],
+    "rationale": "Finding reports no ticket theft/forgery; the only credential-access-shaped action is PowerShell opening lsass.exe with full-access masks on scranton, T1003.001.",
+    "incident_id": "I03"
+  },
+  {
+    "title": "No SAML token forgery; LSASS access by PowerShell/wsmprovhost",
+    "technique": "T1003.001",
+    "in_scope": true,
+    "assessment": "suspicious",
+    "confidence": "medium",
+    "finding_ids": [
+      "F52"
+    ],
+    "rationale": "Finding reports no SAML/token artifacts; the observed credential-material theft is LSASS full-access access by PowerShell/wsmprovhost, T1003.001.",
+    "incident_id": "I04"
+  },
+  {
+    "title": "Keystroke-Check AV-evasion function and remote keylogger deployment to nashua",
+    "technique": "T1056.001",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F09"
+    ],
+    "rationale": "Describes the Keystroke-Check function and Get-Keystrokes keylogger deployment; the credential-access action is keylogging, T1056.001.",
+    "incident_id": "I05"
+  },
+  {
+    "title": "WebDAV/UNC forced-authentication exfil path from scranton to 192.168.0.4",
+    "technique": "T1187",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F18"
+    ],
+    "rationale": "Describes the Invoke-Exfil WebDAV/UNC path with explicit credentials and the powershell.exe connection to 192.168.0.4; the credential-access-relevant action is forced authentication via UNC/WebDAV, T1187.",
+    "incident_id": "I06"
+  },
+  {
+    "title": "Credential-access tooling staged on scranton (Sysinternals, keylogger, exfil scripts)",
+    "technique": "T1552",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F02",
+      "F61"
+    ],
+    "rationale": "Both describe the staging and running of the Sysinternals toolset (accesschk, PsExec64, sdelete64) and credential/exfil scripts from C:\\Program Files\\SysinternalsSuite on scranton; the shared action is staging unsecured credential-access tooling, best fit T1552.",
+    "incident_id": "I07"
+  },
+  {
+    "title": "Attacker tooling staged in C:\\Windows\\Temp on nashua",
+    "technique": "T1552",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F60"
+    ],
+    "rationale": "Describes staging of python.exe, Rar.exe, sdelete64.exe in C:\\Windows\\Temp on nashua; unsecured credential-access tooling staging, T1552.",
+    "incident_id": "I08"
+  },
+  {
+    "title": "Credential-named file harvesting and archiving on scranton and nashua",
+    "technique": "T1552.001",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F24",
+      "F56"
+    ],
+    "rationale": "Both describe enumeration of credential-named files (*psw*, *pass*, *login*, *admin*, *vpn) and archiving to Draft.Zip/working.zip on scranton and nashua; credentials in files, T1552.001.",
+    "incident_id": "I09"
+  },
+  {
+    "title": "accesschk.exe creating passwordsDB in SysinternalsSuite directory",
+    "technique": "T1552.001",
+    "in_scope": true,
+    "assessment": "suspicious",
+    "confidence": "medium",
+    "finding_ids": [
+      "F26"
+    ],
+    "rationale": "Describes accesschk.exe creating a 'passwordsDB' file; credential material in files, T1552.001.",
+    "incident_id": "I10"
+  },
+  {
+    "title": "Cleartext pbeesly password on PsExec64 command lines to NASHUA",
+    "technique": "T1552.001",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F59"
+    ],
+    "rationale": "Describes cleartext credentials in PsExec64 command lines; credentials in files/command lines, T1552.001.",
+    "incident_id": "I11"
+  },
+  {
+    "title": "Get-PrivateKeys certificate private-key export to .pfx on scranton",
+    "technique": "T1552.004",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F25",
+      "F50",
+      "F54",
+      "F57"
+    ],
+    "rationale": "All describe the same Get-PrivateKeys/Export-PfxCertificate action exporting cert:\\LocalMachine private keys to a password-protected .pfx on scranton; private keys, T1552.004.",
+    "incident_id": "I12"
+  },
+  {
+    "title": "No password spraying; valid pbeesly credentials reused via PsExec64 to NASHUA",
+    "technique": "out-of-scope:T1021.002",
+    "in_scope": false,
+    "assessment": "suspicious",
+    "confidence": "medium",
+    "finding_ids": [
+      "F15"
+    ],
+    "rationale": "Finding explicitly reports no spraying; the observed action is credential reuse with PsExec to NASHUA, i.e. lateral movement (SMB/Windows Admin Shares), out of scope.",
+    "incident_id": "I13"
+  },
+  {
+    "title": "Credential-theft campaign on scranton with lateral SMB/PsExec movement to nashua",
+    "technique": "out-of-scope:T1021.002",
+    "in_scope": false,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F41"
+    ],
+    "rationale": "Finding reports no AiTM positioning; the described action spans credential theft plus lateral SMB/PsExec movement to nashua, whose best single fit is lateral movement, out of scope.",
+    "incident_id": "I14"
+  },
+  {
+    "title": "csc.exe compiling attacker .NET payloads from PowerShell response files",
+    "technique": "out-of-scope:T1027.004",
+    "in_scope": false,
+    "assessment": "malicious",
+    "confidence": "medium",
+    "finding_ids": [
+      "F63"
+    ],
+    "rationale": "Describes csc.exe compiling attacker .NET payloads; this is execution (compile after delivery), out of scope.",
+    "incident_id": "I15"
+  },
+  {
+    "title": "No MFA interception; PowerShell Remoting logon-session enumeration on nashua",
+    "technique": "out-of-scope:T1059.001",
+    "in_scope": false,
+    "assessment": "suspicious",
+    "confidence": "medium",
+    "finding_ids": [
+      "F17"
+    ],
+    "rationale": "Finding reports no MFA interception artifacts; the observed action is PowerShell Remoting execution/enumeration by pbeesly on nashua, out of scope.",
+    "incident_id": "I16"
+  },
+  {
+    "title": "Screen-saver payload in C:\\ProgramData\\victim launched on scranton",
+    "technique": "out-of-scope:T1218.002",
+    "in_scope": false,
+    "assessment": "malicious",
+    "confidence": "medium",
+    "finding_ids": [
+      "F62"
+    ],
+    "rationale": "Describes a malicious .scr screen saver executed by explorer spawning a PowerShell stager; this is execution/persistence, out of scope.",
+    "incident_id": "I17"
+  },
+  {
+    "title": "sdclt.exe execution proxy before payload compilation",
+    "technique": "out-of-scope:T1218.011",
+    "in_scope": false,
+    "assessment": "suspicious",
+    "confidence": "low",
+    "finding_ids": [
+      "F65"
+    ],
+    "rationale": "Describes sdclt.exe execution proxy preceding payload compilation; this is execution/defense evasion, out of scope.",
+    "incident_id": "I18"
+  },
+  {
+    "title": "hostui.exe elevation attempt and registry-stored encoded PowerShell stager",
+    "technique": "out-of-scope:T1548.002",
+    "in_scope": false,
+    "assessment": "suspicious",
+    "confidence": "medium",
+    "finding_ids": [
+      "F64"
+    ],
+    "rationale": "Describes UAC bypass via hostui.exe runas and registry-stored encoded PowerShell stager; this is privilege escalation/execution, out of scope.",
+    "incident_id": "I19"
+  }
+]

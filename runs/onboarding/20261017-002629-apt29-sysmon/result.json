@@ -1,0 +1,74 @@
+{
+  "source_id": "apt29-sysmon",
+  "channel": "pull",
+  "sample_records": 198,
+  "outcome": {
+    "decision": "reused",
+    "template": "windows-sysmon",
+    "dataset": "windows.sysmon",
+    "reason": "All 198 sampled records are flat NXLog JSON Sysmon exports (Channel=Microsoft-Windows-Sysmon/Operational, SourceName=Microsoft-Windows-Sysmon, im_msvistalog). The builtin windows-sysmon template matches at ratio 1.0 and passed the output contract on all 198 records (timestamp from UtcTime, host.name from Hostname, event.module=sysmon, event.dataset=windows.sysmon, event.original kept, hunt.template set, no processor failures).",
+    "validation": {
+      "records": 198,
+      "records_ok": 198,
+      "match_ratio": 1.0
+    }
+  },
+  "created_templates": [],
+  "tool_trace": [
+    {
+      "step": 1,
+      "tool": "inspect_sample",
+      "args": {},
+      "result_summary": {
+        "records": 198
+      }
+    },
+    {
+      "step": 1,
+      "tool": "list_templates",
+      "args": {},
+      "result_summary": "list of 2"
+    },
+    {
+      "step": 2,
+      "tool": "get_template",
+      "args": {
+        "name": "windows-sysmon"
+      },
+      "result_summary": {}
+    },
+    {
+      "step": 2,
+      "tool": "test_template",
+      "args": {
+        "name": "windows-sysmon"
+      },
+      "result_summary": {
+        "passed": true,
+        "records": 198,
+        "records_ok": 198,
+        "match_ratio": 1.0,
+        "failure_counts": {}
+      }
+    },
+    {
+      "step": 3,
+      "tool": "register_source",
+      "args": {
+        "template": "windows-sysmon",
+        "reason": "All 198 sampled records are flat NXLog JSON Sysmon exports (Channel=Microsoft-Windows-Sysmon/Operational, SourceName=Microsoft-Windows-Sysmon, im_msvistalog). The builtin windows-sysmon template matches at ratio 1.0 and passed the output contract on all 198 records (timestamp from UtcTime, host.name from Hostname, event.module=sysmon, event.dataset=windows.sysmon, event.original kept, hunt.template set, no processor failures)."
+      },
+      "result_summary": {
+        "registered": true,
+        "decision": "reused",
+        "template": "windows-sysmon"
+      }
+    }
+  ],
+  "llm_calls": 3,
+  "llm_tokens": {
+    "prompt": 12519,
+    "completion": 340
+  },
+  "model": "deepseek-flash"
+}

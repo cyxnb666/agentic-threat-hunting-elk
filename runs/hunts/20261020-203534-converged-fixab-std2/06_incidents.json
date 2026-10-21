@@ -1,0 +1,164 @@
+[
+  {
+    "title": "PowerShell/wsmprovhost opened LSASS with full-access masks on SCRANTON and NASHUA",
+    "technique": "T1003.001",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F01",
+      "F11",
+      "F16",
+      "F33",
+      "F36",
+      "F47",
+      "F48",
+      "F52",
+      "F57"
+    ],
+    "rationale": "All describe the same action: PowerShell.exe (PID 2976/3852, pbeesly) on scranton and wsmprovhost.exe on nashua opening lsass.exe with 0x1f3fff/0x1fffff. F16/F48 note absence of cracking/forged-ticket evidence but the LSASS access itself is the shared event; best fit is LSASS memory access (T1003.001).",
+    "incident_id": "I01"
+  },
+  {
+    "title": "PowerShell Get-Keystrokes keylogger on SCRANTON",
+    "technique": "T1056.001",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F09"
+    ],
+    "rationale": "Keystroke-Check/Get-Keystrokes PowerShell keylogging session by pbeesly; T1056.001.",
+    "incident_id": "I02"
+  },
+  {
+    "title": "Invoke-ScreenCapture screen capture loop on SCRANTON",
+    "technique": "T1056.002",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F10"
+    ],
+    "rationale": "Invoke-ScreenCapture grabbing the virtual screen to .bmp files; GUI input capture T1056.002.",
+    "incident_id": "I03"
+  },
+  {
+    "title": "No offline cracking or hive dumping; SAM accesses are normal lsass behavior",
+    "technique": "T1110.002",
+    "in_scope": true,
+    "assessment": "suspicious",
+    "confidence": "medium",
+    "finding_ids": [
+      "F07"
+    ],
+    "rationale": "Finding documents absence of mimikatz/procdump/reg save and normal SAM access, while host is under hands-on-keyboard attack; no cracking observed, so assessed suspicious under T1110.002 as the closest in-scope technique evaluated.",
+    "incident_id": "I04"
+  },
+  {
+    "title": "Invoke-Exfil: 7z archive of Downloads copied to WebDAV share with NTLM auth",
+    "technique": "T1187",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F20",
+      "F28"
+    ],
+    "rationale": "Same Invoke-Exfil script block (psversion.ps1) compressing Downloads to OfficeSupplies.7z and copying to \\\\192.168.0.4\\webdav, with NTLM authentication to the WebDAV host; forced authentication T1187.",
+    "incident_id": "I05"
+  },
+  {
+    "title": "Credential-named file harvesting and password-protected archive staging on NASHUA",
+    "technique": "T1552.001",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F58",
+      "F59",
+      "F62"
+    ],
+    "rationale": "Collection script targeting *pass*/*login*/*admin*/*vpn/*sifr files, Rar archiving with password, and PsExec64 with cleartext password pushing python.exe; credentials-in-files harvesting fits T1552.001.",
+    "incident_id": "I06"
+  },
+  {
+    "title": "Get-PrivateKeys exported LocalMachine certificates to PFX files on SCRANTON",
+    "technique": "T1552.004",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F27",
+      "F56",
+      "F26"
+    ],
+    "rationale": "Same Get-PrivateKeys script block (readme.ps1) exporting cert:\\LocalMachine to password-protected .pfx in Downloads; F26 also covers the same session's credential tooling. Private key/certificate theft fits T1552.004.",
+    "incident_id": "I07"
+  },
+  {
+    "title": "Kerberoast-style krbtgt TGS request by pbeesly",
+    "technique": "T1558.003",
+    "in_scope": true,
+    "assessment": "suspicious",
+    "confidence": "medium",
+    "finding_ids": [
+      "F50"
+    ],
+    "rationale": "4769 TGS request for krbtgt service by pbeesly with Kerberoast-like ticket options; T1558.003.",
+    "incident_id": "I08"
+  },
+  {
+    "title": "Certificate store write on NASHUA during pbeesly session",
+    "technique": "T1649",
+    "in_scope": true,
+    "assessment": "suspicious",
+    "confidence": "medium",
+    "finding_ids": [
+      "F60",
+      "F61"
+    ],
+    "rationale": "Same SystemCertificates write under systemprofile on nashua at 03:16:19; certificate store access fits T1649.",
+    "incident_id": "I09"
+  },
+  {
+    "title": "PsExec service installs and offensive PowerShell toolkit (lateral movement/execution)",
+    "technique": "out-of-scope:T1021.002",
+    "in_scope": false,
+    "assessment": "suspicious",
+    "confidence": "medium",
+    "finding_ids": [
+      "F24"
+    ],
+    "rationale": "PSEXESVC installs and PowerShell exfil/screen-capture scripts reflect lateral movement via SMB/admin shares, not credential access.",
+    "incident_id": "I10"
+  },
+  {
+    "title": "SMB/NTLM logon consistent with PsExec lateral movement, not relay",
+    "technique": "out-of-scope:T1021.002",
+    "in_scope": false,
+    "assessment": "suspicious",
+    "confidence": "medium",
+    "finding_ids": [
+      "F44"
+    ],
+    "rationale": "SMB connections from System process and the NTLM network logon are the PsExec session authentication; no relay/poisoning observed.",
+    "incident_id": "I11"
+  },
+  {
+    "title": "Masqueraded .scr loader, steganographic payload, csc compile and anti-forensics on SCRANTON",
+    "technique": "out-of-scope:T1055.012",
+    "in_scope": false,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F63",
+      "F64",
+      "F66",
+      "F67",
+      "F68"
+    ],
+    "rationale": "Loader execution, in-memory compilation, UAC-bypass binary and sdelete cleanup are execution/defense-evasion actions, not credential access.",
+    "incident_id": "I12"
+  }
+]

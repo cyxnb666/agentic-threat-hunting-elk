@@ -1,0 +1,181 @@
+{
+  "name": "windows-powershell",
+  "version": 1,
+  "origin": "generated",
+  "dataset": "windows.powershell",
+  "description": "Windows PowerShell event log records (Windows PowerShell and Microsoft-Windows-PowerShell/Operational channels) exported as flat NXLog JSON (im_msvistalog). Keeps every original field under win.*, maps the common ones to ECS.",
+  "match": {
+    "format": "json",
+    "required_keys": [
+      "Channel",
+      "EventID",
+      "Hostname",
+      "EventTime"
+    ],
+    "equals": {
+      "Channel": [
+        "Windows PowerShell",
+        "Microsoft-Windows-PowerShell/Operational"
+      ]
+    }
+  },
+  "processors": [
+    {
+      "json": {
+        "field": "message",
+        "target_field": "win"
+      }
+    },
+    {
+      "date": {
+        "field": "win.EventTime",
+        "target_field": "@timestamp",
+        "formats": [
+          "yyyy-MM-dd HH:mm:ss"
+        ],
+        "timezone": "-04:00",
+        "if": "ctx.win?.EventTime != null"
+      }
+    },
+    {
+      "set": {
+        "field": "event.kind",
+        "value": "event"
+      }
+    },
+    {
+      "set": {
+        "field": "event.module",
+        "value": "windows"
+      }
+    },
+    {
+      "set": {
+        "field": "event.dataset",
+        "value": "windows.powershell"
+      }
+    },
+    {
+      "set": {
+        "field": "event.code",
+        "copy_from": "win.EventID",
+        "if": "ctx.win?.EventID != null"
+      }
+    },
+    {
+      "set": {
+        "field": "event.provider",
+        "copy_from": "win.SourceName",
+        "if": "ctx.win?.SourceName != null"
+      }
+    },
+    {
+      "set": {
+        "field": "host.name",
+        "copy_from": "win.Hostname"
+      }
+    },
+    {
+      "lowercase": {
+        "field": "host.name"
+      }
+    },
+    {
+      "set": {
+        "field": "winlog.channel",
+        "copy_from": "win.Channel"
+      }
+    },
+    {
+      "set": {
+        "field": "winlog.computer_name",
+        "copy_from": "win.Hostname"
+      }
+    },
+    {
+      "set": {
+        "field": "winlog.record_id",
+        "copy_from": "win.RecordNumber",
+        "if": "ctx.win?.RecordNumber != null"
+      }
+    },
+    {
+      "set": {
+        "field": "message",
+        "copy_from": "win.Message",
+        "if": "ctx.win?.Message != null"
+      }
+    },
+    {
+      "set": {
+        "field": "user.name",
+        "copy_from": "win.AccountName",
+        "if": "ctx.win?.AccountName != null"
+      }
+    },
+    {
+      "set": {
+        "field": "user.domain",
+        "copy_from": "win.Domain",
+        "if": "ctx.win?.Domain != null"
+      }
+    },
+    {
+      "set": {
+        "field": "user.id",
+        "copy_from": "win.UserID",
+        "if": "ctx.win?.UserID != null"
+      }
+    },
+    {
+      "set": {
+        "field": "process.pid",
+        "copy_from": "win.ExecutionProcessID",
+        "if": "ctx.win?.ExecutionProcessID != null"
+      }
+    },
+    {
+      "convert": {
+        "field": "process.pid",
+        "type": "long",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "set": {
+        "field": "process.thread.id",
+        "copy_from": "win.ThreadID",
+        "if": "ctx.win?.ThreadID != null"
+      }
+    },
+    {
+      "convert": {
+        "field": "process.thread.id",
+        "type": "long",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "set": {
+        "field": "process.command_line",
+        "copy_from": "win.ScriptBlockText",
+        "if": "ctx.win?.ScriptBlockText != null"
+      }
+    },
+    {
+      "set": {
+        "field": "hunt.template",
+        "value": "windows-powershell"
+      }
+    }
+  ],
+  "created_at": "2026-10-20T12:27:03+00:00",
+  "created_by": "onboarding agent (deepseek-flash) for source apt29-powershell",
+  "validation": {
+    "records": 194,
+    "records_ok": 194,
+    "source_id": "apt29-powershell"
+  }
+}

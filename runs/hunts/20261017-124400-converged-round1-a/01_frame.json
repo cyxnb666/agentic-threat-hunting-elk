@@ -1,0 +1,8 @@
+{
+  "tactics": [
+    "credential-access"
+  ],
+  "restated": "An adversary with existing access to Windows hosts on this network harvested credentials from those hosts.",
+  "what_would_confirm": "Evidence of credential dumping or theft on Windows hosts, such as LSASS memory access by non-standard processes, use of known dumping tools (e.g., Mimikatz, ProcDump, comsvcs.dll MiniDump), SAM/NTDS.dit or registry hive extraction, DPAPI secret access, or anomalous authentication with stolen credentials.",
+  "what_would_refute": "No evidence of credential-dumping tooling or LSASS/hive access on Windows hosts, and no anomalous use of harvested credentials, with credential access activity attributable only to sanctioned administrative or security tooling."
+}

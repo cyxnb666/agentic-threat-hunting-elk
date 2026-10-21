@@ -1,0 +1,229 @@
+[
+  {
+    "title": "SysinternalsSuite staged on scranton ahead of LSASS access",
+    "technique": "T1003",
+    "in_scope": true,
+    "assessment": "suspicious",
+    "confidence": "medium",
+    "finding_ids": [
+      "F02"
+    ],
+    "rationale": "Download and extraction of SysinternalsSuite (containing procdump) immediately preceding the lsass access; no dump utility command line observed, so generic OS Credential Dumping.",
+    "incident_id": "I01"
+  },
+  {
+    "title": "Steganographic PowerShell stager opens LSASS with full access on scranton",
+    "technique": "T1003.001",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F01",
+      "F10",
+      "F14",
+      "F17",
+      "F20",
+      "F24",
+      "F34",
+      "F46"
+    ],
+    "rationale": "All describe the same action: hidden PowerShell PID 2976 (parent control.exe, decoding monkey.png) opened lsass.exe with 0x1f3fff/0x1fffff at 03:05:16Z on scranton, plus the wsmprovhost LSASS handle on nashua. LSASS memory access is best fit by T1003.001.",
+    "incident_id": "I02"
+  },
+  {
+    "title": "SAM hive opened with 0xf003f by lsass.exe after attacker tooling",
+    "technique": "T1003.002",
+    "in_scope": true,
+    "assessment": "suspicious",
+    "confidence": "medium",
+    "finding_ids": [
+      "F56"
+    ],
+    "rationale": "Five 4656 events show SAM opened with 0xf003f by lsass.exe right after attacker LSASS access and cleanup; Security Account Manager.",
+    "incident_id": "I03"
+  },
+  {
+    "title": "Clipboard harvesting via Get-Clipboard in pbeesly session",
+    "technique": "T1056",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "medium",
+    "finding_ids": [
+      "F11"
+    ],
+    "rationale": "Get-Clipboard executed in the compromised session to harvest copied secrets; input capture, no keylogger code found.",
+    "incident_id": "I04"
+  },
+  {
+    "title": "Masqueraded .scr dropper and hidden steganographic PowerShell stager",
+    "technique": "T1056",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F59"
+    ],
+    "rationale": "ProgramData screen-saver dropper wrote monkey.png and control.exe launched the hidden stager that drove the credential-theft chain; input capture grouping.",
+    "incident_id": "I05"
+  },
+  {
+    "title": "PowerShell-driven csc.exe compiled attacker DLLs in Temp",
+    "technique": "T1056",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F61"
+    ],
+    "rationale": "csc.exe invoked by attacker PowerShell to compile DLLs in user Temp; grouped under input capture as the credential-access-adjacent action.",
+    "incident_id": "I06"
+  },
+  {
+    "title": "cmd.exe from .scr dropper launched attacker PowerShell chain",
+    "technique": "T1056",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F62"
+    ],
+    "rationale": "cmd.exe spawned by the .scr dropper launched the PowerShell chain performing credential theft.",
+    "incident_id": "I07"
+  },
+  {
+    "title": "Credential-harvesting toolkit: accesschk passwordsDB, discovery, archive staging",
+    "technique": "T1552.001",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F27",
+      "F58"
+    ],
+    "rationale": "accesschk.exe wrote passwordsDB and cleartext pbeesly credentials were reused in PsExec64; credentials in files is the best fit for the collected credential artifacts.",
+    "incident_id": "I08"
+  },
+  {
+    "title": "Nashua: PsExec-launched python.exe ran credential-file harvesting and RAR staging",
+    "technique": "T1552.001",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F54"
+    ],
+    "rationale": "PowerShell collected *pass*/*login*/*admin* files into working.zip and password-protected it; credentials in files.",
+    "incident_id": "I09"
+  },
+  {
+    "title": "Registry reads of LSA and Winlogon keys by powershell.exe",
+    "technique": "T1552.002",
+    "in_scope": true,
+    "assessment": "suspicious",
+    "confidence": "medium",
+    "finding_ids": [
+      "F28"
+    ],
+    "rationale": "4663 events show powershell.exe reading LSA and Winlogon registry keys in the attacker session; credentials in registry.",
+    "incident_id": "I10"
+  },
+  {
+    "title": "sdclt.exe spawned by cmd.exe in attacker session",
+    "technique": "T1552.002",
+    "in_scope": true,
+    "assessment": "suspicious",
+    "confidence": "low",
+    "finding_ids": [
+      "F63"
+    ],
+    "rationale": "sdclt.exe started by cmd.exe just before the csc.exe compile; no credential access by sdclt observed, low confidence registry-credential context.",
+    "incident_id": "I11"
+  },
+  {
+    "title": "Private-key/certificate export and credential-store theft on scranton",
+    "technique": "T1552.004",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F26",
+      "F30",
+      "F53",
+      "F55"
+    ],
+    "rationale": "Get-PrivateKeys exported every LocalMachine certificate private key to a password-protected .pfx, followed by LSASS access and cleanup; private key theft is the best fit.",
+    "incident_id": "I12"
+  },
+  {
+    "title": "User credential-bearing files archived and staged for exfiltration",
+    "technique": "T1555.003",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "medium",
+    "finding_ids": [
+      "F57"
+    ],
+    "rationale": "Draft.Zip written and Downloads compressed into OfficeSupplies.7z then deleted; browser credential store theft is the closest in-scope fit for the user credential-file collection.",
+    "incident_id": "I13"
+  },
+  {
+    "title": "No Credential Manager/Vault access; LSASS handle is the only store-relevant hit",
+    "technique": "T1555.004",
+    "in_scope": true,
+    "assessment": "suspicious",
+    "confidence": "medium",
+    "finding_ids": [
+      "F31"
+    ],
+    "rationale": "Finding explicitly reports no Credential Manager activity; the only credential-store-relevant event is the LSASS handle, assessed under Windows Credential Manager as the closest in-scope store technique.",
+    "incident_id": "I14"
+  },
+  {
+    "title": "Adversary-in-the-middle positioning confirmed by L2 redirection",
+    "technique": "T1557",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "medium",
+    "finding_ids": [
+      "F43"
+    ],
+    "rationale": "L2 redirection and self-signed cert notices establish AiTM; ARP/ROUTE/ipconfig hits attributed to Azure guest agent are benign.",
+    "incident_id": "I15"
+  },
+  {
+    "title": "SMB session to NASHUA relayed through rogue MAC with SAMR/LSAR enumeration",
+    "technique": "T1557.001",
+    "in_scope": true,
+    "assessment": "suspicious",
+    "confidence": "medium",
+    "finding_ids": [
+      "F42"
+    ],
+    "rationale": "SMB 445 flows to 10.0.1.6 delivered via the rogue MAC with DCE-RPC SAMR/LSAR enumeration; name resolution poisoning and SMB relay.",
+    "incident_id": "I16"
+  },
+  {
+    "title": "ARP cache poisoning: single MAC fronts all off-subnet destinations",
+    "technique": "T1557.002",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F41"
+    ],
+    "rationale": "One MAC (12:34:56:78:9a:bc) is L2 responder for three different subnets, the signature of ARP cache poisoning.",
+    "incident_id": "I17"
+  },
+  {
+    "title": "WebDAV cookie set during exfiltration staging; no browser cookie theft",
+    "technique": "T1606.001",
+    "in_scope": true,
+    "assessment": "suspicious",
+    "confidence": "medium",
+    "finding_ids": [
+      "F51"
+    ],
+    "rationale": "Only cookie activity is davclnt.dll DavSetCookie for WebDAV exfil; no browser cookie theft or forgery observed.",
+    "incident_id": "I18"
+  }
+]

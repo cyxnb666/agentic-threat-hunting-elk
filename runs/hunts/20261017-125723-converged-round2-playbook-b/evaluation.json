@@ -1,0 +1,64 @@
+{
+  "run": "20261017-125723-converged-round2-playbook-b",
+  "verdict": "Confirmed",
+  "steps": {
+    "6.A": {
+      "found": true,
+      "by": [
+        "F07",
+        "F28"
+      ],
+      "technique_ok": false,
+      "what": "Chrome password collector run as ...\\SysinternalsSuite\\accesschk.exe"
+    },
+    "6.B": {
+      "found": true,
+      "by": [
+        "F07",
+        "F01",
+        "F27",
+        "F61",
+        "F37",
+        "F52",
+        "F56",
+        "F32"
+      ],
+      "technique_ok": true,
+      "what": "Get-PrivateKeys run in PowerShell, PFX file written"
+    },
+    "6.C": {
+      "found": true,
+      "by": [
+        "F01",
+        "F10",
+        "F17",
+        "F23",
+        "F36",
+        "F47",
+        "F52",
+        "F32",
+        "F34"
+      ],
+      "technique_ok": true,
+      "what": "password hashes dumped (PowerShell process opening lsass.exe)"
+    }
+  },
+  "found": 3,
+  "of": 3,
+  "other_malicious_or_suspicious_findings": [
+    "F64 T1003 Sysinternals credential-access toolchain executed by pbeesly",
+    "F63 T1003.001 LSASS handle 0x1f3fff from WinRM host on nashua",
+    "F11 T1056 Lateral movement to nashua: wsmprovhost and dropped python.exe open LSASS with full access",
+    "F57 T1056.001 pbeesly ran Get-Keystrokes keylogger job on scranton",
+    "F58 T1056.002 pbeesly read clipboard on scranton",
+    "F21 T1187 Forced authentication via WebDAV/UNC coercion from scranton.dmevals.local to 192.168.0.4",
+    "F25 T1539 Hidden PowerShell stager on scranton.dmevals.local opened Microsoft Edge processes with PROCESS_ALL_ACCESS (0x1fffff) \u2014 consistent with in-memory browser session-cookie theft",
+    "F29 T1552 Unsecured credentials staged and exfiltrated via Invoke-Exfil on scranton",
+    "F62 T1552 Plaintext credentials used in PsExec and WebDAV exfil",
+    "F60 T1552.001 Credential-hunting archive on nashua",
+    "F59 T1555.004 wsmprovhost opened LSASS 0x1f3fff on nashua after process-owner enumeration",
+    "F09 T1040 Attacker python.exe on nashua is a C2/exfil client, not a sniffer",
+    "F66 T1552 hostui.exe launched by PowerShell on scranton",
+    "F67 T1552 sdclt.exe spawned by cmd on scranton"
+  ]
+}

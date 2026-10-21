@@ -1,0 +1,118 @@
+[
+  {
+    "title": "LSASS memory accessed with full-access masks by PowerShell (scranton) and wsmprovhost (nashua) under pbeesly",
+    "technique": "T1003.001",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F01",
+      "F08",
+      "F15",
+      "F21",
+      "F28",
+      "F32",
+      "F43"
+    ],
+    "rationale": "All describe the same LSASS handle events: PowerShell.exe PID 2976 on scranton.dmevals.local opening lsass.exe with 0x1f3fff/0x1fffff at 2020-05-02T03:05:16Z and wsmprovhost.exe PID 7720 on nashua.dmevals.local with 0x1f3fff at 03:09:29Z. The best-fitting in-scope technique is T1003.001 (LSASS Memory); the other technique labels (T1056.004, T1110.002, T1212, T1555, T1556, T1558) are alternative interpretations of the same events, and F15/F21 explicitly note no cracking or exploitation was observed.",
+    "incident_id": "I01"
+  },
+  {
+    "title": "SAM_SERVER and SamSs registry handles requested by lsass.exe on scranton",
+    "technique": "T1003.002",
+    "in_scope": true,
+    "assessment": "suspicious",
+    "confidence": "low",
+    "finding_ids": [
+      "F02"
+    ],
+    "rationale": "Security 4656 events show handles to the SAM object (SAM_SERVER, AccessMask 0xf003f) and to the SamSs service registry key requested by lsass.exe on scranton.dmevals.local; this is the SAM credential-dumping technique, assessed suspicious/low confidence.",
+    "incident_id": "I02"
+  },
+  {
+    "title": "Hardcoded plaintext passwords in attacker PowerShell tooling on SCRANTON",
+    "technique": "T1552",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F27"
+    ],
+    "rationale": "Script blocks contain hardcoded plaintext secrets ('saribas', 'lolol', 'MyCozyPassw0rd!') used by the attacker tooling, combined with the credential file sweep and certificate export — unsecured credentials in attacker tooling on a compromised host.",
+    "incident_id": "I03"
+  },
+  {
+    "title": "Recursive user-profile sweep for password/login-named files archived to Draft.Zip on SCRANTON",
+    "technique": "T1552.001",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F24"
+    ],
+    "rationale": "PowerShell recursively enumerated the user profile for *psw*/*pass*/*login*/*admin*/*vpn files and archived them to Draft.Zip — searching user files for stored credentials (Credentials In Files).",
+    "incident_id": "I04"
+  },
+  {
+    "title": "PowerShell Get-PrivateKeys exported LocalMachine certificate private keys to .pfx on SCRANTON",
+    "technique": "T1552.004",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F18",
+      "F23",
+      "F51"
+    ],
+    "rationale": "All describe the same Get-PrivateKeys script block (from readme.ps1) enumerating cert:\\LocalMachine and exporting every certificate with a private key to a password-protected .pfx in pbeesly's Downloads, later staged into OfficeSupplies.7z. The best-fitting in-scope technique is T1552.004 (Private Keys); T1649 is an alternative label for the same action.",
+    "incident_id": "I05"
+  },
+  {
+    "title": "SMB/RPC/WinRM traffic carried by spoofed MAC and NetBIOS name-service broadcasts",
+    "technique": "T1557.001",
+    "in_scope": true,
+    "assessment": "suspicious",
+    "confidence": "medium",
+    "finding_ids": [
+      "F40"
+    ],
+    "rationale": "The poisoned L2 path carries SMB/RPC/WinRM toward 10.0.1.6 and NetBIOS name-service broadcasts are on the wire, positioning the attacker for name-resolution poisoning/SMB relay; no relayed authentication is directly proven, so assessed suspicious.",
+    "incident_id": "I06"
+  },
+  {
+    "title": "ARP cache poisoning: second MAC impersonating 10.0.1.4",
+    "technique": "T1557.002",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F39"
+    ],
+    "rationale": "A second MAC (fc:bd:67:e1:a9:c1) appears as orig_l2_addr for source IP 10.0.1.4 interleaved with the legitimate NIC MAC — ARP cache poisoning.",
+    "incident_id": "I07"
+  },
+  {
+    "title": "PsExec reuse of known pbeesly credentials to move to NASHUA",
+    "technique": "out-of-scope:T1021.002",
+    "in_scope": false,
+    "assessment": "suspicious",
+    "confidence": "medium",
+    "finding_ids": [
+      "F16"
+    ],
+    "rationale": "The 4648 explicit-credential events pair with PsExec64.exe run on scranton.dmevals.local using the cleartext pbeesly password to launch python.exe on NASHUA; no password spraying occurred. This is remote-service lateral movement, not credential access.",
+    "incident_id": "I08"
+  },
+  {
+    "title": "Suspicious .scr and python.exe payloads opening full-access handles to conhost/cmd/powershell",
+    "technique": "out-of-scope:T1059",
+    "in_scope": false,
+    "assessment": "suspicious",
+    "confidence": "medium",
+    "finding_ids": [
+      "F09"
+    ],
+    "rationale": "The observed action is execution of a malicious screen-saver and dropped python.exe payloads that open 0x1FFFFF handles to console/shell processes; this is process execution/injection behavior rather than credential access, so it is out of scope.",
+    "incident_id": "I09"
+  }
+]

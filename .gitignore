@@ -1,0 +1,24 @@
+# Secrets and local state
+.env
+elk/certs/
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Downloaded datasets and generated data (large, re-downloadable)
+data/
+# copies of the sources delivered through the pull channel
+dropzone/*
+!dropzone/.gitkeep
+# full LLM transcripts are large (~70 MB); reports, plans, results and MCP audit logs are kept
+runs/**/llm_calls.jsonl
+runs/**/mcp_server.log
+
+# Editor / OS
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store

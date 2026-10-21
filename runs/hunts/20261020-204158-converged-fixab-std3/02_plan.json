@@ -1,0 +1,4892 @@
+{
+  "checks": [
+    {
+      "technique": "T1003",
+      "dataset": "windows.sysmon",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.sysmon",
+        "field": "process.executable",
+        "query": "event.code:1",
+        "size": 100
+      },
+      "purpose": "Stack all process creations to spot rare credential-dumping tooling (mimikatz, procdump, rundll32 comsvcs, etc.)",
+      "check_id": "C001"
+    },
+    {
+      "technique": "T1003",
+      "dataset": "windows.sysmon",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.sysmon",
+        "field": "win.GrantedAccess",
+        "query": "event.code:10",
+        "size": 100
+      },
+      "purpose": "Stack process-access GrantedAccess masks to find LSASS/credential-store reads",
+      "check_id": "C002"
+    },
+    {
+      "technique": "T1003",
+      "dataset": "windows.security",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "win.ObjectName",
+        "query": "event.code:4663",
+        "size": 100
+      },
+      "purpose": "Stack object-access targets to find SAM/SECURITY hive or credential file reads",
+      "check_id": "C003"
+    },
+    {
+      "technique": "T1003",
+      "dataset": "windows.security",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "process.executable",
+        "query": "event.code:4688",
+        "size": 100
+      },
+      "purpose": "Stack process creations for dumping tools",
+      "check_id": "C004"
+    },
+    {
+      "technique": "T1003",
+      "dataset": "windows.powershell",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.powershell",
+        "query": "event.code:4104 AND (win.ScriptBlockText:*mimikatz* OR win.ScriptBlockText:*lsass* OR win.ScriptBlockText:*sekurlsa* OR win.ScriptBlockText:*procdump* OR win.ScriptBlockText:*MiniDump*)",
+        "size": 50
+      },
+      "purpose": "Find script blocks referencing credential dumping",
+      "check_id": "C005"
+    },
+    {
+      "technique": "T1003",
+      "dataset": "windows.other",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.other",
+        "query": "event.code:7045",
+        "size": 50
+      },
+      "purpose": "Inspect newly installed services that could be credential dumpers",
+      "check_id": "C006"
+    },
+    {
+      "technique": "T1003.001",
+      "dataset": "windows.sysmon",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.sysmon",
+        "query": "event.code:10 AND win.TargetImage:*lsass*",
+        "size": 100
+      },
+      "purpose": "Find any process opening a handle to lsass.exe",
+      "check_id": "C007"
+    },
+    {
+      "technique": "T1003.001",
+      "dataset": "windows.sysmon",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.sysmon",
+        "field": "win.SourceImage",
+        "query": "event.code:10 AND win.TargetImage:*lsass*",
+        "size": 100
+      },
+      "purpose": "Stack source images accessing LSASS to find non-standard dumpers",
+      "check_id": "C008"
+    },
+    {
+      "technique": "T1003.001",
+      "dataset": "windows.sysmon",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.sysmon",
+        "field": "win.GrantedAccess",
+        "query": "event.code:10 AND win.TargetImage:*lsass*",
+        "size": 100
+      },
+      "purpose": "Look for 0x1010/0x1410 style LSASS read masks",
+      "check_id": "C009"
+    },
+    {
+      "technique": "T1003.001",
+      "dataset": "windows.sysmon",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.sysmon",
+        "query": "event.code:11 AND (win.TargetFilename:*lsass* OR win.TargetFilename:*.dmp)",
+        "size": 100
+      },
+      "purpose": "Find dump files written (e.g. lsass.dmp)",
+      "check_id": "C010"
+    },
+    {
+      "technique": "T1003.001",
+      "dataset": "windows.sysmon",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.sysmon",
+        "query": "event.code:1 AND (process.command_line:*lsass* OR process.command_line:*comsvcs* OR process.command_line:*MiniDump*)",
+        "size": 100
+      },
+      "purpose": "Find processes launched to dump LSASS memory",
+      "check_id": "C011"
+    },
+    {
+      "technique": "T1003.001",
+      "dataset": "windows.security",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "win.ProcessName",
+        "query": "event.code:4673",
+        "size": 100
+      },
+      "purpose": "Stack sensitive-privilege use (SeDebugPrivilege etc.) by process",
+      "check_id": "C012"
+    },
+    {
+      "technique": "T1003.001",
+      "dataset": "windows.security",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "win.ObjectName",
+        "query": "event.code:4656 AND win.ObjectType:*Process*",
+        "size": 100
+      },
+      "purpose": "Find handle requests to process objects such as lsass",
+      "check_id": "C013"
+    },
+    {
+      "technique": "T1003.001",
+      "dataset": "windows.powershell",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.powershell",
+        "query": "event.code:4104 AND (win.ScriptBlockText:*lsass* OR win.ScriptBlockText:*MiniDump* OR win.ScriptBlockText:*sekurlsa*)",
+        "size": 50
+      },
+      "purpose": "Find PowerShell LSASS dumping scripts",
+      "check_id": "C014"
+    },
+    {
+      "technique": "T1003.001",
+      "dataset": "windows.other",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.other",
+        "query": "event.code:10 OR event.code:11",
+        "size": 50
+      },
+      "purpose": "Inspect process-access/file-create events in the other channel for LSASS/dump artifacts",
+      "check_id": "C015"
+    },
+    {
+      "technique": "T1003.002",
+      "dataset": "windows.sysmon",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.sysmon",
+        "query": "event.code:11 AND (win.TargetFilename:*SAM* OR win.TargetFilename:*SECURITY* OR win.TargetFilename:*SYSTEM*)",
+        "size": 100
+      },
+      "purpose": "Find registry hive copies/dumps written to disk",
+      "check_id": "C016"
+    },
+    {
+      "technique": "T1003.002",
+      "dataset": "windows.sysmon",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.sysmon",
+        "query": "event.code:1 AND (process.command_line:*reg\\ save* OR process.command_line:*reg.exe* OR process.command_line:*save*HKLM*)",
+        "size": 100
+      },
+      "purpose": "Find reg save / hive export commands",
+      "check_id": "C017"
+    },
+    {
+      "technique": "T1003.002",
+      "dataset": "windows.sysmon",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.sysmon",
+        "query": "event.code:2 AND (win.TargetFilename:*SAM* OR win.TargetFilename:*SECURITY*)",
+        "size": 100
+      },
+      "purpose": "Detect file creation time changes on hive files",
+      "check_id": "C018"
+    },
+    {
+      "technique": "T1003.002",
+      "dataset": "windows.security",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "process.command_line",
+        "query": "event.code:4688 AND (process.command_line:*reg* OR process.command_line:*save*)",
+        "size": 100
+      },
+      "purpose": "Stack command lines of reg/save executions",
+      "check_id": "C019"
+    },
+    {
+      "technique": "T1003.002",
+      "dataset": "windows.security",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "win.ObjectName",
+        "query": "event.code:4663 AND (win.ObjectName:*SAM* OR win.ObjectName:*SECURITY*)",
+        "size": 100
+      },
+      "purpose": "Find object access to SAM/SECURITY registry keys",
+      "check_id": "C020"
+    },
+    {
+      "technique": "T1003.002",
+      "dataset": "windows.powershell",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.powershell",
+        "query": "event.code:4104 AND (win.ScriptBlockText:*reg* AND win.ScriptBlockText:*save* OR win.ScriptBlockText:*SAM*)",
+        "size": 50
+      },
+      "purpose": "Find PowerShell hive export scripts",
+      "check_id": "C021"
+    },
+    {
+      "technique": "T1003.002",
+      "dataset": "windows.other",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.other",
+        "query": "event.code:11 OR event.code:1",
+        "size": 50
+      },
+      "purpose": "Inspect file-create/process events in other channel for hive dumps",
+      "check_id": "C022"
+    },
+    {
+      "technique": "T1003.003",
+      "dataset": "windows.sysmon",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.sysmon",
+        "query": "event.code:11 AND win.TargetFilename:*ntds*",
+        "size": 100
+      },
+      "purpose": "Find NTDS.dit copies written to disk",
+      "check_id": "C023"
+    },
+    {
+      "technique": "T1003.003",
+      "dataset": "windows.sysmon",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.sysmon",
+        "query": "event.code:1 AND (process.command_line:*ntds* OR process.command_line:*vssadmin* OR process.command_line:*ntdsutil* OR process.command_line:*diskshadow*)",
+        "size": 100
+      },
+      "purpose": "Find NTDS extraction / shadow copy commands",
+      "check_id": "C024"
+    },
+    {
+      "technique": "T1003.003",
+      "dataset": "windows.sysmon",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.sysmon",
+        "query": "event.code:2 AND win.TargetFilename:*ntds*",
+        "size": 100
+      },
+      "purpose": "Detect file creation time changes on NTDS.dit",
+      "check_id": "C025"
+    },
+    {
+      "technique": "T1003.003",
+      "dataset": "windows.security",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "process.command_line",
+        "query": "event.code:4688 AND (process.command_line:*ntdsutil* OR process.command_line:*vssadmin* OR process.command_line:*diskshadow*)",
+        "size": 100
+      },
+      "purpose": "Stack shadow copy / ntdsutil command lines",
+      "check_id": "C026"
+    },
+    {
+      "technique": "T1003.003",
+      "dataset": "windows.security",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "win.ObjectName",
+        "query": "event.code:4663 AND win.ObjectName:*ntds*",
+        "size": 100
+      },
+      "purpose": "Find object access to NTDS.dit",
+      "check_id": "C027"
+    },
+    {
+      "technique": "T1003.003",
+      "dataset": "windows.powershell",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.powershell",
+        "query": "event.code:4104 AND (win.ScriptBlockText:*ntds* OR win.ScriptBlockText:*vssadmin* OR win.ScriptBlockText:*diskshadow*)",
+        "size": 50
+      },
+      "purpose": "Find PowerShell NTDS/shadow copy scripts",
+      "check_id": "C028"
+    },
+    {
+      "technique": "T1003.003",
+      "dataset": "windows.other",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.other",
+        "query": "event.code:7045 OR event.code:11",
+        "size": 50
+      },
+      "purpose": "Inspect service installs/file creates that could be VSS or NTDS extraction",
+      "check_id": "C029"
+    },
+    {
+      "technique": "T1003.004",
+      "dataset": "windows.sysmon",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.sysmon",
+        "query": "event.code:10 AND (win.TargetImage:*lsass* OR win.TargetImage:*services*)",
+        "size": 100
+      },
+      "purpose": "Find process access to LSASS/services for LSA secret dumping",
+      "check_id": "C030"
+    },
+    {
+      "technique": "T1003.004",
+      "dataset": "windows.sysmon",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.sysmon",
+        "query": "event.code:7 AND (win.ImageLoaded:*lsass* OR win.ImageLoaded:*secrets* OR win.ImageLoaded:*vault*)",
+        "size": 100
+      },
+      "purpose": "Find modules loaded into LSASS or credential DLLs",
+      "check_id": "C031"
+    },
+    {
+      "technique": "T1003.004",
+      "dataset": "windows.sysmon",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.sysmon",
+        "query": "event.code:1 AND (process.command_line:*secrets* OR process.command_line:*lsadump* OR process.command_line:*cache*)",
+        "size": 100
+      },
+      "purpose": "Find LSA secret dumping commands",
+      "check_id": "C032"
+    },
+    {
+      "technique": "T1003.004",
+      "dataset": "windows.security",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "win.ObjectName",
+        "query": "event.code:4663 AND (win.ObjectName:*SECURITY*Policy*Secrets* OR win.ObjectName:*SECURITY*)",
+        "size": 100
+      },
+      "purpose": "Find registry access to SECURITY\\Policy\\Secrets",
+      "check_id": "C033"
+    },
+    {
+      "technique": "T1003.004",
+      "dataset": "windows.security",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "win.ProcessName",
+        "query": "event.code:4656 AND win.ObjectName:*SECURITY*",
+        "size": 100
+      },
+      "purpose": "Stack processes requesting handles to SECURITY hive keys",
+      "check_id": "C034"
+    },
+    {
+      "technique": "T1003.004",
+      "dataset": "windows.powershell",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.powershell",
+        "query": "event.code:4104 AND (win.ScriptBlockText:*lsadump* OR win.ScriptBlockText:*Secrets* OR win.ScriptBlockText:*vault*)",
+        "size": 50
+      },
+      "purpose": "Find PowerShell LSA secret harvesting scripts",
+      "check_id": "C035"
+    },
+    {
+      "technique": "T1003.004",
+      "dataset": "windows.other",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.other",
+        "query": "event.code:10 OR event.code:11",
+        "size": 50
+      },
+      "purpose": "Inspect process-access/file events in other channel for secret dumping",
+      "check_id": "C036"
+    },
+    {
+      "technique": "T1003.005",
+      "dataset": "windows.sysmon",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.sysmon",
+        "query": "event.code:10 AND (win.TargetImage:*lsass* OR win.TargetImage:*svchost*)",
+        "size": 100
+      },
+      "purpose": "Find process access to LSASS for cached credential extraction",
+      "check_id": "C037"
+    },
+    {
+      "technique": "T1003.005",
+      "dataset": "windows.sysmon",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.sysmon",
+        "query": "event.code:1 AND (process.command_line:*cache* OR process.command_line:*dcc* OR process.command_line:*mscache* OR process.command_line:*lsadump*)",
+        "size": 100
+      },
+      "purpose": "Find cached-credential dumping commands",
+      "check_id": "C038"
+    },
+    {
+      "technique": "T1003.005",
+      "dataset": "windows.security",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "win.ObjectName",
+        "query": "event.code:4663 AND (win.ObjectName:*SECURITY*Cache* OR win.ObjectName:*SECURITY*)",
+        "size": 100
+      },
+      "purpose": "Find registry access to SECURITY\\Cache (cached domain credentials)",
+      "check_id": "C039"
+    },
+    {
+      "technique": "T1003.005",
+      "dataset": "windows.security",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "win.ProcessName",
+        "query": "event.code:4656 AND win.ObjectName:*SECURITY*",
+        "size": 100
+      },
+      "purpose": "Stack processes requesting handles to SECURITY hive keys",
+      "check_id": "C040"
+    },
+    {
+      "technique": "T1003.005",
+      "dataset": "windows.powershell",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.powershell",
+        "query": "event.code:4104 AND (win.ScriptBlockText:*mscache* OR win.ScriptBlockText:*cache* OR win.ScriptBlockText:*dcc*)",
+        "size": 50
+      },
+      "purpose": "Find PowerShell cached-credential scripts",
+      "check_id": "C041"
+    },
+    {
+      "technique": "T1003.005",
+      "dataset": "windows.other",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.other",
+        "query": "event.code:10 OR event.code:11",
+        "size": 50
+      },
+      "purpose": "Inspect process-access/file events in other channel for cache dumping",
+      "check_id": "C042"
+    },
+    {
+      "technique": "T1003.006",
+      "dataset": "windows.security",
+      "tool": "count",
+      "args": {
+        "dataset": "windows.security",
+        "query": "event.code:4662"
+      },
+      "purpose": "Count directory-service access events (4662) that DCSync replication abuse would generate; baseline is zero in the listed event-code distribution.",
+      "check_id": "C043"
+    },
+    {
+      "technique": "T1003.006",
+      "dataset": "windows.security",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "win.Properties",
+        "query": "event.code:4662",
+        "size": 50
+      },
+      "purpose": "If any 4662 exist, stack the requested properties to spot replication GUIDs (1131f6aa-.../1131f6ad-...) used by DCSync.",
+      "check_id": "C044"
+    },
+    {
+      "technique": "T1003.006",
+      "dataset": "windows.sysmon",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.sysmon",
+        "field": "process.executable",
+        "query": "event.code:10 AND (win.TargetImage:*lsass* OR win.TargetImage:*ntds*)",
+        "size": 50
+      },
+      "purpose": "Stack processes opening LSASS/NTDS handles, which precedes credential replication/dumping.",
+      "check_id": "C045"
+    },
+    {
+      "technique": "T1003.006",
+      "dataset": "windows.other",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.other",
+        "query": "event.code:7045",
+        "size": 50
+      },
+      "purpose": "Review newly installed services (7045) that could host a credential-replication tool.",
+      "check_id": "C046"
+    },
+    {
+      "technique": "T1003.006",
+      "dataset": "windows.powershell",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.powershell",
+        "query": "event.code:4104 AND (win.ScriptBlockText:*DCSync* OR win.ScriptBlockText:*DirectorySearcher* OR win.ScriptBlockText:*Get-ADReplAccount* OR win.ScriptBlockText:*lsass*)",
+        "size": 50
+      },
+      "purpose": "Look for script blocks implementing DCSync or LSASS access.",
+      "check_id": "C047"
+    },
+    {
+      "technique": "T1040",
+      "dataset": "windows.security",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "process.executable",
+        "query": "event.code:4688 AND (process.command_line:*pcap* OR process.command_line:*netsh* OR process.command_line:*promisc* OR process.command_line:*windump* OR process.command_line:*tcpdump* OR process.command_line:*rawcap*)",
+        "size": 50
+      },
+      "purpose": "Stack processes whose command lines indicate packet capture or promiscuous-mode setup.",
+      "check_id": "C048"
+    },
+    {
+      "technique": "T1040",
+      "dataset": "windows.other",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.other",
+        "query": "event.code:7045",
+        "size": 50
+      },
+      "purpose": "Inspect installed services (7045) for capture drivers/agents (e.g. npcap, WinPcap).",
+      "check_id": "C049"
+    },
+    {
+      "technique": "T1040",
+      "dataset": "windows.sysmon",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.sysmon",
+        "field": "win.Image",
+        "query": "event.code:1 AND (process.command_line:*pcap* OR process.command_line:*netsh* OR process.command_line:*promisc* OR process.command_line:*windump* OR process.command_line:*tcpdump*)",
+        "size": 50
+      },
+      "purpose": "Stack process images launched with capture-related command lines.",
+      "check_id": "C050"
+    },
+    {
+      "technique": "T1040",
+      "dataset": "windows.powershell",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.powershell",
+        "query": "event.code:4104 AND (win.ScriptBlockText:*pcap* OR win.ScriptBlockText:*promisc* OR win.ScriptBlockText:*NetSh* OR win.ScriptBlockText:*WinDivert*)",
+        "size": 50
+      },
+      "purpose": "Find PowerShell scripts configuring sniffing or capture drivers.",
+      "check_id": "C051"
+    },
+    {
+      "technique": "T1056",
+      "dataset": "windows.sysmon",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.sysmon",
+        "field": "win.GrantedAccess",
+        "query": "event.code:10 AND (win.TargetImage:*lsass* OR win.TargetImage:*winlogon* OR win.TargetImage:*explorer*)",
+        "size": 50
+      },
+      "purpose": "Stack granted-access masks on sensitive processes to spot credential-API hooking/reading (e.g. 0x1010, 0x1410).",
+      "check_id": "C052"
+    },
+    {
+      "technique": "T1056",
+      "dataset": "windows.security",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "win.ObjectName",
+        "query": "event.code:4656 OR event.code:4663 OR event.code:4670",
+        "size": 50
+      },
+      "purpose": "Stack objects accessed under handle/object-access auditing to find reads of credential stores or LSASS-related objects.",
+      "check_id": "C053"
+    },
+    {
+      "technique": "T1056",
+      "dataset": "windows.security",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "process.executable",
+        "query": "event.code:4663 AND (win.ObjectName:*lsass* OR win.ObjectName:*SAM* OR win.ObjectName:*SECURITY* OR win.ObjectName:*Credential*)",
+        "size": 50
+      },
+      "purpose": "Identify processes touching credential-related objects.",
+      "check_id": "C054"
+    },
+    {
+      "technique": "T1056",
+      "dataset": "windows.powershell",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.powershell",
+        "query": "event.code:4104 AND (win.ScriptBlockText:*GetAsyncKeyState* OR win.ScriptBlockText:*SetWindowsHookEx* OR win.ScriptBlockText:*GetKeyboardState* OR win.ScriptBlockText:*Credential*)",
+        "size": 50
+      },
+      "purpose": "Look for scripts using input-capture or credential APIs.",
+      "check_id": "C055"
+    },
+    {
+      "technique": "T1056.001",
+      "dataset": "windows.sysmon",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.sysmon",
+        "field": "win.Image",
+        "query": "event.code:10 AND (win.TargetImage:*lsass* OR win.TargetImage:*winlogon* OR win.TargetImage:*csrss*)",
+        "size": 50
+      },
+      "purpose": "Stack images accessing processes that keyloggers hook (LSASS/winlogon/csrss).",
+      "check_id": "C056"
+    },
+    {
+      "technique": "T1056.001",
+      "dataset": "windows.sysmon",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.sysmon",
+        "field": "registry.path",
+        "query": "event.code:13 AND (registry.path:*Keyboard* OR registry.path:*Scancode* OR registry.path:*CurrentControlSet\\\\Control\\\\Keyboard*)",
+        "size": 50
+      },
+      "purpose": "Stack registry modifications to keyboard/scancode map keys used by keyloggers.",
+      "check_id": "C057"
+    },
+    {
+      "technique": "T1056.001",
+      "dataset": "windows.security",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "win.ObjectName",
+        "query": "event.code:4656 OR event.code:4663 OR event.code:4670",
+        "size": 50
+      },
+      "purpose": "Stack audited object accesses for keyboard device or credential-store objects.",
+      "check_id": "C058"
+    },
+    {
+      "technique": "T1056.001",
+      "dataset": "windows.other",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.other",
+        "query": "event.code:7045",
+        "size": 50
+      },
+      "purpose": "Inspect newly installed services that could be keylogger drivers.",
+      "check_id": "C059"
+    },
+    {
+      "technique": "T1056.001",
+      "dataset": "windows.powershell",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.powershell",
+        "query": "event.code:4104 AND (win.ScriptBlockText:*GetAsyncKeyState* OR win.ScriptBlockText:*SetWindowsHookEx* OR win.ScriptBlockText:*keylog*)",
+        "size": 50
+      },
+      "purpose": "Find PowerShell keylogging implementations.",
+      "check_id": "C060"
+    },
+    {
+      "technique": "T1056.002",
+      "dataset": "windows.sysmon",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.sysmon",
+        "field": "process.executable",
+        "query": "event.code:1 AND (process.command_line:*Credential* OR process.command_line:*prompt* OR process.command_line:*consent* OR process.command_line:*UAC* OR process.command_line:*runas*)",
+        "size": 50
+      },
+      "purpose": "Stack processes launched with credential-prompt/UAC-bypass style command lines.",
+      "check_id": "C061"
+    },
+    {
+      "technique": "T1056.002",
+      "dataset": "windows.powershell",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.powershell",
+        "query": "event.code:4104 AND (win.ScriptBlockText:*Credential* OR win.ScriptBlockText:*PromptForCredential* OR win.ScriptBlockText:*Get-Credential* OR win.ScriptBlockText:*Windows.Forms*)",
+        "size": 50
+      },
+      "purpose": "Find scripts that build fake credential prompts or GUI dialogs.",
+      "check_id": "C062"
+    },
+    {
+      "technique": "T1056.002",
+      "dataset": "windows.powershell",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.powershell",
+        "query": "event.code:4103 OR event.code:4104",
+        "size": 50
+      },
+      "purpose": "Review module/script-block logging for GUI input-capture tooling.",
+      "check_id": "C063"
+    },
+    {
+      "technique": "T1056.002",
+      "dataset": "windows.security",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "process.executable",
+        "query": "event.code:4688 AND (process.command_line:*Credential* OR process.command_line:*consent* OR process.command_line:*runas*)",
+        "size": 50
+      },
+      "purpose": "Stack process creations tied to credential prompts.",
+      "check_id": "C064"
+    },
+    {
+      "technique": "T1056.003",
+      "dataset": "windows.sysmon",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.sysmon",
+        "field": "win.TargetFilename",
+        "query": "event.code:11 AND (win.TargetFilename:*login* OR win.TargetFilename:*logon* OR win.TargetFilename:*credential* OR win.TargetFilename:*wwwroot* OR win.TargetFilename:*.aspx OR win.TargetFilename:*.php)",
+        "size": 50
+      },
+      "purpose": "Stack file creations of web-portal/login pages or credential-capture files.",
+      "check_id": "C065"
+    },
+    {
+      "technique": "T1056.003",
+      "dataset": "windows.sysmon",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.sysmon",
+        "field": "process.executable",
+        "query": "event.code:1 AND (process.command_line:*wwwroot* OR process.command_line:*inetpub* OR process.command_line:*iis*)",
+        "size": 50
+      },
+      "purpose": "Stack processes manipulating IIS/web content.",
+      "check_id": "C066"
+    },
+    {
+      "technique": "T1056.003",
+      "dataset": "windows.powershell",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.powershell",
+        "query": "event.code:4104 AND (win.ScriptBlockText:*wwwroot* OR win.ScriptBlockText:*inetpub* OR win.ScriptBlockText:*login* OR win.ScriptBlockText:*password*)",
+        "size": 50
+      },
+      "purpose": "Find scripts writing credential-capturing web pages.",
+      "check_id": "C067"
+    },
+    {
+      "technique": "T1056.003",
+      "dataset": "windows.security",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "win.ObjectName",
+        "query": "event.code:4663 AND (win.ObjectName:*wwwroot* OR win.ObjectName:*inetpub*)",
+        "size": 50
+      },
+      "purpose": "Stack audited accesses to web-root files.",
+      "check_id": "C068"
+    },
+    {
+      "technique": "T1056.004",
+      "dataset": "windows.sysmon",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.sysmon",
+        "field": "win.GrantedAccess",
+        "query": "event.code:10",
+        "size": 50
+      },
+      "purpose": "Stack LSASS/process-access GrantedAccess masks to spot non-standard access rights (e.g. 0x1010, 0x1410) used for credential API hooking/reading.",
+      "check_id": "C069"
+    },
+    {
+      "technique": "T1056.004",
+      "dataset": "windows.sysmon",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.sysmon",
+        "field": "process.executable",
+        "query": "event.code:10 AND win.TargetImage:*lsass*",
+        "size": 50
+      },
+      "purpose": "Identify which source processes open handles to lsass.exe; rare/non-standard images indicate credential API hooking or dumping.",
+      "check_id": "C070"
+    },
+    {
+      "technique": "T1056.004",
+      "dataset": "windows.sysmon",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.sysmon",
+        "field": "win.ImageLoaded",
+        "query": "event.code:7",
+        "size": 50
+      },
+      "purpose": "Stack loaded images to find unusual DLLs injected into credential-handling processes (API hooking via image load).",
+      "check_id": "C071"
+    },
+    {
+      "technique": "T1056.004",
+      "dataset": "windows.sysmon",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.sysmon",
+        "query": "event.code:8 AND win.TargetImage:*lsass*",
+        "size": 50
+      },
+      "purpose": "Look for CreateRemoteThread into lsass.exe, a hallmark of API hooking/injection into the credential store.",
+      "check_id": "C072"
+    },
+    {
+      "technique": "T1056.004",
+      "dataset": "windows.security",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "win.CallerProcessName",
+        "query": "event.code:4656 AND win.ObjectName:*lsass*",
+        "size": 50
+      },
+      "purpose": "Stack callers requesting handles to lsass objects to detect non-standard processes accessing credential memory.",
+      "check_id": "C073"
+    },
+    {
+      "technique": "T1056.004",
+      "dataset": "windows.powershell",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.powershell",
+        "query": "event.code:4104 AND (win.ScriptBlockText:*MiniDump* OR win.ScriptBlockText:*lsass* OR win.ScriptBlockText:*VirtualProtect* OR win.ScriptBlockText:*GetProcAddress*)",
+        "size": 50
+      },
+      "purpose": "Find PowerShell scripts referencing LSASS dumping or API hooking primitives (VirtualProtect/GetProcAddress).",
+      "check_id": "C074"
+    },
+    {
+      "technique": "T1056.004",
+      "dataset": "windows.other",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.other",
+        "query": "message:*lsass* OR process.executable:*lsass*",
+        "size": 50
+      },
+      "purpose": "Check miscellaneous Windows logs for lsass-related service/process events that could indicate hooking or tampering.",
+      "check_id": "C075"
+    },
+    {
+      "technique": "T1110",
+      "dataset": "windows.security",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "win.TargetUserName",
+        "query": "event.code:4625",
+        "size": 50
+      },
+      "purpose": "Stack failed logon target accounts to detect repetitive guessing against one or many accounts.",
+      "check_id": "C076"
+    },
+    {
+      "technique": "T1110",
+      "dataset": "windows.security",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "source.ip",
+        "query": "event.code:4625",
+        "size": 50
+      },
+      "purpose": "Stack source IPs of failed logons to find a single origin brute-forcing accounts.",
+      "check_id": "C077"
+    },
+    {
+      "technique": "T1110",
+      "dataset": "windows.security",
+      "tool": "timeline",
+      "args": {
+        "dataset": "windows.security",
+        "query": "event.code:4625",
+        "interval": "1m"
+      },
+      "purpose": "Show failed-logon volume over time to reveal bursty brute-force attempts.",
+      "check_id": "C078"
+    },
+    {
+      "technique": "T1110",
+      "dataset": "windows.sysmon",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.sysmon",
+        "field": "process.executable",
+        "query": "event.code:1 AND (process.command_line:*net* OR process.command_line:*user* OR process.command_line:*password*)",
+        "size": 50
+      },
+      "purpose": "Spot processes/command lines consistent with automated credential-guessing tooling.",
+      "check_id": "C079"
+    },
+    {
+      "technique": "T1110",
+      "dataset": "windows.powershell",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.powershell",
+        "query": "event.code:4104 AND (win.ScriptBlockText:*Credential* OR win.ScriptBlockText:*Brute* OR win.ScriptBlockText:*Password*)",
+        "size": 50
+      },
+      "purpose": "Find PowerShell scripts performing credential guessing/brute force.",
+      "check_id": "C080"
+    },
+    {
+      "technique": "T1110",
+      "dataset": "windows.other",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.other",
+        "query": "message:*logon* OR message:*password*",
+        "size": 50
+      },
+      "purpose": "Check other Windows logs for authentication failure or account-lockout messages indicating brute force.",
+      "check_id": "C081"
+    },
+    {
+      "technique": "T1110",
+      "dataset": "zeek",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "zeek",
+        "field": "destination.port",
+        "query": "event.action:conn",
+        "size": 50
+      },
+      "purpose": "Stack connection destination ports to spot repeated authentication-service connections (e.g. 445/3389/88) consistent with brute force.",
+      "check_id": "C082"
+    },
+    {
+      "technique": "T1110.001",
+      "dataset": "windows.security",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "win.TargetUserName",
+        "query": "event.code:4625",
+        "size": 50
+      },
+      "purpose": "Stack failed-logon accounts to identify systematic password guessing.",
+      "check_id": "C083"
+    },
+    {
+      "technique": "T1110.001",
+      "dataset": "windows.security",
+      "tool": "timeline",
+      "args": {
+        "dataset": "windows.security",
+        "query": "event.code:4625",
+        "interval": "1m"
+      },
+      "purpose": "Show the rate of failed logons to distinguish guessing from isolated mistakes.",
+      "check_id": "C084"
+    },
+    {
+      "technique": "T1110.001",
+      "dataset": "windows.sysmon",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.sysmon",
+        "query": "event.code:1 AND (process.command_line:*hydra* OR process.command_line:*ncrack* OR process.command_line:*medusa*)",
+        "size": 50
+      },
+      "purpose": "Detect execution of password-guessing tools.",
+      "check_id": "C085"
+    },
+    {
+      "technique": "T1110.001",
+      "dataset": "windows.powershell",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.powershell",
+        "query": "event.code:4104 AND (win.ScriptBlockText:*Password* OR win.ScriptBlockText:*Login*)",
+        "size": 50
+      },
+      "purpose": "Find PowerShell scripts iterating over passwords/logins.",
+      "check_id": "C086"
+    },
+    {
+      "technique": "T1110.001",
+      "dataset": "windows.other",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.other",
+        "query": "message:*4625* OR message:*failed*",
+        "size": 50
+      },
+      "purpose": "Check other Windows logs for failed authentication messages.",
+      "check_id": "C087"
+    },
+    {
+      "technique": "T1110.001",
+      "dataset": "zeek",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "zeek",
+        "field": "destination.ip",
+        "query": "event.action:conn AND destination.port:445",
+        "size": 50
+      },
+      "purpose": "Stack SMB destinations to spot repeated connection attempts to one host consistent with password guessing.",
+      "check_id": "C088"
+    },
+    {
+      "technique": "T1110.002",
+      "dataset": "windows.security",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "win.ObjectName",
+        "query": "event.code:4663 OR event.code:4670 OR event.code:4656",
+        "size": 50
+      },
+      "purpose": "Stack objects accessed under file/registry auditing to find reads of SAM/SYSTEM/SECURITY hives or NTDS.dit used for offline cracking.",
+      "check_id": "C089"
+    },
+    {
+      "technique": "T1110.002",
+      "dataset": "windows.security",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "win.ProcessName",
+        "query": "event.code:4663 AND (win.ObjectName:*SAM* OR win.ObjectName:*SYSTEM* OR win.ObjectName:*SECURITY* OR win.ObjectName:*ntds*)",
+        "size": 50
+      },
+      "purpose": "Identify processes reading credential hive files, indicating hash extraction for cracking.",
+      "check_id": "C090"
+    },
+    {
+      "technique": "T1110.002",
+      "dataset": "windows.sysmon",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.sysmon",
+        "query": "event.code:1 AND (process.command_line:*reg*save* OR process.command_line:*ntdsutil* OR process.command_line:*vssadmin*)",
+        "size": 50
+      },
+      "purpose": "Detect hive/NTDS dumping commands whose output is later cracked.",
+      "check_id": "C091"
+    },
+    {
+      "technique": "T1110.002",
+      "dataset": "windows.sysmon",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.sysmon",
+        "field": "win.TargetFilename",
+        "query": "event.code:11 AND (win.TargetFilename:*.dit OR win.TargetFilename:*.hiv OR win.TargetFilename:*.dmp)",
+        "size": 50
+      },
+      "purpose": "Stack created dump/hive files that would be cracked offline.",
+      "check_id": "C092"
+    },
+    {
+      "technique": "T1110.002",
+      "dataset": "windows.sysmon",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.sysmon",
+        "field": "process.executable",
+        "query": "event.code:10 AND win.TargetImage:*lsass*",
+        "size": 50
+      },
+      "purpose": "Find processes accessing LSASS memory to obtain hashes for cracking.",
+      "check_id": "C093"
+    },
+    {
+      "technique": "T1110.002",
+      "dataset": "windows.powershell",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.powershell",
+        "query": "event.code:4104 AND (win.ScriptBlockText:*hashcat* OR win.ScriptBlockText:*john* OR win.ScriptBlockText:*Invoke-Mimikatz*)",
+        "size": 50
+      },
+      "purpose": "Find PowerShell referencing cracking tools or hash-dumping modules.",
+      "check_id": "C094"
+    },
+    {
+      "technique": "T1110.002",
+      "dataset": "windows.other",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.other",
+        "query": "message:*SAM* OR message:*ntds*",
+        "size": 50
+      },
+      "purpose": "Check other Windows logs for hive/NTDS access or dump messages.",
+      "check_id": "C095"
+    },
+    {
+      "technique": "T1110.002",
+      "dataset": "zeek",
+      "tool": "search",
+      "args": {
+        "dataset": "zeek",
+        "query": "event.action:smb_files",
+        "size": 50
+      },
+      "purpose": "Inspect SMB file transfers for exfiltration of dumped hive/NTDS files to be cracked elsewhere.",
+      "check_id": "C096"
+    },
+    {
+      "technique": "T1110.003",
+      "dataset": "windows.security",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "win.TargetUserName",
+        "query": "event.code:4625",
+        "size": 100
+      },
+      "purpose": "Stack failed-logon accounts to see many distinct accounts failing (spray pattern) versus one account.",
+      "check_id": "C097"
+    },
+    {
+      "technique": "T1110.003",
+      "dataset": "windows.security",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "win.TargetUserName",
+        "query": "event.code:4648",
+        "size": 50
+      },
+      "purpose": "Stack explicit-credential logons to detect use of one password across many accounts.",
+      "check_id": "C098"
+    },
+    {
+      "technique": "T1110.003",
+      "dataset": "windows.security",
+      "tool": "timeline",
+      "args": {
+        "dataset": "windows.security",
+        "query": "event.code:4625",
+        "interval": "1m"
+      },
+      "purpose": "Show failed-logon cadence to distinguish low-and-slow spraying from bursts.",
+      "check_id": "C099"
+    },
+    {
+      "technique": "T1110.003",
+      "dataset": "windows.sysmon",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.sysmon",
+        "query": "event.code:1 AND (process.command_line:*runas* OR process.command_line:*net*use*)",
+        "size": 50
+      },
+      "purpose": "Detect scripts/commands attempting logons with supplied credentials across accounts.",
+      "check_id": "C100"
+    },
+    {
+      "technique": "T1110.003",
+      "dataset": "windows.powershell",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.powershell",
+        "query": "event.code:4104 AND (win.ScriptBlockText:*Password* OR win.ScriptBlockText:*Credential*)",
+        "size": 50
+      },
+      "purpose": "Find PowerShell spraying loops using credential objects.",
+      "check_id": "C101"
+    },
+    {
+      "technique": "T1110.003",
+      "dataset": "windows.other",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.other",
+        "query": "message:*lockout* OR message:*logon*",
+        "size": 50
+      },
+      "purpose": "Check other Windows logs for account lockout/logon messages consistent with spraying.",
+      "check_id": "C102"
+    },
+    {
+      "technique": "T1110.003",
+      "dataset": "zeek",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "zeek",
+        "field": "destination.ip",
+        "query": "event.action:kerberos",
+        "size": 50
+      },
+      "purpose": "Stack Kerberos destinations to spot repeated authentication attempts against many accounts.",
+      "check_id": "C103"
+    },
+    {
+      "technique": "T1110.004",
+      "dataset": "windows.security",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "win.TargetUserName",
+        "query": "event.code:4625",
+        "size": 100
+      },
+      "purpose": "Stack failed-logon accounts to detect many distinct usernames tried with leaked credential pairs.",
+      "check_id": "C104"
+    },
+    {
+      "technique": "T1110.004",
+      "dataset": "windows.security",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "source.ip",
+        "query": "event.code:4625",
+        "size": 50
+      },
+      "purpose": "Stack failed-logon source IPs to find a single origin stuffing credentials.",
+      "check_id": "C105"
+    },
+    {
+      "technique": "T1110.004",
+      "dataset": "windows.security",
+      "tool": "timeline",
+      "args": {
+        "dataset": "windows.security",
+        "query": "event.code:4625",
+        "interval": "1m"
+      },
+      "purpose": "Show failed-logon volume over time for stuffing bursts.",
+      "check_id": "C106"
+    },
+    {
+      "technique": "T1110.004",
+      "dataset": "windows.sysmon",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.sysmon",
+        "query": "event.code:1 AND (process.command_line:*curl* OR process.command_line:*Invoke-WebRequest* OR process.command_line:*wget*)",
+        "size": 50
+      },
+      "purpose": "Detect retrieval of credential lists or automated stuffing tooling.",
+      "check_id": "C107"
+    },
+    {
+      "technique": "T1110.004",
+      "dataset": "windows.powershell",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.powershell",
+        "query": "event.code:4104 AND (win.ScriptBlockText:*Invoke-WebRequest* OR win.ScriptBlockText:*Credential* OR win.ScriptBlockText:*Login*)",
+        "size": 50
+      },
+      "purpose": "Find PowerShell scripts submitting credential pairs to authentication endpoints.",
+      "check_id": "C108"
+    },
+    {
+      "technique": "T1110.004",
+      "dataset": "windows.other",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.other",
+        "query": "message:*logon* OR message:*failed*",
+        "size": 50
+      },
+      "purpose": "Check other Windows logs for authentication failure messages.",
+      "check_id": "C109"
+    },
+    {
+      "technique": "T1110.004",
+      "dataset": "zeek",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "zeek",
+        "field": "destination.port",
+        "query": "event.action:conn",
+        "size": 50
+      },
+      "purpose": "Stack connection destination ports to spot repeated authentication-service connections consistent with credential stuffing.",
+      "check_id": "C110"
+    },
+    {
+      "technique": "T1111",
+      "dataset": "windows.sysmon",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.sysmon",
+        "field": "win.GrantedAccess",
+        "query": "event.code:10 AND (win.TargetImage:*lsass* OR win.TargetImage:*smartcard* OR win.TargetImage:*scardsvr* OR win.TargetImage:*vaultsvc*)",
+        "size": 50
+      },
+      "purpose": "Stack granted-access masks on LSASS/smartcard/vault processes to spot non-standard readers of MFA/credential material.",
+      "check_id": "C111"
+    },
+    {
+      "technique": "T1111",
+      "dataset": "windows.sysmon",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.sysmon",
+        "field": "process.executable",
+        "query": "event.code:10 AND win.TargetImage:*lsass*",
+        "size": 50
+      },
+      "purpose": "Identify which executables open LSASS handles (rare values first).",
+      "check_id": "C112"
+    },
+    {
+      "technique": "T1111",
+      "dataset": "windows.security",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "win.LogonProcessName",
+        "query": "event.code:4624",
+        "size": 50
+      },
+      "purpose": "Stack logon process names to spot unusual authentication packages that could indicate intercepted MFA/credential use.",
+      "check_id": "C113"
+    },
+    {
+      "technique": "T1111",
+      "dataset": "windows.security",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "win.TargetUserName",
+        "query": "event.code:4648",
+        "size": 50
+      },
+      "purpose": "Explicit-credential logons (4648) by target user reveal use of harvested credentials.",
+      "check_id": "C114"
+    },
+    {
+      "technique": "T1111",
+      "dataset": "windows.powershell",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.powershell",
+        "query": "win.ScriptBlockText:(*smartcard* OR *scardsvr* OR *vault* OR *Credential* OR *MFA* OR *token*)",
+        "size": 50
+      },
+      "purpose": "Look for PowerShell touching smartcard/vault/credential APIs.",
+      "check_id": "C115"
+    },
+    {
+      "technique": "T1111",
+      "dataset": "windows.other",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.other",
+        "query": "win.ServiceName:(*scardsvr* OR *SCardSvr* OR *VaultSvc*) OR win.ImagePath:(*scardsvr* OR *vaultsvc*)",
+        "size": 50
+      },
+      "purpose": "Service install/state changes for smartcard or credential vault services.",
+      "check_id": "C116"
+    },
+    {
+      "technique": "T1187",
+      "dataset": "windows.sysmon",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.sysmon",
+        "field": "win.TargetFilename",
+        "query": "event.code:11 AND (win.TargetFilename:*\\\\*.lnk OR win.TargetFilename:*\\\\*.url OR win.TargetFilename:*\\\\*.scf OR win.TargetFilename:*\\\\*.library-ms OR win.TargetFilename:*\\\\*.searchConnector-ms)",
+        "size": 50
+      },
+      "purpose": "Stack creation of shortcut/WebDAV files that force outbound NTLM authentication.",
+      "check_id": "C117"
+    },
+    {
+      "technique": "T1187",
+      "dataset": "windows.sysmon",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.sysmon",
+        "field": "destination.ip",
+        "query": "event.code:3 AND (destination.port:445 OR destination.port:139)",
+        "size": 50
+      },
+      "purpose": "Outbound SMB connections from workstations that could be forced-auth targets.",
+      "check_id": "C118"
+    },
+    {
+      "technique": "T1187",
+      "dataset": "windows.security",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "win.ObjectName",
+        "query": "event.code:(4663 OR 4656 OR 4670) AND win.ObjectType:*File*",
+        "size": 50
+      },
+      "purpose": "Stack file objects accessed/changed to find credential-store or shortcut files being touched.",
+      "check_id": "C119"
+    },
+    {
+      "technique": "T1187",
+      "dataset": "windows.security",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "win.LogonProcessName",
+        "query": "event.code:4624 AND win.LogonType:3",
+        "size": 50
+      },
+      "purpose": "Network logons by logon process to spot NTLM forced-auth patterns.",
+      "check_id": "C120"
+    },
+    {
+      "technique": "T1187",
+      "dataset": "windows.powershell",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.powershell",
+        "query": "win.ScriptBlockText:(*WebDAV* OR *\\\\@SSL* OR *DavWWWRoot* OR *net use* OR *Invoke-WebRequest*)",
+        "size": 50
+      },
+      "purpose": "PowerShell creating WebDAV/SMB connections that could trigger forced authentication.",
+      "check_id": "C121"
+    },
+    {
+      "technique": "T1187",
+      "dataset": "windows.other",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.other",
+        "query": "win.Message:(*WebDAV* OR *DavWWWRoot* OR *NTLM*)",
+        "size": 50
+      },
+      "purpose": "Other Windows channel messages referencing WebDAV/NTLM forced-auth activity.",
+      "check_id": "C122"
+    },
+    {
+      "technique": "T1212",
+      "dataset": "windows.sysmon",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.sysmon",
+        "field": "process.executable",
+        "query": "event.code:10 AND win.TargetImage:*lsass*",
+        "size": 50
+      },
+      "purpose": "Stack processes opening LSASS handles — exploitation-driven credential access shows unusual readers.",
+      "check_id": "C123"
+    },
+    {
+      "technique": "T1212",
+      "dataset": "windows.sysmon",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.sysmon",
+        "field": "win.GrantedAccess",
+        "query": "event.code:10 AND win.TargetImage:*lsass*",
+        "size": 50
+      },
+      "purpose": "Granted-access masks on LSASS to detect memory-read access typical of exploitation.",
+      "check_id": "C124"
+    },
+    {
+      "technique": "T1212",
+      "dataset": "windows.security",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "win.ServiceName",
+        "query": "event.code:4697 OR event.code:7045",
+        "size": 50
+      },
+      "purpose": "New service installs that could be post-exploitation credential tooling.",
+      "check_id": "C125"
+    },
+    {
+      "technique": "T1212",
+      "dataset": "windows.security",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "process.executable",
+        "query": "event.code:4688",
+        "size": 50
+      },
+      "purpose": "Stack spawned executables to spot exploitation payloads or credential tools.",
+      "check_id": "C126"
+    },
+    {
+      "technique": "T1212",
+      "dataset": "windows.powershell",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.powershell",
+        "query": "win.ScriptBlockText:(*Invoke-Mimikatz* OR *sekurlsa* OR *lsass* OR *MiniDump* OR *procdump*)",
+        "size": 50
+      },
+      "purpose": "PowerShell scripts referencing LSASS dumping or Mimikatz.",
+      "check_id": "C127"
+    },
+    {
+      "technique": "T1212",
+      "dataset": "windows.other",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.other",
+        "query": "win.Message:(*lsass* OR *MiniDump* OR *procdump* OR *Mimikatz*)",
+        "size": 50
+      },
+      "purpose": "Other channel messages referencing LSASS dumping tools.",
+      "check_id": "C128"
+    },
+    {
+      "technique": "T1539",
+      "dataset": "windows.sysmon",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.sysmon",
+        "field": "win.TargetFilename",
+        "query": "event.code:11 AND (win.TargetFilename:*Cookies* OR win.TargetFilename:*Login Data* OR win.TargetFilename:*Web Data*)",
+        "size": 50
+      },
+      "purpose": "Stack browser cookie/credential store file creations or copies.",
+      "check_id": "C129"
+    },
+    {
+      "technique": "T1539",
+      "dataset": "windows.sysmon",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.sysmon",
+        "field": "process.executable",
+        "query": "event.code:10 AND (win.TargetImage:*chrome* OR win.TargetImage:*firefox* OR win.TargetImage:*msedge* OR win.TargetImage:*iexplore*)",
+        "size": 50
+      },
+      "purpose": "Processes opening handles to browsers — cookie theft via memory access.",
+      "check_id": "C130"
+    },
+    {
+      "technique": "T1539",
+      "dataset": "windows.sysmon",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.sysmon",
+        "field": "win.TargetFilename",
+        "query": "event.code:2 AND (win.TargetFilename:*Cookies* OR win.TargetFilename:*Login Data*)",
+        "size": 50
+      },
+      "purpose": "File creation-time changes on browser cookie stores (Sysmon 2).",
+      "check_id": "C131"
+    },
+    {
+      "technique": "T1539",
+      "dataset": "windows.security",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "process.executable",
+        "query": "event.code:4688 AND (process.command_line:*Cookies* OR process.command_line:*\"Login Data\"* OR process.command_line:*chrome* OR process.command_line:*firefox*)",
+        "size": 50
+      },
+      "purpose": "Processes launched referencing browser cookie/credential files.",
+      "check_id": "C132"
+    },
+    {
+      "technique": "T1539",
+      "dataset": "windows.powershell",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.powershell",
+        "query": "win.ScriptBlockText:(*Cookies* OR *Login Data* OR *chrome* OR *firefox* OR *sqlite*)",
+        "size": 50
+      },
+      "purpose": "PowerShell accessing browser cookie databases.",
+      "check_id": "C133"
+    },
+    {
+      "technique": "T1539",
+      "dataset": "windows.other",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.other",
+        "query": "win.Message:(*Cookies* OR *Login Data* OR *chrome* OR *firefox*)",
+        "size": 50
+      },
+      "purpose": "Other channel messages referencing browser stores.",
+      "check_id": "C134"
+    },
+    {
+      "technique": "T1552",
+      "dataset": "windows.sysmon",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.sysmon",
+        "field": "registry.path",
+        "query": "event.code:13 AND (registry.path:*Password* OR registry.path:*Credential* OR registry.path:*Secret*)",
+        "size": 50
+      },
+      "purpose": "Stack registry values written/read that hold credentials or secrets.",
+      "check_id": "C135"
+    },
+    {
+      "technique": "T1552",
+      "dataset": "windows.sysmon",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.sysmon",
+        "field": "win.TargetFilename",
+        "query": "event.code:11 AND (win.TargetFilename:*\\\\SAM OR win.TargetFilename:*ntds.dit OR win.TargetFilename:*\\\\SECURITY OR win.TargetFilename:*\\\\SYSTEM OR win.TargetFilename:*unattend* OR win.TargetFilename:*web.config*)",
+        "size": 50
+      },
+      "purpose": "Stack creation of hive dumps or files that commonly hold credentials.",
+      "check_id": "C136"
+    },
+    {
+      "technique": "T1552",
+      "dataset": "windows.security",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "win.ObjectName",
+        "query": "event.code:(4663 OR 4656) AND (win.ObjectName:*SAM* OR win.ObjectName:*ntds* OR win.ObjectName:*SECURITY* OR win.ObjectName:*Credential*)",
+        "size": 50
+      },
+      "purpose": "Access to registry hives / credential objects.",
+      "check_id": "C137"
+    },
+    {
+      "technique": "T1552",
+      "dataset": "windows.security",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "process.executable",
+        "query": "event.code:4688 AND (process.command_line:*reg* OR process.command_line:*vault* OR process.command_line:*findstr* OR process.command_line:*password*)",
+        "size": 50
+      },
+      "purpose": "Processes launched searching for credentials.",
+      "check_id": "C138"
+    },
+    {
+      "technique": "T1552",
+      "dataset": "windows.powershell",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.powershell",
+        "query": "win.ScriptBlockText:(*password* OR *credential* OR *ConvertTo-SecureString* OR *Get-Credential* OR *reg save*)",
+        "size": 50
+      },
+      "purpose": "PowerShell searching for or extracting stored credentials.",
+      "check_id": "C139"
+    },
+    {
+      "technique": "T1552",
+      "dataset": "windows.other",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.other",
+        "query": "win.Message:(*password* OR *credential* OR *SAM* OR *ntds*)",
+        "size": 50
+      },
+      "purpose": "Other channel messages referencing credential stores.",
+      "check_id": "C140"
+    },
+    {
+      "technique": "T1552.001",
+      "dataset": "windows.sysmon",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.sysmon",
+        "field": "win.TargetFilename",
+        "query": "event.code:11 AND (win.TargetFilename:*password* OR win.TargetFilename:*credential* OR win.TargetFilename:*secret* OR win.TargetFilename:*.config OR win.TargetFilename:*.txt OR win.TargetFilename:*.xml)",
+        "size": 50
+      },
+      "purpose": "Stack files created that commonly contain plaintext credentials.",
+      "check_id": "C141"
+    },
+    {
+      "technique": "T1552.001",
+      "dataset": "windows.sysmon",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.sysmon",
+        "field": "process.executable",
+        "query": "event.code:1 AND (process.command_line:*findstr* OR process.command_line:*type* OR process.command_line:*Select-String* OR process.command_line:*grep*)",
+        "size": 50
+      },
+      "purpose": "Processes searching file systems for credential strings.",
+      "check_id": "C142"
+    },
+    {
+      "technique": "T1552.001",
+      "dataset": "windows.security",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "win.ObjectName",
+        "query": "event.code:(4663 OR 4656) AND (win.ObjectName:*.config OR win.ObjectName:*.txt OR win.ObjectName:*.xml OR win.ObjectName:*.ini)",
+        "size": 50
+      },
+      "purpose": "Access to config/text files that may hold credentials.",
+      "check_id": "C143"
+    },
+    {
+      "technique": "T1552.001",
+      "dataset": "windows.security",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "win.TargetUserName",
+        "query": "event.code:4648",
+        "size": 50
+      },
+      "purpose": "Explicit-credential logons indicating credentials found in files were used.",
+      "check_id": "C144"
+    },
+    {
+      "technique": "T1552.001",
+      "dataset": "windows.powershell",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.powershell",
+        "query": "win.ScriptBlockText:(*Get-Content* OR *Select-String* OR *findstr* OR *password* OR *.config*)",
+        "size": 50
+      },
+      "purpose": "PowerShell reading files looking for credentials.",
+      "check_id": "C145"
+    },
+    {
+      "technique": "T1552.001",
+      "dataset": "windows.other",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.other",
+        "query": "win.Message:(*password* OR *.config* OR *credential*)",
+        "size": 50
+      },
+      "purpose": "Other channel messages referencing credential files.",
+      "check_id": "C146"
+    },
+    {
+      "technique": "T1552.002",
+      "dataset": "windows.sysmon",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.sysmon",
+        "field": "registry.path",
+        "query": "event.code:13 AND (registry.path:*Password* OR registry.path:*password* OR registry.path:*Credential* OR registry.path:*credential*)",
+        "size": 50
+      },
+      "purpose": "Stack registry SetValue events touching credential-related registry paths to spot rare keys written by non-standard processes.",
+      "check_id": "C147"
+    },
+    {
+      "technique": "T1552.002",
+      "dataset": "windows.sysmon",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.sysmon",
+        "query": "event.code:1 AND (process.command_line:*reg*query* OR process.command_line:*reg.exe*query* OR process.command_line:*Password* OR process.command_line:*credential*)",
+        "size": 50
+      },
+      "purpose": "Find process creation of registry queries hunting for stored passwords/credentials.",
+      "check_id": "C148"
+    },
+    {
+      "technique": "T1552.002",
+      "dataset": "windows.powershell",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.powershell",
+        "query": "event.code:4104 AND (win.ScriptBlockText:*Password* OR win.ScriptBlockText:*Credential* OR win.ScriptBlockText:*reg*query* OR win.ScriptBlockText:*HKLM*)",
+        "size": 50
+      },
+      "purpose": "Script block logging showing PowerShell registry enumeration for credentials.",
+      "check_id": "C149"
+    },
+    {
+      "technique": "T1552.002",
+      "dataset": "windows.security",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "win.ObjectName",
+        "query": "event.code:4663 AND (win.ObjectName:*Password* OR win.ObjectName:*Credential* OR win.ObjectName:*SAM*)",
+        "size": 50
+      },
+      "purpose": "Object access auditing on credential-bearing registry/object names.",
+      "check_id": "C150"
+    },
+    {
+      "technique": "T1552.002",
+      "dataset": "windows.other",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.other",
+        "query": "message:*Password* OR message:*Credential* OR win.Message:*Password*",
+        "size": 50
+      },
+      "purpose": "Other Windows channels (e.g. service/registry-related events) mentioning stored passwords.",
+      "check_id": "C151"
+    },
+    {
+      "technique": "T1552.003",
+      "dataset": "windows.powershell",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.powershell",
+        "query": "event.code:4104 AND (win.ScriptBlockText:*history* OR win.ScriptBlockText:*Get-History* OR win.ScriptBlockText:*ConsoleHost_history* OR win.ScriptBlockText:*PSReadLine*)",
+        "size": 50
+      },
+      "purpose": "PowerShell script blocks reading command history files (PSReadLine/ConsoleHost_history) for stored credentials.",
+      "check_id": "C152"
+    },
+    {
+      "technique": "T1552.003",
+      "dataset": "windows.sysmon",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.sysmon",
+        "query": "event.code:1 AND (process.command_line:*ConsoleHost_history* OR process.command_line:*PSReadLine* OR process.command_line:*Get-History* OR process.command_line:*.bash_history*)",
+        "size": 50
+      },
+      "purpose": "Process creation reading shell history files.",
+      "check_id": "C153"
+    },
+    {
+      "technique": "T1552.003",
+      "dataset": "windows.sysmon",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.sysmon",
+        "field": "file.path",
+        "query": "event.code:11 AND (file.path:*ConsoleHost_history* OR file.path:*.bash_history* OR file.path:*PSReadLine*)",
+        "size": 50
+      },
+      "purpose": "File creation events touching shell history paths.",
+      "check_id": "C154"
+    },
+    {
+      "technique": "T1552.003",
+      "dataset": "windows.security",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "win.ObjectName",
+        "query": "event.code:4663 AND (win.ObjectName:*ConsoleHost_history* OR win.ObjectName:*.bash_history* OR win.ObjectName:*PSReadLine*)",
+        "size": 50
+      },
+      "purpose": "Object access auditing on shell history files.",
+      "check_id": "C155"
+    },
+    {
+      "technique": "T1552.003",
+      "dataset": "windows.other",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.other",
+        "query": "message:*history* AND (message:*PSReadLine* OR message:*ConsoleHost*)",
+        "size": 50
+      },
+      "purpose": "Other channels referencing shell history files.",
+      "check_id": "C156"
+    },
+    {
+      "technique": "T1552.004",
+      "dataset": "windows.sysmon",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.sysmon",
+        "field": "file.path",
+        "query": "event.code:11 AND (file.path:*.key OR file.path:*.pem OR file.path:*.pfx OR file.path:*.p12 OR file.path:*.ppk OR file.path:*.pgp OR file.path:*.gpg OR file.path:*.cer OR file.path:*.p7b OR file.path:*.asc)",
+        "size": 50
+      },
+      "purpose": "Stack file creations of private-key/certificate extensions to find rare copies.",
+      "check_id": "C157"
+    },
+    {
+      "technique": "T1552.004",
+      "dataset": "windows.sysmon",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.sysmon",
+        "query": "event.code:1 AND (process.command_line:*.pfx* OR process.command_line:*.pem* OR process.command_line:*.key* OR process.command_line:*.ppk* OR process.command_line:*certutil*)",
+        "size": 50
+      },
+      "purpose": "Process creation referencing key/certificate files or certutil export.",
+      "check_id": "C158"
+    },
+    {
+      "technique": "T1552.004",
+      "dataset": "windows.security",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "win.RelativeTargetName",
+        "query": "event.code:5145 AND (win.RelativeTargetName:*.key OR win.RelativeTargetName:*.pem OR win.RelativeTargetName:*.pfx OR win.RelativeTargetName:*.p12 OR win.RelativeTargetName:*.ppk)",
+        "size": 50
+      },
+      "purpose": "Network share access to private key/certificate files (5145).",
+      "check_id": "C159"
+    },
+    {
+      "technique": "T1552.004",
+      "dataset": "windows.security",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "win.ObjectName",
+        "query": "event.code:4663 AND (win.ObjectName:*.pfx OR win.ObjectName:*.pem OR win.ObjectName:*.key OR win.ObjectName:*.p12)",
+        "size": 50
+      },
+      "purpose": "Object access auditing on key/certificate files.",
+      "check_id": "C160"
+    },
+    {
+      "technique": "T1552.004",
+      "dataset": "windows.powershell",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.powershell",
+        "query": "event.code:4104 AND (win.ScriptBlockText:*.pfx* OR win.ScriptBlockText:*.pem* OR win.ScriptBlockText:*.ppk* OR win.ScriptBlockText:*Export-PfxCertificate* OR win.ScriptBlockText:*certutil*)",
+        "size": 50
+      },
+      "purpose": "PowerShell script blocks handling private key/certificate files.",
+      "check_id": "C161"
+    },
+    {
+      "technique": "T1552.004",
+      "dataset": "windows.other",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.other",
+        "query": "message:*.pfx* OR message:*.pem* OR message:*.ppk* OR message:*.p12*",
+        "size": 50
+      },
+      "purpose": "Other channels mentioning key/certificate file extensions.",
+      "check_id": "C162"
+    },
+    {
+      "technique": "T1552.006",
+      "dataset": "windows.powershell",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.powershell",
+        "query": "event.code:4104 AND (win.ScriptBlockText:*Groups.xml* OR win.ScriptBlockText:*cpassword* OR win.ScriptBlockText:*gpprefdecrypt* OR win.ScriptBlockText:*SYSVOL* OR win.ScriptBlockText:*AES*)",
+        "size": 50
+      },
+      "purpose": "Script blocks parsing GPP XML / decrypting cpassword (gpprefdecrypt logic).",
+      "check_id": "C163"
+    },
+    {
+      "technique": "T1552.006",
+      "dataset": "windows.security",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "win.RelativeTargetName",
+        "query": "event.code:5145 AND (win.RelativeTargetName:*Groups.xml* OR win.RelativeTargetName:*SYSVOL* OR win.RelativeTargetName:*.xml)",
+        "size": 50
+      },
+      "purpose": "Share access to SYSVOL GPP XML files (5145).",
+      "check_id": "C164"
+    },
+    {
+      "technique": "T1552.006",
+      "dataset": "windows.sysmon",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.sysmon",
+        "query": "event.code:1 AND (process.command_line:*SYSVOL* OR process.command_line:*Groups.xml* OR process.command_line:*cpassword* OR process.command_line:*gpprefdecrypt*)",
+        "size": 50
+      },
+      "purpose": "Process creation referencing SYSVOL/GPP files or decrypt tools.",
+      "check_id": "C165"
+    },
+    {
+      "technique": "T1552.006",
+      "dataset": "windows.sysmon",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.sysmon",
+        "field": "file.path",
+        "query": "event.code:11 AND (file.path:*Groups.xml* OR file.path:*SYSVOL* OR file.path:*cpassword*)",
+        "size": 50
+      },
+      "purpose": "File creation of GPP XML copies.",
+      "check_id": "C166"
+    },
+    {
+      "technique": "T1552.006",
+      "dataset": "windows.other",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.other",
+        "query": "message:*SYSVOL* OR message:*Groups.xml* OR message:*cpassword*",
+        "size": 50
+      },
+      "purpose": "Other channels referencing GPP/SYSVOL files.",
+      "check_id": "C167"
+    },
+    {
+      "technique": "T1555",
+      "dataset": "windows.sysmon",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.sysmon",
+        "field": "win.GrantedAccess",
+        "query": "event.code:10 AND (win.TargetImage:*lsass* OR win.TargetImage:*LSASS*)",
+        "size": 50
+      },
+      "purpose": "Stack GrantedAccess for LSASS process-access events to spot credential-dumping access masks.",
+      "check_id": "C168"
+    },
+    {
+      "technique": "T1555",
+      "dataset": "windows.sysmon",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.sysmon",
+        "field": "process.executable",
+        "query": "event.code:10 AND (win.TargetImage:*lsass* OR win.TargetImage:*LSASS*)",
+        "size": 50
+      },
+      "purpose": "Which executables access LSASS memory (rare/non-standard sources).",
+      "check_id": "C169"
+    },
+    {
+      "technique": "T1555",
+      "dataset": "windows.sysmon",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.sysmon",
+        "query": "event.code:1 AND (process.command_line:*lsass* OR process.command_line:*procdump* OR process.command_line:*mimikatz* OR process.command_line:*sekurlsa* OR process.command_line:*comsvcs*MiniDump*)",
+        "size": 50
+      },
+      "purpose": "Process creation of credential-dumping tools against LSASS.",
+      "check_id": "C170"
+    },
+    {
+      "technique": "T1555",
+      "dataset": "windows.security",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "win.ObjectName",
+        "query": "event.code:4663 AND (win.ObjectName:*lsass* OR win.ObjectName:*SAM* OR win.ObjectName:*SECURITY* OR win.ObjectName:*NTDS*)",
+        "size": 50
+      },
+      "purpose": "Object access auditing on LSASS/SAM/SECURITY/NTDS credential stores.",
+      "check_id": "C171"
+    },
+    {
+      "technique": "T1555",
+      "dataset": "windows.security",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "win.ProcessName",
+        "query": "event.code:4656 AND (win.ObjectName:*lsass* OR win.ObjectName:*SAM* OR win.ObjectName:*NTDS*)",
+        "size": 50
+      },
+      "purpose": "Handle requests to credential store objects by process.",
+      "check_id": "C172"
+    },
+    {
+      "technique": "T1555",
+      "dataset": "windows.powershell",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.powershell",
+        "query": "event.code:4104 AND (win.ScriptBlockText:*lsass* OR win.ScriptBlockText:*MiniDump* OR win.ScriptBlockText:*sekurlsa* OR win.ScriptBlockText:*Invoke-Mimikatz*)",
+        "size": 50
+      },
+      "purpose": "PowerShell script blocks dumping LSASS or invoking credential tools.",
+      "check_id": "C173"
+    },
+    {
+      "technique": "T1555",
+      "dataset": "windows.other",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.other",
+        "query": "message:*lsass* OR message:*MiniDump* OR message:*mimikatz*",
+        "size": 50
+      },
+      "purpose": "Other channels referencing LSASS dumping.",
+      "check_id": "C174"
+    },
+    {
+      "technique": "T1555.003",
+      "dataset": "windows.sysmon",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.sysmon",
+        "field": "file.path",
+        "query": "event.code:11 AND (file.path:*Login Data* OR file.path:*logins.json* OR file.path:*key4.db* OR file.path:*Cookies* OR file.path:*Web Data*)",
+        "size": 50
+      },
+      "purpose": "File creations copying browser credential stores.",
+      "check_id": "C175"
+    },
+    {
+      "technique": "T1555.003",
+      "dataset": "windows.sysmon",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.sysmon",
+        "query": "event.code:1 AND (process.command_line:*Login Data* OR process.command_line:*logins.json* OR process.command_line:*key4.db* OR process.command_line:*Cookies*)",
+        "size": 50
+      },
+      "purpose": "Process creation referencing browser credential files.",
+      "check_id": "C176"
+    },
+    {
+      "technique": "T1555.003",
+      "dataset": "windows.security",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "win.ObjectName",
+        "query": "event.code:4663 AND (win.ObjectName:*Login Data* OR win.ObjectName:*logins.json* OR win.ObjectName:*key4.db* OR win.ObjectName:*Cookies*)",
+        "size": 50
+      },
+      "purpose": "Object access auditing on browser credential stores.",
+      "check_id": "C177"
+    },
+    {
+      "technique": "T1555.003",
+      "dataset": "windows.security",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "win.ProcessName",
+        "query": "event.code:4656 AND (win.ObjectName:*Login Data* OR win.ObjectName:*logins.json* OR win.ObjectName:*key4.db*)",
+        "size": 50
+      },
+      "purpose": "Handle requests to browser credential files by process.",
+      "check_id": "C178"
+    },
+    {
+      "technique": "T1555.003",
+      "dataset": "windows.powershell",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.powershell",
+        "query": "event.code:4104 AND (win.ScriptBlockText:*Login Data* OR win.ScriptBlockText:*logins.json* OR win.ScriptBlockText:*key4.db* OR win.ScriptBlockText:*DPAPI*)",
+        "size": 50
+      },
+      "purpose": "PowerShell script blocks reading browser credential stores or DPAPI.",
+      "check_id": "C179"
+    },
+    {
+      "technique": "T1555.003",
+      "dataset": "windows.other",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.other",
+        "query": "message:*Login Data* OR message:*logins.json* OR message:*key4.db*",
+        "size": 50
+      },
+      "purpose": "Other channels referencing browser credential files.",
+      "check_id": "C180"
+    },
+    {
+      "technique": "T1555.004",
+      "dataset": "windows.sysmon",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.sysmon",
+        "field": "process.executable",
+        "query": "event.code:1 AND (process.command_line:*vault* OR process.command_line:*credential* OR process.command_line:*cmdkey* OR process.command_line:*CredMan*)",
+        "size": 50
+      },
+      "purpose": "Stack processes whose command lines reference Credential Manager/vault/cmdkey to spot non-standard credential-store access.",
+      "check_id": "C181"
+    },
+    {
+      "technique": "T1555.004",
+      "dataset": "windows.sysmon",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.sysmon",
+        "query": "event.code:10 AND (win.TargetImage:*lsass* OR win.TargetImage:*vault* OR win.TargetImage:*Credential*)",
+        "size": 100
+      },
+      "purpose": "Find process-access events (Sysmon 10) against LSASS or credential-store processes.",
+      "check_id": "C182"
+    },
+    {
+      "technique": "T1555.004",
+      "dataset": "windows.sysmon",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.sysmon",
+        "field": "win.TargetFilename",
+        "query": "event.code:11 AND (win.TargetFilename:*\\Microsoft\\Credentials\\* OR win.TargetFilename:*\\Microsoft\\Vault\\* OR win.TargetFilename:*\\Protect\\*)",
+        "size": 50
+      },
+      "purpose": "Stack writes to Credential Locker / DPAPI Protect files.",
+      "check_id": "C183"
+    },
+    {
+      "technique": "T1555.004",
+      "dataset": "windows.security",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "process.executable",
+        "query": "event.code:4688 AND (process.command_line:*vault* OR process.command_line:*cmdkey* OR process.command_line:*credential*)",
+        "size": 50
+      },
+      "purpose": "Stack process creations (4688) referencing credential-manager tooling.",
+      "check_id": "C184"
+    },
+    {
+      "technique": "T1555.004",
+      "dataset": "windows.powershell",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.powershell",
+        "query": "event.code:4104 AND (win.ScriptBlockText:*vault* OR win.ScriptBlockText:*Credential* OR win.ScriptBlockText:*cmdkey*)",
+        "size": 50
+      },
+      "purpose": "Look for PowerShell script blocks touching Credential Manager APIs.",
+      "check_id": "C185"
+    },
+    {
+      "technique": "T1555.004",
+      "dataset": "windows.other",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.other",
+        "query": "message:*Vault* OR message:*Credential*",
+        "size": 50
+      },
+      "purpose": "Check other Windows channels for vault/credential references.",
+      "check_id": "C186"
+    },
+    {
+      "technique": "T1555.005",
+      "dataset": "windows.sysmon",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.sysmon",
+        "field": "process.executable",
+        "query": "event.code:1 AND (process.command_line:*keepass* OR process.command_line:*1password* OR process.command_line:*bitwarden* OR process.command_line:*lastpass* OR process.command_line:*password*)",
+        "size": 50
+      },
+      "purpose": "Stack processes whose command lines reference password-manager products or password handling.",
+      "check_id": "C187"
+    },
+    {
+      "technique": "T1555.005",
+      "dataset": "windows.sysmon",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.sysmon",
+        "field": "win.TargetFilename",
+        "query": "event.code:11 AND (win.TargetFilename:*.kdbx OR win.TargetFilename:*1password* OR win.TargetFilename:*keepass* OR win.TargetFilename:*bitwarden*)",
+        "size": 50
+      },
+      "purpose": "Stack file writes to password-manager databases/stores.",
+      "check_id": "C188"
+    },
+    {
+      "technique": "T1555.005",
+      "dataset": "windows.sysmon",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.sysmon",
+        "query": "event.code:10 AND (win.TargetImage:*keepass* OR win.TargetImage:*1password* OR win.TargetImage:*bitwarden* OR win.TargetImage:*lastpass*)",
+        "size": 50
+      },
+      "purpose": "Find process-access events against password-manager processes.",
+      "check_id": "C189"
+    },
+    {
+      "technique": "T1555.005",
+      "dataset": "windows.security",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "process.executable",
+        "query": "event.code:4688 AND (process.command_line:*keepass* OR process.command_line:*1password* OR process.command_line:*bitwarden* OR process.command_line:*lastpass*)",
+        "size": 50
+      },
+      "purpose": "Stack process creations (4688) of password-manager tooling.",
+      "check_id": "C190"
+    },
+    {
+      "technique": "T1555.005",
+      "dataset": "windows.powershell",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.powershell",
+        "query": "event.code:4104 AND (win.ScriptBlockText:*keepass* OR win.ScriptBlockText:*1password* OR win.ScriptBlockText:*bitwarden* OR win.ScriptBlockText:*.kdbx*)",
+        "size": 50
+      },
+      "purpose": "Look for PowerShell script blocks referencing password-manager stores.",
+      "check_id": "C191"
+    },
+    {
+      "technique": "T1555.005",
+      "dataset": "windows.other",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.other",
+        "query": "message:*keepass* OR message:*1password* OR message:*bitwarden* OR message:*password manager*",
+        "size": 50
+      },
+      "purpose": "Check other Windows channels for password-manager references.",
+      "check_id": "C192"
+    },
+    {
+      "technique": "T1556",
+      "dataset": "windows.sysmon",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.sysmon",
+        "field": "win.TargetImage",
+        "query": "event.code:10 AND win.TargetImage:*lsass*",
+        "size": 100
+      },
+      "purpose": "Stack all processes granted access to lsass.exe (potential credential theft / auth-process tampering).",
+      "check_id": "C193"
+    },
+    {
+      "technique": "T1556",
+      "dataset": "windows.sysmon",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.sysmon",
+        "field": "win.GrantedAccess",
+        "query": "event.code:10 AND win.TargetImage:*lsass*",
+        "size": 50
+      },
+      "purpose": "Stack GrantedAccess masks on LSASS to spot read-memory access rights.",
+      "check_id": "C194"
+    },
+    {
+      "technique": "T1556",
+      "dataset": "windows.sysmon",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.sysmon",
+        "field": "win.ImageLoaded",
+        "query": "event.code:7 AND (win.ImageLoaded:*lsass* OR win.ImageLoaded:*cryptdll* OR win.ImageLoaded:*sam* OR win.ImageLoaded:*ntds*)",
+        "size": 50
+      },
+      "purpose": "Stack modules loaded into LSASS/cryptdll/SAM-related processes (Sysmon 7).",
+      "check_id": "C195"
+    },
+    {
+      "technique": "T1556",
+      "dataset": "windows.security",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "win.ObjectName",
+        "query": "event.code:4657 AND (win.ObjectName:*SAM* OR win.ObjectName:*lsass* OR win.ObjectName:*cryptdll* OR win.ObjectName:*Notification Packages*)",
+        "size": 50
+      },
+      "purpose": "Stack registry value modifications (4657) on authentication-related keys.",
+      "check_id": "C196"
+    },
+    {
+      "technique": "T1556",
+      "dataset": "windows.security",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "win.TargetProcessName",
+        "query": "event.code:4663 AND win.TargetProcessName:*lsass*",
+        "size": 50
+      },
+      "purpose": "Stack object-access (4663) events targeting lsass.exe.",
+      "check_id": "C197"
+    },
+    {
+      "technique": "T1556",
+      "dataset": "windows.powershell",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.powershell",
+        "query": "event.code:4104 AND (win.ScriptBlockText:*lsass* OR win.ScriptBlockText:*mimikatz* OR win.ScriptBlockText:*sekurlsa* OR win.ScriptBlockText:*MiniDump*)",
+        "size": 50
+      },
+      "purpose": "Look for PowerShell script blocks referencing LSASS dumping.",
+      "check_id": "C198"
+    },
+    {
+      "technique": "T1556",
+      "dataset": "windows.other",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.other",
+        "query": "message:*lsass* OR message:*cryptdll*",
+        "size": 50
+      },
+      "purpose": "Check other Windows channels for LSASS/cryptdll modification messages.",
+      "check_id": "C199"
+    },
+    {
+      "technique": "T1556.001",
+      "dataset": "windows.sysmon",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.sysmon",
+        "field": "win.TargetImage",
+        "query": "event.code:10 AND win.TargetImage:*lsass*",
+        "size": 100
+      },
+      "purpose": "Stack processes accessing lsass.exe on domain controllers/hosts (auth-process patching).",
+      "check_id": "C200"
+    },
+    {
+      "technique": "T1556.001",
+      "dataset": "windows.sysmon",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.sysmon",
+        "field": "win.ImageLoaded",
+        "query": "event.code:7 AND (win.ImageLoaded:*lsass* OR win.ImageLoaded:*cryptdll*)",
+        "size": 50
+      },
+      "purpose": "Stack modules loaded into lsass/cryptdll (Sysmon 7) to detect injected auth DLLs.",
+      "check_id": "C201"
+    },
+    {
+      "technique": "T1556.001",
+      "dataset": "windows.security",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "win.LogonProcessName",
+        "query": "event.code:4624 OR event.code:4648",
+        "size": 50
+      },
+      "purpose": "Stack logon process names for 4624/4648 to spot anomalous authentication (e.g. unexpected process names).",
+      "check_id": "C202"
+    },
+    {
+      "technique": "T1556.001",
+      "dataset": "windows.security",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "win.TargetUserName",
+        "query": "event.code:4624 AND win.LogonType:3",
+        "size": 100
+      },
+      "purpose": "Stack network logon target accounts to spot anomalous authentication with harvested credentials.",
+      "check_id": "C203"
+    },
+    {
+      "technique": "T1556.001",
+      "dataset": "windows.other",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.other",
+        "query": "message:*lsass* OR message:*cryptdll*",
+        "size": 50
+      },
+      "purpose": "Check System channel for unexpected modification messages about lsass.exe/cryptdll.dll.",
+      "check_id": "C204"
+    },
+    {
+      "technique": "T1556.001",
+      "dataset": "windows.powershell",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.powershell",
+        "query": "event.code:4104 AND (win.ScriptBlockText:*lsass* OR win.ScriptBlockText:*cryptdll* OR win.ScriptBlockText:*skeleton*)",
+        "size": 50
+      },
+      "purpose": "Look for PowerShell script blocks referencing LSASS patching.",
+      "check_id": "C205"
+    },
+    {
+      "technique": "T1556.002",
+      "dataset": "windows.sysmon",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.sysmon",
+        "field": "win.TargetFilename",
+        "query": "event.code:11 AND (win.TargetFilename:*\\System32\\*.dll OR win.TargetFilename:*Notification* OR win.TargetFilename:*PasswordFilter*)",
+        "size": 100
+      },
+      "purpose": "Stack DLL file creations in System32 / password-filter paths (Sysmon 11).",
+      "check_id": "C206"
+    },
+    {
+      "technique": "T1556.002",
+      "dataset": "windows.sysmon",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.sysmon",
+        "field": "win.ImageLoaded",
+        "query": "event.code:7 AND (win.ImageLoaded:*lsass* OR win.ImageLoaded:*PasswordFilter* OR win.ImageLoaded:*Notification*)",
+        "size": 50
+      },
+      "purpose": "Stack modules loaded into LSASS (Sysmon 7) to spot malicious password filter DLLs.",
+      "check_id": "C207"
+    },
+    {
+      "technique": "T1556.002",
+      "dataset": "windows.security",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "win.ObjectName",
+        "query": "event.code:4657 AND (win.ObjectName:*Notification Packages* OR win.ObjectName:*PasswordFilter* OR win.ObjectName:*lsass*)",
+        "size": 50
+      },
+      "purpose": "Stack registry modifications (4657) of the Notification Packages / password filter keys.",
+      "check_id": "C208"
+    },
+    {
+      "technique": "T1556.002",
+      "dataset": "windows.security",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "win.NewValue",
+        "query": "event.code:4657 AND win.ObjectName:*Notification Packages*",
+        "size": 50
+      },
+      "purpose": "Inspect new values written to Notification Packages registry value.",
+      "check_id": "C209"
+    },
+    {
+      "technique": "T1556.002",
+      "dataset": "windows.powershell",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.powershell",
+        "query": "event.code:4104 AND (win.ScriptBlockText:*Notification Packages* OR win.ScriptBlockText:*PasswordFilter* OR win.ScriptBlockText:*lsass*)",
+        "size": 50
+      },
+      "purpose": "Look for PowerShell script blocks registering password filter DLLs.",
+      "check_id": "C210"
+    },
+    {
+      "technique": "T1556.002",
+      "dataset": "windows.other",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.other",
+        "query": "message:*Notification Packages* OR message:*PasswordFilter*",
+        "size": 50
+      },
+      "purpose": "Check other Windows channels for password filter registration.",
+      "check_id": "C211"
+    },
+    {
+      "technique": "T1556.005",
+      "dataset": "windows.powershell",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.powershell",
+        "query": "event.code:4104 AND (win.ScriptBlockText:*AllowReversiblePasswordEncryption* OR win.ScriptBlockText:*ReversibleEncryption* OR win.ScriptBlockText:*Set-ADAccountControl* OR win.ScriptBlockText:*Set-ADUser*)",
+        "size": 50
+      },
+      "purpose": "Look for PowerShell script blocks enabling reversible password encryption on accounts.",
+      "check_id": "C212"
+    },
+    {
+      "technique": "T1556.005",
+      "dataset": "windows.powershell",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.powershell",
+        "query": "event.code:4103 OR event.code:4104 AND win.ScriptBlockText:*ADAccount*",
+        "size": 50
+      },
+      "purpose": "Check PowerShell module/script-block logging for AD account-control changes.",
+      "check_id": "C213"
+    },
+    {
+      "technique": "T1556.005",
+      "dataset": "windows.security",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "win.ObjectName",
+        "query": "event.code:4739 OR event.code:4663 AND win.ObjectName:*Reversible*",
+        "size": 50
+      },
+      "purpose": "Stack 4739/4663 events referencing reversible encryption policy changes.",
+      "check_id": "C214"
+    },
+    {
+      "technique": "T1556.005",
+      "dataset": "windows.sysmon",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.sysmon",
+        "field": "process.executable",
+        "query": "event.code:1 AND (process.command_line:*Reversible* OR process.command_line:*ADAccountControl* OR process.command_line:*Set-ADUser*)",
+        "size": 50
+      },
+      "purpose": "Stack process creations (Sysmon 1) referencing reversible-encryption/AD account-control tooling.",
+      "check_id": "C215"
+    },
+    {
+      "technique": "T1556.005",
+      "dataset": "windows.other",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.other",
+        "query": "message:*Reversible* OR message:*PasswordEncryption*",
+        "size": 50
+      },
+      "purpose": "Check other Windows channels for reversible encryption references.",
+      "check_id": "C216"
+    },
+    {
+      "technique": "T1556.006",
+      "dataset": "windows.powershell",
+      "tool": "esql",
+      "args": {
+        "dataset": "windows.powershell",
+        "query": "FROM windows.powershell METADATA _id, _index | WHERE TO_LOWER(win.ScriptBlockText) LIKE \"*set-aduser*\" OR TO_LOWER(win.ScriptBlockText) LIKE \"*set-adauthenticationpolicy*\" OR TO_LOWER(win.ScriptBlockText) LIKE \"*strongauthentication*\" OR TO_LOWER(win.ScriptBlockText) LIKE \"*authenticationpolicy*\" | KEEP @timestamp, host.name, user.name, win.ScriptBlockText, _id, _index"
+      },
+      "purpose": "Look for PowerShell modifying AD user/authentication policy MFA attributes (Set-ADUser, Set-ADAuthenticationPolicy).",
+      "check_id": "C217"
+    },
+    {
+      "technique": "T1556.006",
+      "dataset": "windows.security",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "event.code",
+        "query": "*",
+        "size": 50
+      },
+      "purpose": "Check whether directory-policy change events (e.g. 4739) exist at all in the security log; stack event codes to see the available population.",
+      "check_id": "C218"
+    },
+    {
+      "technique": "T1556.006",
+      "dataset": "windows.security",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.security",
+        "query": "event.code:4739",
+        "size": 20
+      },
+      "purpose": "Search for domain policy change events that could reflect MFA/authentication policy modification.",
+      "check_id": "C219"
+    },
+    {
+      "technique": "T1556.006",
+      "dataset": "windows.other",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.other",
+        "query": "event.code:4739",
+        "size": 20
+      },
+      "purpose": "Check the other-Windows channel for directory policy change events (4739) indicating MFA policy tampering.",
+      "check_id": "C220"
+    },
+    {
+      "technique": "T1556.007",
+      "dataset": "windows.sysmon",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.sysmon",
+        "field": "win.ImageLoaded",
+        "query": "event.code:7",
+        "size": 50
+      },
+      "purpose": "Stack loaded images (Sysmon 7) to spot unusual DLLs loaded into authentication/identity processes (e.g. cloud sync/AD FS related binaries).",
+      "check_id": "C221"
+    },
+    {
+      "technique": "T1556.007",
+      "dataset": "windows.security",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.security",
+        "query": "event.code:5136",
+        "size": 20
+      },
+      "purpose": "Search for directory service object modification events (5136) that could indicate backdooring of hybrid identity objects.",
+      "check_id": "C222"
+    },
+    {
+      "technique": "T1556.007",
+      "dataset": "windows.powershell",
+      "tool": "esql",
+      "args": {
+        "dataset": "windows.powershell",
+        "query": "FROM windows.powershell METADATA _id, _index | WHERE TO_LOWER(win.ScriptBlockText) LIKE \"*adfs*\" OR TO_LOWER(win.ScriptBlockText) LIKE \"*azuread*\" OR TO_LOWER(win.ScriptBlockText) LIKE \"*connect-msolservice*\" OR TO_LOWER(win.ScriptBlockText) LIKE \"*aadinternals*\" | KEEP @timestamp, host.name, user.name, win.ScriptBlockText, _id, _index"
+      },
+      "purpose": "Look for PowerShell touching hybrid identity components (AD FS, Azure AD modules, AADInternals).",
+      "check_id": "C223"
+    },
+    {
+      "technique": "T1556.007",
+      "dataset": "windows.other",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.other",
+        "query": "event.code:5136",
+        "size": 20
+      },
+      "purpose": "Check the other-Windows channel for directory object modification events (5136) relevant to hybrid identity backdooring.",
+      "check_id": "C224"
+    },
+    {
+      "technique": "T1556.008",
+      "dataset": "windows.sysmon",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.sysmon",
+        "field": "win.TargetObject",
+        "query": "event.code:13 AND registry.path:*NetworkProvider*",
+        "size": 50
+      },
+      "purpose": "Stack registry value sets (Sysmon 13) under NetworkProvider keys, where malicious network provider DLLs are registered.",
+      "check_id": "C225"
+    },
+    {
+      "technique": "T1556.008",
+      "dataset": "windows.sysmon",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.sysmon",
+        "query": "event.code:11 AND registry.path:*NetworkProvider*",
+        "size": 20
+      },
+      "purpose": "Look for file creation (Sysmon 11) of DLLs in paths associated with network provider registration.",
+      "check_id": "C226"
+    },
+    {
+      "technique": "T1556.008",
+      "dataset": "windows.sysmon",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.sysmon",
+        "field": "win.TargetImage",
+        "query": "event.code:10 AND win.TargetImage:*winlogon*",
+        "size": 50
+      },
+      "purpose": "Stack processes accessing winlogon (Sysmon 10) to detect credential-capturing injection into the logon process.",
+      "check_id": "C227"
+    },
+    {
+      "technique": "T1556.008",
+      "dataset": "windows.security",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.security",
+        "query": "event.code:4657 AND win.ObjectName:*NetworkProvider*",
+        "size": 20
+      },
+      "purpose": "Search registry value modification auditing (4657) for NetworkProvider key changes.",
+      "check_id": "C228"
+    },
+    {
+      "technique": "T1556.008",
+      "dataset": "windows.other",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.other",
+        "query": "event.code:4657 AND win.ObjectName:*NetworkProvider*",
+        "size": 20
+      },
+      "purpose": "Check the other-Windows channel for 4657 registry modifications of NetworkProvider keys.",
+      "check_id": "C229"
+    },
+    {
+      "technique": "T1557",
+      "dataset": "windows.sysmon",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.sysmon",
+        "field": "win.DestinationHostname",
+        "query": "event.code:22",
+        "size": 50
+      },
+      "purpose": "Stack DNS query names (Sysmon 22) to spot anomalous name resolution targets consistent with interception.",
+      "check_id": "C230"
+    },
+    {
+      "technique": "T1557",
+      "dataset": "windows.sysmon",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.sysmon",
+        "field": "destination.ip",
+        "query": "event.code:3",
+        "size": 50
+      },
+      "purpose": "Stack network connection destinations (Sysmon 3) to find unusual peers that could be AiTM relays.",
+      "check_id": "C231"
+    },
+    {
+      "technique": "T1557",
+      "dataset": "windows.security",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "win.ObjectName",
+        "query": "event.code:4663 OR event.code:4656 OR event.code:4670",
+        "size": 50
+      },
+      "purpose": "Stack object access/permission-change targets (4663/4656/4670) for suspicious access patterns tied to interception.",
+      "check_id": "C232"
+    },
+    {
+      "technique": "T1557",
+      "dataset": "windows.other",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.other",
+        "query": "event.code:4663 OR event.code:4656 OR event.code:4670",
+        "size": 20
+      },
+      "purpose": "Check the other-Windows channel for object access and permission change events relevant to AiTM staging.",
+      "check_id": "C233"
+    },
+    {
+      "technique": "T1557",
+      "dataset": "windows.powershell",
+      "tool": "esql",
+      "args": {
+        "dataset": "windows.powershell",
+        "query": "FROM windows.powershell METADATA _id, _index | WHERE TO_LOWER(win.ScriptBlockText) LIKE \"*responder*\" OR TO_LOWER(win.ScriptBlockText) LIKE \"*inveigh*\" OR TO_LOWER(win.ScriptBlockText) LIKE \"*llmnr*\" OR TO_LOWER(win.ScriptBlockText) LIKE \"*arp*\" | KEEP @timestamp, host.name, user.name, win.ScriptBlockText, _id, _index"
+      },
+      "purpose": "Look for PowerShell scripts implementing spoofing/poisoning (Responder, Inveigh, LLMNR/ARP manipulation).",
+      "check_id": "C234"
+    },
+    {
+      "technique": "T1557.001",
+      "dataset": "windows.sysmon",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.sysmon",
+        "field": "win.QueryName",
+        "query": "event.code:22",
+        "size": 50
+      },
+      "purpose": "Stack DNS query names (Sysmon 22) to find LLMNR/NBT-NS-style lookups that could be poisoned.",
+      "check_id": "C235"
+    },
+    {
+      "technique": "T1557.001",
+      "dataset": "windows.sysmon",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.sysmon",
+        "field": "destination.ip",
+        "query": "event.code:3 AND destination.port:445",
+        "size": 50
+      },
+      "purpose": "Stack SMB (445) connection destinations (Sysmon 3) to detect relay targets.",
+      "check_id": "C236"
+    },
+    {
+      "technique": "T1557.001",
+      "dataset": "windows.security",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "win.IpAddress",
+        "query": "event.code:4624 AND win.LogonType:3",
+        "size": 50
+      },
+      "purpose": "Stack source addresses of network logons (4624 type 3) to spot authentication from unexpected hosts (relay).",
+      "check_id": "C237"
+    },
+    {
+      "technique": "T1557.001",
+      "dataset": "windows.security",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.security",
+        "query": "event.code:4697",
+        "size": 20
+      },
+      "purpose": "Search for service installation events (4697) that could accompany relay/coercion tooling.",
+      "check_id": "C238"
+    },
+    {
+      "technique": "T1557.001",
+      "dataset": "windows.other",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.other",
+        "query": "event.code:4697",
+        "size": 20
+      },
+      "purpose": "Check the other-Windows channel for service installation events (4697).",
+      "check_id": "C239"
+    },
+    {
+      "technique": "T1557.001",
+      "dataset": "windows.powershell",
+      "tool": "esql",
+      "args": {
+        "dataset": "windows.powershell",
+        "query": "FROM windows.powershell METADATA _id, _index | WHERE TO_LOWER(win.ScriptBlockText) LIKE \"*enablemulticast*\" OR TO_LOWER(win.ScriptBlockText) LIKE \"*dnsclient*\" OR TO_LOWER(win.ScriptBlockText) LIKE \"*responder*\" OR TO_LOWER(win.ScriptBlockText) LIKE \"*inveigh*\" | KEEP @timestamp, host.name, user.name, win.ScriptBlockText, _id, _index"
+      },
+      "purpose": "Look for PowerShell changing DNSClient EnableMulticast or running poisoning tools.",
+      "check_id": "C240"
+    },
+    {
+      "technique": "T1557.002",
+      "dataset": "windows.sysmon",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.sysmon",
+        "field": "destination.ip",
+        "query": "event.code:3",
+        "size": 50
+      },
+      "purpose": "Stack outbound connection destinations (Sysmon 3) for signs of traffic redirected to an unexpected local peer.",
+      "check_id": "C241"
+    },
+    {
+      "technique": "T1557.002",
+      "dataset": "windows.sysmon",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.sysmon",
+        "field": "win.DestinationHostname",
+        "query": "event.code:22",
+        "size": 50
+      },
+      "purpose": "Stack DNS query names (Sysmon 22) to detect resolution anomalies accompanying ARP poisoning.",
+      "check_id": "C242"
+    },
+    {
+      "technique": "T1557.002",
+      "dataset": "windows.security",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "win.IpAddress",
+        "query": "event.code:4624 AND win.LogonType:3",
+        "size": 50
+      },
+      "purpose": "Stack network logon source addresses (4624 type 3) to detect authentication arriving via a poisoned path.",
+      "check_id": "C243"
+    },
+    {
+      "technique": "T1557.002",
+      "dataset": "windows.other",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.other",
+        "query": "event.code:5156 OR event.code:5157",
+        "size": 20
+      },
+      "purpose": "Check the other-Windows channel for firewall connection events that could reveal redirected traffic.",
+      "check_id": "C244"
+    },
+    {
+      "technique": "T1557.002",
+      "dataset": "windows.powershell",
+      "tool": "esql",
+      "args": {
+        "dataset": "windows.powershell",
+        "query": "FROM windows.powershell METADATA _id, _index | WHERE TO_LOWER(win.ScriptBlockText) LIKE \"*arp*\" OR TO_LOWER(win.ScriptBlockText) LIKE \"*poison*\" OR TO_LOWER(win.ScriptBlockText) LIKE \"*ettercap*\" OR TO_LOWER(win.ScriptBlockText) LIKE \"*bettercap*\" | KEEP @timestamp, host.name, user.name, win.ScriptBlockText, _id, _index"
+      },
+      "purpose": "Look for PowerShell referencing ARP poisoning tooling.",
+      "check_id": "C245"
+    },
+    {
+      "technique": "T1557.003",
+      "dataset": "windows.other",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.other",
+        "query": "event.code:(1341 OR 1342 OR 1020 OR 1063)",
+        "size": 50
+      },
+      "purpose": "DHCP client events indicating address conflict / rogue DHCP server (1341, 1342, 1020, 1063) in the System channel.",
+      "check_id": "C246"
+    },
+    {
+      "technique": "T1557.003",
+      "dataset": "windows.other",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.other",
+        "field": "event.code",
+        "query": "*",
+        "size": 100
+      },
+      "purpose": "Stack all System/other event codes to see whether any DHCP-related codes exist at all and which are rare.",
+      "check_id": "C247"
+    },
+    {
+      "technique": "T1557.003",
+      "dataset": "windows.security",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "win.LogonProcessName",
+        "query": "event.code:4624",
+        "size": 50
+      },
+      "purpose": "Stack logon process names for 4624 to spot unusual authentication sources that could follow an AiTM/DHCP spoof.",
+      "check_id": "C248"
+    },
+    {
+      "technique": "T1557.003",
+      "dataset": "windows.sysmon",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.sysmon",
+        "field": "process.executable",
+        "query": "event.code:1 AND (process.command_line:*dhcp* OR process.command_line:*ipconfig*)",
+        "size": 50
+      },
+      "purpose": "Rare processes/commands touching DHCP configuration on hosts.",
+      "check_id": "C249"
+    },
+    {
+      "technique": "T1557.003",
+      "dataset": "windows.powershell",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.powershell",
+        "query": "win.ScriptBlockText:(*Dhcp* OR *dhcp* OR *New-NetIPAddress* OR *Set-DnsClientServerAddress*)",
+        "size": 50
+      },
+      "purpose": "PowerShell scripts manipulating DHCP/DNS client settings (rogue gateway/DNS injection).",
+      "check_id": "C250"
+    },
+    {
+      "technique": "T1558",
+      "dataset": "windows.sysmon",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.sysmon",
+        "field": "win.GrantedAccess",
+        "query": "event.code:10 AND win.TargetImage:*lsass*",
+        "size": 100
+      },
+      "purpose": "Stack GrantedAccess values for process access to lsass.exe to find non-standard access masks (credential/ticket theft).",
+      "check_id": "C251"
+    },
+    {
+      "technique": "T1558",
+      "dataset": "windows.sysmon",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.sysmon",
+        "field": "process.executable",
+        "query": "event.code:10 AND win.TargetImage:*lsass*",
+        "size": 100
+      },
+      "purpose": "Which source processes open handles to LSASS (rare/non-standard dumpers).",
+      "check_id": "C252"
+    },
+    {
+      "technique": "T1558",
+      "dataset": "windows.security",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "win.TargetUserName",
+        "query": "event.code:4672",
+        "size": 100
+      },
+      "purpose": "Stack special-privilege logons (4672) by account to spot anomalous privileged authentication.",
+      "check_id": "C253"
+    },
+    {
+      "technique": "T1558",
+      "dataset": "windows.security",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "win.LogonType",
+        "query": "event.code:4624",
+        "size": 50
+      },
+      "purpose": "Logon type distribution for 4624 to detect unusual (e.g. network/new-credentials) logons consistent with ticket use.",
+      "check_id": "C254"
+    },
+    {
+      "technique": "T1558",
+      "dataset": "windows.powershell",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.powershell",
+        "query": "win.ScriptBlockText:(*kerberos* OR *Kerberos* OR *ticket* OR *Ticket* OR *klist* OR *mimikatz* OR *Invoke-Mimikatz*)",
+        "size": 50
+      },
+      "purpose": "PowerShell scripts referencing Kerberos tickets or credential-dumping tooling.",
+      "check_id": "C255"
+    },
+    {
+      "technique": "T1558",
+      "dataset": "windows.other",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.other",
+        "query": "message:(*Kerberos* OR *kerberos* OR *ticket*)",
+        "size": 50
+      },
+      "purpose": "Any Kerberos/ticket-related messages in the other channel (e.g. KDC/client errors).",
+      "check_id": "C256"
+    },
+    {
+      "technique": "T1558.001",
+      "dataset": "windows.security",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "win.TargetUserName",
+        "query": "event.code:4672",
+        "size": 100
+      },
+      "purpose": "Special privileges assigned to accounts (4672) — golden tickets often yield anomalous privileged logons.",
+      "check_id": "C257"
+    },
+    {
+      "technique": "T1558.001",
+      "dataset": "windows.security",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "win.TargetUserName",
+        "query": "event.code:4634",
+        "size": 100
+      },
+      "purpose": "Logoff events by account to compare with logons for forged-ticket sessions.",
+      "check_id": "C258"
+    },
+    {
+      "technique": "T1558.001",
+      "dataset": "windows.sysmon",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.sysmon",
+        "field": "process.executable",
+        "query": "event.code:10 AND win.TargetImage:*lsass*",
+        "size": 100
+      },
+      "purpose": "LSASS handle access that could precede KRBTGT hash theft.",
+      "check_id": "C259"
+    },
+    {
+      "technique": "T1558.001",
+      "dataset": "windows.powershell",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.powershell",
+        "query": "win.ScriptBlockText:(*krbtgt* OR *KRBTGT* OR *golden* OR *Golden* OR *mimikatz* OR *DCSync*)",
+        "size": 50
+      },
+      "purpose": "Scripts referencing krbtgt/golden ticket/DCSync tooling.",
+      "check_id": "C260"
+    },
+    {
+      "technique": "T1558.001",
+      "dataset": "windows.other",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.other",
+        "query": "message:(*krbtgt* OR *KRBTGT* OR *4769* OR *ticket*)",
+        "size": 50
+      },
+      "purpose": "Any ticket/KDC-related messages in the other channel.",
+      "check_id": "C261"
+    },
+    {
+      "technique": "T1558.002",
+      "dataset": "windows.security",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "win.ServiceName",
+        "query": "event.code:4672",
+        "size": 100
+      },
+      "purpose": "Service names in special-privilege logons that could indicate forged service tickets.",
+      "check_id": "C262"
+    },
+    {
+      "technique": "T1558.002",
+      "dataset": "windows.security",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "win.TargetUserName",
+        "query": "event.code:4624 AND win.LogonType:3",
+        "size": 100
+      },
+      "purpose": "Network logons by account — silver-ticket use typically appears as service-account network logons.",
+      "check_id": "C263"
+    },
+    {
+      "technique": "T1558.002",
+      "dataset": "windows.sysmon",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.sysmon",
+        "field": "win.GrantedAccess",
+        "query": "event.code:10 AND win.TargetImage:*lsass*",
+        "size": 100
+      },
+      "purpose": "LSASS access masks that could yield service-account hashes for silver tickets.",
+      "check_id": "C264"
+    },
+    {
+      "technique": "T1558.002",
+      "dataset": "windows.powershell",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.powershell",
+        "query": "win.ScriptBlockText:(*silver* OR *Silver* OR *kerberoast* OR *Kerberoast* OR *SPN* OR *service ticket*)",
+        "size": 50
+      },
+      "purpose": "Scripts referencing silver tickets / SPN service-ticket abuse.",
+      "check_id": "C265"
+    },
+    {
+      "technique": "T1558.002",
+      "dataset": "windows.other",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.other",
+        "query": "message:(*TGS* OR *service ticket* OR *Kerberos*)",
+        "size": 50
+      },
+      "purpose": "TGS/Kerberos messages in the other channel.",
+      "check_id": "C266"
+    },
+    {
+      "technique": "T1558.003",
+      "dataset": "windows.security",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "win.TargetUserName",
+        "query": "event.code:4624",
+        "size": 100
+      },
+      "purpose": "Logon accounts (4624) to spot service accounts authenticating unusually (post-Kerberoasting use).",
+      "check_id": "C267"
+    },
+    {
+      "technique": "T1558.003",
+      "dataset": "windows.security",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "win.TargetUserName",
+        "query": "event.code:4672",
+        "size": 100
+      },
+      "purpose": "Special-privilege logons by account for anomalous privileged authentication.",
+      "check_id": "C268"
+    },
+    {
+      "technique": "T1558.003",
+      "dataset": "windows.sysmon",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.sysmon",
+        "field": "process.executable",
+        "query": "event.code:10 AND win.TargetImage:*lsass*",
+        "size": 100
+      },
+      "purpose": "LSASS access by non-standard processes (ticket/hash harvesting).",
+      "check_id": "C269"
+    },
+    {
+      "technique": "T1558.003",
+      "dataset": "windows.powershell",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.powershell",
+        "query": "win.ScriptBlockText:(*kerberoast* OR *Kerberoast* OR *GetUserSPNs* OR *Invoke-Kerberoast* OR *SPN*)",
+        "size": 50
+      },
+      "purpose": "Kerberoasting tooling in PowerShell script blocks.",
+      "check_id": "C270"
+    },
+    {
+      "technique": "T1558.003",
+      "dataset": "windows.other",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.other",
+        "query": "message:(*Kerberos* OR *TGS* OR *SPN*)",
+        "size": 50
+      },
+      "purpose": "Kerberos/SPN-related messages in the other channel.",
+      "check_id": "C271"
+    },
+    {
+      "technique": "T1558.004",
+      "dataset": "windows.security",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "win.PreAuthType",
+        "query": "event.code:4624",
+        "size": 50
+      },
+      "purpose": "Pre-authentication type distribution on logons to spot pre-auth-disabled accounts being used.",
+      "check_id": "C272"
+    },
+    {
+      "technique": "T1558.004",
+      "dataset": "windows.security",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "win.TargetUserName",
+        "query": "event.code:4624 AND win.LogonType:3",
+        "size": 100
+      },
+      "purpose": "Network logon accounts that could reflect AS-REP-roasted credentials being reused.",
+      "check_id": "C273"
+    },
+    {
+      "technique": "T1558.004",
+      "dataset": "windows.sysmon",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.sysmon",
+        "field": "process.executable",
+        "query": "event.code:1 AND (process.command_line:*asrep* OR process.command_line:*ASREP* OR process.command_line:*GetNPUsers* OR process.command_line:*rubeus*)",
+        "size": 50
+      },
+      "purpose": "Processes executing AS-REP roasting tooling (Rubeus/GetNPUsers).",
+      "check_id": "C274"
+    },
+    {
+      "technique": "T1558.004",
+      "dataset": "windows.powershell",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.powershell",
+        "query": "win.ScriptBlockText:(*asrep* OR *ASREP* OR *GetNPUsers* OR *Rubeus* OR *rubeus*)",
+        "size": 50
+      },
+      "purpose": "AS-REP roasting tooling in PowerShell script blocks.",
+      "check_id": "C275"
+    },
+    {
+      "technique": "T1558.004",
+      "dataset": "windows.other",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.other",
+        "query": "message:(*4768* OR *preauth* OR *PreAuth* OR *AS-REP*)",
+        "size": 50
+      },
+      "purpose": "Any 4768/pre-authentication related messages in the other channel.",
+      "check_id": "C276"
+    },
+    {
+      "technique": "T1606",
+      "dataset": "windows.security",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "win.LogonProcessName",
+        "query": "event.code:4624",
+        "size": 50
+      },
+      "purpose": "Stack successful logons by logon process to spot non-standard/forged authentication packages (e.g. Kerberos vs. unusual SSP) indicating forged credential material.",
+      "check_id": "C277"
+    },
+    {
+      "technique": "T1606",
+      "dataset": "windows.security",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "win.AuthenticationPackageName",
+        "query": "event.code:4624",
+        "size": 50
+      },
+      "purpose": "Stack 4624 by authentication package to find rare packages that could reflect forged web/authentication credentials.",
+      "check_id": "C278"
+    },
+    {
+      "technique": "T1606",
+      "dataset": "windows.security",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.security",
+        "query": "event.code:4648",
+        "size": 50
+      },
+      "purpose": "Explicit-credential logons (4648) can reveal use of forged/harvested credentials against remote services.",
+      "check_id": "C279"
+    },
+    {
+      "technique": "T1606",
+      "dataset": "windows.sysmon",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.sysmon",
+        "field": "win.GrantedAccess",
+        "query": "event.code:10",
+        "size": 50
+      },
+      "purpose": "Stack process-access GrantedAccess values to find LSASS/credential-material access consistent with forging/stealing credential material.",
+      "check_id": "C280"
+    },
+    {
+      "technique": "T1606",
+      "dataset": "windows.powershell",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.powershell",
+        "query": "event.code:4104 AND (win.ScriptBlockText:*token* OR win.ScriptBlockText:*cookie* OR win.ScriptBlockText:*SAML* OR win.ScriptBlockText:*certificate*)",
+        "size": 50
+      },
+      "purpose": "Script block content referencing tokens/cookies/SAML/certificates may show forging of web credentials.",
+      "check_id": "C281"
+    },
+    {
+      "technique": "T1606",
+      "dataset": "windows.other",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.other",
+        "query": "event.code:7045",
+        "size": 50
+      },
+      "purpose": "New service installs (7045) could be tooling used to forge/harvest credential material; review rare service names.",
+      "check_id": "C282"
+    },
+    {
+      "technique": "T1606.001",
+      "dataset": "windows.sysmon",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.sysmon",
+        "field": "win.TargetFilename",
+        "query": "event.code:11 AND (win.TargetFilename:*Cookies* OR win.TargetFilename:*cookie*)",
+        "size": 50
+      },
+      "purpose": "Stack file-creation targets matching browser cookie stores to find cookie theft/forgery staging.",
+      "check_id": "C283"
+    },
+    {
+      "technique": "T1606.001",
+      "dataset": "windows.sysmon",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.sysmon",
+        "query": "event.code:11 AND (win.TargetFilename:*Cookies* OR win.TargetFilename:*Login Data* OR win.TargetFilename:*Web Data*)",
+        "size": 50
+      },
+      "purpose": "File creations of browser credential/cookie stores indicate harvesting or copying of web cookies.",
+      "check_id": "C284"
+    },
+    {
+      "technique": "T1606.001",
+      "dataset": "windows.security",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.security",
+        "query": "event.code:4648",
+        "size": 50
+      },
+      "purpose": "Explicit-credential logons may show use of forged web cookies/credentials against services.",
+      "check_id": "C285"
+    },
+    {
+      "technique": "T1606.001",
+      "dataset": "windows.powershell",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.powershell",
+        "query": "event.code:4104 AND (win.ScriptBlockText:*cookie* OR win.ScriptBlockText:*Cookies*)",
+        "size": 50
+      },
+      "purpose": "Script blocks referencing cookie stores may show cookie theft or forging.",
+      "check_id": "C286"
+    },
+    {
+      "technique": "T1606.001",
+      "dataset": "windows.other",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.other",
+        "query": "event.code:11 AND (file.path:*Cookies* OR file.path:*cookie*)",
+        "size": 50
+      },
+      "purpose": "File-create events in windows.other touching cookie paths corroborate cookie access.",
+      "check_id": "C287"
+    },
+    {
+      "technique": "T1606.002",
+      "dataset": "windows.security",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "win.AuthenticationPackageName",
+        "query": "event.code:4624",
+        "size": 50
+      },
+      "purpose": "Stack 4624 by authentication package to spot anomalous/rare packages that could accompany forged SAML/token-based logons.",
+      "check_id": "C288"
+    },
+    {
+      "technique": "T1606.002",
+      "dataset": "windows.security",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.security",
+        "query": "event.code:4648",
+        "size": 50
+      },
+      "purpose": "Explicit-credential logons may reveal use of forged tokens against services.",
+      "check_id": "C289"
+    },
+    {
+      "technique": "T1606.002",
+      "dataset": "windows.powershell",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.powershell",
+        "query": "event.code:4104 AND (win.ScriptBlockText:*SAML* OR win.ScriptBlockText:*token* OR win.ScriptBlockText:*ADFS*)",
+        "size": 50
+      },
+      "purpose": "Script blocks referencing SAML/ADFS/token signing may indicate token forgery.",
+      "check_id": "C290"
+    },
+    {
+      "technique": "T1606.002",
+      "dataset": "windows.other",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.other",
+        "query": "message:*ADFS* OR message:*SAML*",
+        "size": 50
+      },
+      "purpose": "Any ADFS/SAML-related events in windows.other could show anomalous token issuance.",
+      "check_id": "C291"
+    },
+    {
+      "technique": "T1606.002",
+      "dataset": "windows.sysmon",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.sysmon",
+        "query": "event.code:11 AND (win.TargetFilename:*token* OR win.TargetFilename:*saml*)",
+        "size": 50
+      },
+      "purpose": "File creations of token/SAML artifacts may indicate token-signing material theft or staging.",
+      "check_id": "C292"
+    },
+    {
+      "technique": "T1621",
+      "dataset": "windows.security",
+      "tool": "count",
+      "args": {
+        "dataset": "windows.security",
+        "query": "event.code:4625"
+      },
+      "purpose": "Count failed logons (4625) to gauge authentication-failure volume consistent with MFA/credential abuse attempts.",
+      "check_id": "C293"
+    },
+    {
+      "technique": "T1621",
+      "dataset": "windows.security",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "win.TargetUserName",
+        "query": "event.code:4625",
+        "size": 50
+      },
+      "purpose": "Stack failed logons by target user to find accounts being repeatedly pushed (MFA request generation / credential abuse).",
+      "check_id": "C294"
+    },
+    {
+      "technique": "T1621",
+      "dataset": "windows.security",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "source.ip",
+        "query": "event.code:4625",
+        "size": 50
+      },
+      "purpose": "Stack failed logons by source IP to identify a single origin generating repeated authentication attempts.",
+      "check_id": "C295"
+    },
+    {
+      "technique": "T1621",
+      "dataset": "windows.powershell",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.powershell",
+        "query": "event.code:4104 AND (win.ScriptBlockText:*MFA* OR win.ScriptBlockText:*2FA* OR win.ScriptBlockText:*Authenticator*)",
+        "size": 50
+      },
+      "purpose": "Script blocks referencing MFA/2FA may show tooling to trigger or bypass MFA requests.",
+      "check_id": "C296"
+    },
+    {
+      "technique": "T1621",
+      "dataset": "windows.other",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.other",
+        "query": "message:*MFA* OR message:*multi-factor*",
+        "size": 50
+      },
+      "purpose": "Any MFA-related events in windows.other could reveal MFA request generation.",
+      "check_id": "C297"
+    },
+    {
+      "technique": "T1621",
+      "dataset": "windows.sysmon",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.sysmon",
+        "field": "process.executable",
+        "query": "event.code:1 AND (process.command_line:*login* OR process.command_line:*auth*)",
+        "size": 50
+      },
+      "purpose": "Stack processes whose command lines reference login/auth to find tooling driving repeated authentication attempts.",
+      "check_id": "C298"
+    },
+    {
+      "technique": "T1649",
+      "dataset": "windows.security",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.security",
+        "query": "event.code:4657",
+        "size": 50
+      },
+      "purpose": "Registry value modifications (4657) can reveal tampering with certificate stores or CA configuration.",
+      "check_id": "C299"
+    },
+    {
+      "technique": "T1649",
+      "dataset": "windows.security",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "win.ObjectName",
+        "query": "event.code:4657",
+        "size": 50
+      },
+      "purpose": "Stack 4657 by object name to find rare registry keys related to certificates/CA stores.",
+      "check_id": "C300"
+    },
+    {
+      "technique": "T1649",
+      "dataset": "windows.security",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.security",
+        "query": "event.code:4768",
+        "size": 50
+      },
+      "purpose": "Kerberos TGT requests (4768) may show anomalous certificate-based (PKINIT) authentication.",
+      "check_id": "C301"
+    },
+    {
+      "technique": "T1649",
+      "dataset": "windows.security",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "windows.security",
+        "field": "win.PreAuthType",
+        "query": "event.code:4768",
+        "size": 50
+      },
+      "purpose": "Stack 4768 by pre-auth type to spot PKINIT/certificate-based logons indicating stolen/forged auth certificates.",
+      "check_id": "C302"
+    },
+    {
+      "technique": "T1649",
+      "dataset": "windows.sysmon",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.sysmon",
+        "query": "event.code:11 AND (win.TargetFilename:*.pfx OR win.TargetFilename:*.p12 OR win.TargetFilename:*.cer OR win.TargetFilename:*.crt)",
+        "size": 50
+      },
+      "purpose": "File creations of certificate files may indicate certificate theft/export.",
+      "check_id": "C303"
+    },
+    {
+      "technique": "T1649",
+      "dataset": "windows.powershell",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.powershell",
+        "query": "event.code:4104 AND (win.ScriptBlockText:*Export-PfxCertificate* OR win.ScriptBlockText:*certutil* OR win.ScriptBlockText:*Certificate*)",
+        "size": 50
+      },
+      "purpose": "Script blocks exporting or manipulating certificates may show auth-certificate theft/forgery.",
+      "check_id": "C304"
+    },
+    {
+      "technique": "T1649",
+      "dataset": "windows.other",
+      "tool": "search",
+      "args": {
+        "dataset": "windows.other",
+        "query": "message:*certificate* OR message:*Certificate*",
+        "size": 50
+      },
+      "purpose": "Certificate-related events in windows.other could reveal certificate store changes or enrollment abuse.",
+      "check_id": "C305"
+    },
+    {
+      "technique": "T1003.006",
+      "dataset": "zeek",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "zeek",
+        "field": "zeek.endpoint",
+        "query": "event.action:dce_rpc",
+        "size": 50
+      },
+      "purpose": "Stack DCE/RPC endpoints to see whether DRSUAPI (directory replication, DCSync) appears among the RPC traffic.",
+      "check_id": "C306"
+    },
+    {
+      "technique": "T1003.006",
+      "dataset": "zeek",
+      "tool": "search",
+      "args": {
+        "dataset": "zeek",
+        "query": "event.action:dce_rpc AND (zeek.endpoint:*drsuapi* OR zeek.endpoint:*DRSUAPI*)",
+        "size": 50
+      },
+      "purpose": "Look for any DCE/RPC operation against the DRSUAPI interface that would indicate DCSync replication abuse.",
+      "check_id": "C307"
+    },
+    {
+      "technique": "T1111",
+      "dataset": "zeek",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "zeek",
+        "field": "zeek.error_msg",
+        "query": "event.action:kerberos",
+        "size": 50
+      },
+      "purpose": "Stack Kerberos error messages to spot authentication anomalies (e.g. pre-auth failures, ticket errors) that could accompany MFA/credential interception.",
+      "check_id": "C308"
+    },
+    {
+      "technique": "T1111",
+      "dataset": "zeek",
+      "tool": "search",
+      "args": {
+        "dataset": "zeek",
+        "query": "event.action:kerberos AND zeek.success:false",
+        "size": 50
+      },
+      "purpose": "Inspect failed Kerberos authentications for anomalous authentication with intercepted or replayed credentials.",
+      "check_id": "C309"
+    },
+    {
+      "technique": "T1187",
+      "dataset": "zeek",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "zeek",
+        "field": "destination.port",
+        "query": "event.action:conn AND (destination.port:139 OR destination.port:445)",
+        "size": 50
+      },
+      "purpose": "Stack SMB destination ports to see outbound 139/445 connections from workstations that could be forced-authentication (responder-style) traffic.",
+      "check_id": "C310"
+    },
+    {
+      "technique": "T1187",
+      "dataset": "zeek",
+      "tool": "search",
+      "args": {
+        "dataset": "zeek",
+        "query": "event.action:http AND (http.request.method:PROPFIND OR http.request.method:OPTIONS OR http.request.method:MOVE)",
+        "size": 50
+      },
+      "purpose": "Look for WebDAV-style HTTP methods used to coerce NTLM authentication.",
+      "check_id": "C311"
+    },
+    {
+      "technique": "T1187",
+      "dataset": "zeek",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "zeek",
+        "field": "zeek.user_agent",
+        "query": "event.action:http",
+        "size": 50
+      },
+      "purpose": "Stack HTTP user agents to spot rare clients (e.g. WebDAV/coercion tooling) among HTTP requests.",
+      "check_id": "C312"
+    },
+    {
+      "technique": "T1212",
+      "dataset": "zeek",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "zeek",
+        "field": "zeek.error_msg",
+        "query": "event.action:kerberos",
+        "size": 50
+      },
+      "purpose": "Stack Kerberos errors to detect ticket anomalies (4768/4769/4770 equivalents) that could follow exploitation for credential access.",
+      "check_id": "C313"
+    },
+    {
+      "technique": "T1212",
+      "dataset": "zeek",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "zeek",
+        "field": "zeek.service",
+        "query": "event.action:conn",
+        "size": 50
+      },
+      "purpose": "Stack connection services to find unusual service exposure/exploitation-related traffic patterns.",
+      "check_id": "C314"
+    },
+    {
+      "technique": "T1539",
+      "dataset": "zeek",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "zeek",
+        "field": "url.domain",
+        "query": "event.action:http",
+        "size": 50
+      },
+      "purpose": "Stack HTTP destination domains to spot web applications whose session cookies could be stolen/replayed.",
+      "check_id": "C315"
+    },
+    {
+      "technique": "T1539",
+      "dataset": "zeek",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "zeek",
+        "field": "zeek.user_agent",
+        "query": "event.action:http",
+        "size": 50
+      },
+      "purpose": "Stack user agents to find rare clients that may indicate cookie/session replay tooling.",
+      "check_id": "C316"
+    },
+    {
+      "technique": "T1552",
+      "dataset": "zeek",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "zeek",
+        "field": "zeek.filename",
+        "query": "event.action:smb_files",
+        "size": 50
+      },
+      "purpose": "Stack SMB file names to see whether credential-bearing files (scripts, configs, unattend files) were accessed over the network.",
+      "check_id": "C317"
+    },
+    {
+      "technique": "T1552",
+      "dataset": "zeek",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "zeek",
+        "field": "zeek.path",
+        "query": "event.action:smb_mapping",
+        "size": 50
+      },
+      "purpose": "Stack SMB share paths mapped to identify access to shares that may hold unsecured credentials.",
+      "check_id": "C318"
+    },
+    {
+      "technique": "T1552",
+      "dataset": "zeek",
+      "tool": "search",
+      "args": {
+        "dataset": "zeek",
+        "query": "event.action:files AND (zeek.mime_type:*text* OR zeek.mime_type:*script*)",
+        "size": 50
+      },
+      "purpose": "Look for transferred text/script files that could contain insecurely stored credentials.",
+      "check_id": "C319"
+    },
+    {
+      "technique": "T1552.001",
+      "dataset": "zeek",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "zeek",
+        "field": "zeek.filename",
+        "query": "event.action:smb_files",
+        "size": 50
+      },
+      "purpose": "Stack SMB file names transferred to see whether credential-bearing files (config, unattend, scripts) were pulled from remote shares.",
+      "check_id": "C320"
+    },
+    {
+      "technique": "T1557",
+      "dataset": "zeek",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "zeek",
+        "field": "destination.ip",
+        "query": "event.action:conn AND (destination.port:445 OR destination.port:139)",
+        "size": 50
+      },
+      "purpose": "Stack SMB peers in Zeek conn logs to identify unexpected hosts receiving SMB authentication (relay targets).",
+      "check_id": "C321"
+    },
+    {
+      "technique": "T1557",
+      "dataset": "zeek",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "zeek",
+        "field": "zeek.conn_state",
+        "query": "event.action:conn AND (destination.port:445 OR destination.port:139)",
+        "size": 50
+      },
+      "purpose": "Look at SMB connection states for abnormal/half-open patterns consistent with relay or interception.",
+      "check_id": "C322"
+    },
+    {
+      "technique": "T1557.001",
+      "dataset": "zeek",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "zeek",
+        "field": "destination.ip",
+        "query": "event.action:conn AND (destination.port:5355 OR destination.port:137)",
+        "size": 50
+      },
+      "purpose": "Stack destinations of LLMNR (5355) / NBT-NS (137) traffic to spot unauthorized responders.",
+      "check_id": "C323"
+    },
+    {
+      "technique": "T1557.001",
+      "dataset": "zeek",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "zeek",
+        "field": "zeek.conn_state",
+        "query": "event.action:conn AND (destination.port:445 OR destination.port:139)",
+        "size": 50
+      },
+      "purpose": "Inspect SMB connection states for abnormal authentication attempts correlated with name-resolution poisoning.",
+      "check_id": "C324"
+    },
+    {
+      "technique": "T1557.002",
+      "dataset": "zeek",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "zeek",
+        "field": "zeek.orig_l2_addr",
+        "query": "event.action:conn",
+        "size": 50
+      },
+      "purpose": "Stack originating MAC addresses in conn logs to spot one MAC claiming many IPs (ARP spoofing signature).",
+      "check_id": "C325"
+    },
+    {
+      "technique": "T1557.002",
+      "dataset": "zeek",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "zeek",
+        "field": "zeek.resp_l2_addr",
+        "query": "event.action:conn",
+        "size": 50
+      },
+      "purpose": "Stack responding MAC addresses to detect duplicate MACs across IPs indicating ARP cache poisoning.",
+      "check_id": "C326"
+    },
+    {
+      "technique": "T1558",
+      "dataset": "zeek",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "zeek",
+        "field": "zeek.request_type",
+        "query": "event.action:kerberos",
+        "size": 50
+      },
+      "purpose": "Stack Kerberos request types in Zeek to see TGS/TGT request anomalies (e.g. unusual service ticket requests).",
+      "check_id": "C327"
+    },
+    {
+      "technique": "T1558",
+      "dataset": "zeek",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "zeek",
+        "field": "zeek.error_msg",
+        "query": "event.action:kerberos",
+        "size": 50
+      },
+      "purpose": "Stack Kerberos error messages to detect failed/forged ticket attempts.",
+      "check_id": "C328"
+    },
+    {
+      "technique": "T1558.001",
+      "dataset": "zeek",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "zeek",
+        "field": "zeek.request_type",
+        "query": "event.action:kerberos",
+        "size": 50
+      },
+      "purpose": "Stack Kerberos request types to spot TGT requests for unusual principals (golden ticket usage).",
+      "check_id": "C329"
+    },
+    {
+      "technique": "T1558.001",
+      "dataset": "zeek",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "zeek",
+        "field": "zeek.error_msg",
+        "query": "event.action:kerberos",
+        "size": 50
+      },
+      "purpose": "Stack Kerberos errors to detect rejected forged tickets.",
+      "check_id": "C330"
+    },
+    {
+      "technique": "T1558.002",
+      "dataset": "zeek",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "zeek",
+        "field": "zeek.request_type",
+        "query": "event.action:kerberos",
+        "size": 20
+      },
+      "purpose": "Stack Kerberos request types to see whether TGS-REQ (service ticket) requests dominate, the precondition for silver-ticket use.",
+      "check_id": "C331"
+    },
+    {
+      "technique": "T1558.002",
+      "dataset": "zeek",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "zeek",
+        "field": "zeek.success",
+        "query": "event.action:kerberos",
+        "size": 10
+      },
+      "purpose": "Check whether Kerberos exchanges succeed or fail; forged silver tickets often show TGS requests without corresponding KDC validation/failures.",
+      "check_id": "C332"
+    },
+    {
+      "technique": "T1558.002",
+      "dataset": "zeek",
+      "tool": "search",
+      "args": {
+        "dataset": "zeek",
+        "query": "event.action:kerberos",
+        "size": 50
+      },
+      "purpose": "Read the Kerberos records (client, service, error_msg) to spot TGS-REQ anomalies such as unusual service names or error codes.",
+      "check_id": "C333"
+    },
+    {
+      "technique": "T1558.003",
+      "dataset": "zeek",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "zeek",
+        "field": "zeek.request_type",
+        "query": "event.action:kerberos",
+        "size": 20
+      },
+      "purpose": "Kerberoasting produces many TGS-REQ (service ticket) requests; stacking request types shows whether TGS-REQ volume stands out.",
+      "check_id": "C334"
+    },
+    {
+      "technique": "T1558.003",
+      "dataset": "zeek",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "zeek",
+        "field": "zeek.client",
+        "query": "event.action:kerberos AND zeek.request_type:TGS",
+        "size": 30
+      },
+      "purpose": "Stack Kerberos clients issuing TGS requests to find a single host requesting many service tickets (roasting pattern).",
+      "check_id": "C335"
+    },
+    {
+      "technique": "T1558.003",
+      "dataset": "zeek",
+      "tool": "search",
+      "args": {
+        "dataset": "zeek",
+        "query": "event.action:kerberos AND zeek.error_msg:*",
+        "size": 50
+      },
+      "purpose": "Look at Kerberos error messages (e.g. pre-auth/encryption-type errors) that accompany roasting attempts.",
+      "check_id": "C336"
+    },
+    {
+      "technique": "T1558.004",
+      "dataset": "zeek",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "zeek",
+        "field": "zeek.error_msg",
+        "query": "event.action:kerberos",
+        "size": 30
+      },
+      "purpose": "AS-REP roasting yields AS-REQ/AS-REP exchanges without pre-authentication; stacking error messages reveals pre-auth-related failures or unusual AS exchanges.",
+      "check_id": "C337"
+    },
+    {
+      "technique": "T1558.004",
+      "dataset": "zeek",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "zeek",
+        "field": "zeek.client",
+        "query": "event.action:kerberos AND zeek.request_type:AS",
+        "size": 30
+      },
+      "purpose": "Stack clients issuing AS requests to find a host enumerating accounts for AS-REP roasting.",
+      "check_id": "C338"
+    },
+    {
+      "technique": "T1558.004",
+      "dataset": "zeek",
+      "tool": "search",
+      "args": {
+        "dataset": "zeek",
+        "query": "event.action:kerberos",
+        "size": 50
+      },
+      "purpose": "Read Kerberos records to inspect request types, clients and error messages for AS-REP roasting indicators.",
+      "check_id": "C339"
+    },
+    {
+      "technique": "T1606",
+      "dataset": "zeek",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "zeek",
+        "field": "http.request.method",
+        "query": "event.action:http",
+        "size": 20
+      },
+      "purpose": "Stack HTTP methods to see authentication/session-related requests that could carry forged web credentials.",
+      "check_id": "C340"
+    },
+    {
+      "technique": "T1606",
+      "dataset": "zeek",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "zeek",
+        "field": "url.domain",
+        "query": "event.action:http",
+        "size": 30
+      },
+      "purpose": "Stack HTTP destination domains to spot web applications where forged cookies/tokens would be used.",
+      "check_id": "C341"
+    },
+    {
+      "technique": "T1606",
+      "dataset": "zeek",
+      "tool": "search",
+      "args": {
+        "dataset": "zeek",
+        "query": "event.action:http",
+        "size": 50
+      },
+      "purpose": "Read HTTP records (URI, user agent, status) for anomalous authenticated web access.",
+      "check_id": "C342"
+    },
+    {
+      "technique": "T1606.001",
+      "dataset": "zeek",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "zeek",
+        "field": "zeek.user_agent",
+        "query": "event.action:http",
+        "size": 30
+      },
+      "purpose": "Stack HTTP user agents to find non-browser or unusual clients that might replay forged cookies.",
+      "check_id": "C343"
+    },
+    {
+      "technique": "T1606.001",
+      "dataset": "zeek",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "zeek",
+        "field": "url.domain",
+        "query": "event.action:http",
+        "size": 30
+      },
+      "purpose": "Stack HTTP domains to identify web apps where cookie forgery would be exercised.",
+      "check_id": "C344"
+    },
+    {
+      "technique": "T1606.001",
+      "dataset": "zeek",
+      "tool": "search",
+      "args": {
+        "dataset": "zeek",
+        "query": "event.action:http",
+        "size": 50
+      },
+      "purpose": "Read HTTP records for anomalous request patterns (URI, method, status) consistent with forged-cookie use.",
+      "check_id": "C345"
+    },
+    {
+      "technique": "T1606.002",
+      "dataset": "zeek",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "zeek",
+        "field": "url.domain",
+        "query": "event.action:http",
+        "size": 30
+      },
+      "purpose": "Stack HTTP domains to find SAML/SSO endpoints where forged SAML tokens would be presented.",
+      "check_id": "C346"
+    },
+    {
+      "technique": "T1606.002",
+      "dataset": "zeek",
+      "tool": "aggregate",
+      "args": {
+        "dataset": "zeek",
+        "field": "http.request.method",
+        "query": "event.action:http",
+        "size": 20
+      },
+      "purpose": "Stack HTTP methods to see POST-heavy authentication traffic typical of SAML assertion submission.",
+      "check_id": "C347"
+    },
+    {
+      "technique": "T1606.002",
+      "dataset": "zeek",
+      "tool": "search",
+      "args": {
+        "dataset": "zeek",
+        "query": "event.action:http",
+        "size": 50
+      },
+      "purpose": "Read HTTP records (URI, method, status) for SAML/SSO assertion traffic that could indicate forged tokens.",
+      "check_id": "C348"
+    }
+  ],
+  "coverage": {
+    "T1003": {
+      "name": "OS Credential Dumping",
+      "cells": {
+        "windows.sysmon": "check",
+        "windows.security": "check",
+        "windows.powershell": "check",
+        "windows.other": "check",
+        "zeek": "n/a: Zeek network logs (conn/dns/http/ssl/smb/kerberos) record no host-local credential-dumping activity such as process access to LSASS or registry hive reads; only network-visible auth could hint at it, which is covered under anomalous authent"
+      }
+    },
+    "T1003.001": {
+      "name": "LSASS Memory",
+      "cells": {
+        "windows.sysmon": "check",
+        "windows.security": "check",
+        "windows.powershell": "check",
+        "windows.other": "check",
+        "zeek": "n/a: Zeek captures network traffic only; LSASS memory access is a host-local event with no network representation in these logs."
+      }
+    },
+    "T1003.002": {
+      "name": "Security Account Manager",
+      "cells": {
+        "windows.sysmon": "check",
+        "windows.security": "check",
+        "windows.powershell": "check",
+        "windows.other": "check",
+        "zeek": "n/a: SAM database extraction is a local registry/file operation on the Windows host; Zeek network logs cannot record it."
+      }
+    },
+    "T1003.003": {
+      "name": "NTDS",
+      "cells": {
+        "windows.sysmon": "check",
+        "windows.security": "check",
+        "windows.powershell": "check",
+        "windows.other": "check",
+        "zeek": "n/a: NTDS.dit access/copy is a local file and VSS operation on the domain controller; Zeek network logs do not record it."
+      }
+    },
+    "T1003.004": {
+      "name": "LSA Secrets",
+      "cells": {
+        "windows.sysmon": "check",
+        "windows.security": "check",
+        "windows.powershell": "check",
+        "windows.other": "check",
+        "zeek": "n/a: LSA secrets reside in the local registry/LSASS memory; Zeek network logs have no visibility into registry or process memory access."
+      }
+    },
+    "T1003.005": {
+      "name": "Cached Domain Credentials",
+      "cells": {
+        "windows.sysmon": "check",
+        "windows.security": "check",
+        "windows.powershell": "check",
+        "windows.other": "check",
+        "zeek": "n/a: Cached domain credentials are stored in the local SECURITY registry hive/LSASS memory; Zeek network logs cannot observe registry or memory access."
+      }
+    },
+    "T1003.006": {
+      "name": "DCSync",
+      "cells": {
+        "windows.security": "check",
+        "windows.sysmon": "check",
+        "windows.other": "check",
+        "windows.powershell": "check",
+        "zeek": "check"
+      }
+    },
+    "T1040": {
+      "name": "Network Sniffing",
+      "cells": {
+        "windows.security": "check",
+        "windows.other": "check",
+        "windows.sysmon": "check",
+        "windows.powershell": "check",
+        "zeek": "n/a: Zeek records flow/transaction metadata (conn, dns, http, ssl, smb, kerberos) but not host NIC promiscuous-mode state or local packet-capture activity, so it cannot record sniffing on a host."
+      }
+    },
+    "T1056": {
+      "name": "Input Capture",
+      "cells": {
+        "windows.sysmon": "check",
+        "windows.security": "check",
+        "windows.powershell": "check",
+        "windows.other": "n/a: windows.other carries service, boot, device and similar system events (5858, 7045, 7036, ...) but no object-access or process-access events that would record input capture.",
+        "zeek": "n/a: Zeek logs network metadata only; keystroke/input capture on a host is not visible in conn/dns/http/ssl/smb/kerberos records."
+      }
+    },
+    "T1056.001": {
+      "name": "Keylogging",
+      "cells": {
+        "windows.sysmon": "check",
+        "windows.security": "check",
+        "windows.other": "check",
+        "windows.powershell": "check",
+        "zeek": "n/a: Zeek has no host keystroke or keyboard-driver telemetry; only network flow/transaction records are present."
+      }
+    },
+    "T1056.002": {
+      "name": "GUI Input Capture",
+      "cells": {
+        "windows.sysmon": "check",
+        "windows.powershell": "check",
+        "windows.security": "check",
+        "windows.other": "n/a: windows.other holds system/service/device events, not process creation or script-block events that would show a fake GUI prompt.",
+        "zeek": "n/a: Zeek records network transactions only; a GUI credential prompt on a host produces no Zeek record."
+      }
+    },
+    "T1056.003": {
+      "name": "Web Portal Capture",
+      "cells": {
+        "windows.sysmon": "check",
+        "windows.powershell": "check",
+        "windows.security": "check",
+        "windows.other": "n/a: windows.other contains no IIS/web-server request logs or file-write events for portal content.",
+        "zeek": "n/a: Zeek's http records in this dataset are client-side request/response metadata; no IIS access logs or web-root file writes are recorded, so portal tampering cannot be observed."
+      }
+    },
+    "T1056.004": {
+      "name": "Credential API Hooking",
+      "cells": {
+        "windows.sysmon": "check",
+        "windows.security": "check",
+        "windows.powershell": "check",
+        "windows.other": "check",
+        "zeek": "n/a: Zeek is network metadata (conn/dns/http/ssl/etc.) and records no process handle, image-load or thread-injection events, so API hooking cannot be observed there."
+      }
+    },
+    "T1110": {
+      "name": "Brute Force",
+      "cells": {
+        "windows.security": "check",
+        "windows.sysmon": "check",
+        "windows.powershell": "check",
+        "windows.other": "check",
+        "zeek": "check"
+      }
+    },
+    "T1110.001": {
+      "name": "Password Guessing",
+      "cells": {
+        "windows.security": "check",
+        "windows.sysmon": "check",
+        "windows.powershell": "check",
+        "windows.other": "check",
+        "zeek": "check"
+      }
+    },
+    "T1110.002": {
+      "name": "Password Cracking",
+      "cells": {
+        "windows.security": "check",
+        "windows.sysmon": "check",
+        "windows.powershell": "check",
+        "windows.other": "check",
+        "zeek": "check"
+      }
+    },
+    "T1110.003": {
+      "name": "Password Spraying",
+      "cells": {
+        "windows.security": "check",
+        "windows.sysmon": "check",
+        "windows.powershell": "check",
+        "windows.other": "check",
+        "zeek": "check"
+      }
+    },
+    "T1110.004": {
+      "name": "Credential Stuffing",
+      "cells": {
+        "windows.security": "check",
+        "windows.sysmon": "check",
+        "windows.powershell": "check",
+        "windows.other": "check",
+        "zeek": "check"
+      }
+    },
+    "T1111": {
+      "name": "Multi-Factor Authentication Interception",
+      "cells": {
+        "windows.sysmon": "check",
+        "windows.security": "check",
+        "windows.powershell": "check",
+        "windows.other": "check",
+        "zeek": "check"
+      }
+    },
+    "T1187": {
+      "name": "Forced Authentication",
+      "cells": {
+        "windows.sysmon": "check",
+        "windows.security": "check",
+        "windows.powershell": "check",
+        "windows.other": "check",
+        "zeek": "check"
+      }
+    },
+    "T1212": {
+      "name": "Exploitation for Credential Access",
+      "cells": {
+        "windows.sysmon": "check",
+        "windows.security": "check",
+        "windows.powershell": "check",
+        "windows.other": "check",
+        "zeek": "check"
+      }
+    },
+    "T1539": {
+      "name": "Steal Web Session Cookie",
+      "cells": {
+        "windows.sysmon": "check",
+        "windows.security": "check",
+        "windows.powershell": "check",
+        "windows.other": "check",
+        "zeek": "check"
+      }
+    },
+    "T1552": {
+      "name": "Unsecured Credentials",
+      "cells": {
+        "windows.sysmon": "check",
+        "windows.security": "check",
+        "windows.powershell": "check",
+        "windows.other": "check",
+        "zeek": "check"
+      }
+    },
+    "T1552.001": {
+      "name": "Credentials In Files",
+      "cells": {
+        "windows.sysmon": "check",
+        "windows.security": "check",
+        "windows.powershell": "check",
+        "windows.other": "check",
+        "zeek": "check"
+      }
+    },
+    "T1552.002": {
+      "name": "Credentials in Registry",
+      "cells": {
+        "windows.sysmon": "check",
+        "windows.powershell": "check",
+        "windows.security": "check",
+        "windows.other": "check",
+        "zeek": "n/a: Zeek is network metadata (conn/dns/http/ssl/smb) and does not record Windows registry reads or queries, so local registry credential hunting cannot appear in it."
+      }
+    },
+    "T1552.003": {
+      "name": "Shell History",
+      "cells": {
+        "windows.powershell": "check",
+        "windows.sysmon": "check",
+        "windows.security": "check",
+        "windows.other": "check",
+        "zeek": "n/a: Zeek captures network traffic only; shell command history is a local file artifact and never appears in network metadata."
+      }
+    },
+    "T1552.004": {
+      "name": "Private Keys",
+      "cells": {
+        "windows.sysmon": "check",
+        "windows.security": "check",
+        "windows.powershell": "check",
+        "windows.other": "check",
+        "zeek": "n/a: Zeek logs connection/TLS metadata, not local file reads of private key files on Windows hosts; key file access is not observable in it."
+      }
+    },
+    "T1552.006": {
+      "name": "Group Policy Preferences",
+      "cells": {
+        "windows.powershell": "check",
+        "windows.security": "check",
+        "windows.sysmon": "check",
+        "windows.other": "check",
+        "zeek": "n/a: Zeek network metadata does not record SMB file content or GPP XML parsing; only file names could appear in smb_files, not the credential extraction itself, and no such GPP-specific check is expressible."
+      }
+    },
+    "T1555": {
+      "name": "Credentials from Password Stores",
+      "cells": {
+        "windows.sysmon": "check",
+        "windows.security": "check",
+        "windows.powershell": "check",
+        "windows.other": "check",
+        "zeek": "n/a: Zeek has no process-memory or local credential-store visibility; LSASS/SAM access cannot be recorded in network metadata."
+      }
+    },
+    "T1555.003": {
+      "name": "Credentials from Web Browsers",
+      "cells": {
+        "windows.sysmon": "check",
+        "windows.security": "check",
+        "windows.powershell": "check",
+        "windows.other": "check",
+        "zeek": "n/a: Zeek records network flows only; reading local browser credential stores on a Windows host produces no network record that identifies the file access."
+      }
+    },
+    "T1555.004": {
+      "name": "Windows Credential Manager",
+      "cells": {
+        "windows.sysmon": "check",
+        "windows.security": "check",
+        "windows.powershell": "check",
+        "windows.other": "check",
+        "zeek": "n/a: Zeek network logs record connections/DNS/HTTP etc., not local Windows Credential Manager access; no host credential-store events exist in this dataset."
+      }
+    },
+    "T1555.005": {
+      "name": "Password Managers",
+      "cells": {
+        "windows.sysmon": "check",
+        "windows.security": "check",
+        "windows.powershell": "check",
+        "windows.other": "check",
+        "zeek": "n/a: Zeek captures network traffic only; it cannot observe local password-manager database access on Windows hosts."
+      }
+    },
+    "T1556": {
+      "name": "Modify Authentication Process",
+      "cells": {
+        "windows.sysmon": "check",
+        "windows.security": "check",
+        "windows.powershell": "check",
+        "windows.other": "check",
+        "zeek": "n/a: Zeek has no visibility into local process memory access or authentication-process DLL loading on Windows hosts."
+      }
+    },
+    "T1556.001": {
+      "name": "Domain Controller Authentication",
+      "cells": {
+        "windows.sysmon": "check",
+        "windows.security": "check",
+        "windows.other": "check",
+        "windows.powershell": "check",
+        "zeek": "n/a: Zeek sees network authentication traffic but cannot record local lsass/cryptdll patching on a domain controller; no host-level auth-process events exist in this dataset."
+      }
+    },
+    "T1556.002": {
+      "name": "Password Filter DLL",
+      "cells": {
+        "windows.sysmon": "check",
+        "windows.security": "check",
+        "windows.powershell": "check",
+        "windows.other": "check",
+        "zeek": "n/a: Zeek network logs cannot record DLL registration or registry changes on Windows hosts."
+      }
+    },
+    "T1556.005": {
+      "name": "Reversible Encryption",
+      "cells": {
+        "windows.powershell": "check",
+        "windows.security": "check",
+        "windows.sysmon": "check",
+        "windows.other": "check",
+        "zeek": "n/a: Zeek network logs cannot record Active Directory account property changes such as AllowReversiblePasswordEncryption."
+      }
+    },
+    "T1556.006": {
+      "name": "Multi-Factor Authentication",
+      "cells": {
+        "windows.powershell": "check",
+        "windows.security": "check",
+        "windows.other": "check",
+        "windows.sysmon": "n/a: Sysmon records process/file/network/registry telemetry, not AD authentication-policy or MFA configuration changes (event 4739 / Set-ADUser), so it cannot record this technique.",
+        "zeek": "n/a: Zeek network logs (conn/dns/http/kerberos/smb) capture traffic metadata only; they do not record AD MFA policy attribute changes or Set-ADUser execution."
+      }
+    },
+    "T1556.007": {
+      "name": "Hybrid Identity",
+      "cells": {
+        "windows.sysmon": "check",
+        "windows.security": "check",
+        "windows.powershell": "check",
+        "windows.other": "check",
+        "zeek": "n/a: Zeek logs network flows and protocol metadata; it cannot observe on-premises identity object modification or DLL loading into authentication processes."
+      }
+    },
+    "T1556.008": {
+      "name": "Network Provider DLL",
+      "cells": {
+        "windows.sysmon": "check",
+        "windows.security": "check",
+        "windows.other": "check",
+        "windows.powershell": "n/a: PowerShell script-block/engine logs record script execution, not registry NetworkProvider DLL registration or winlogon process access.",
+        "zeek": "n/a: Zeek captures network traffic only; it cannot see local registry NetworkProvider registration or DLL loading on the host."
+      }
+    },
+    "T1557": {
+      "name": "Adversary-in-the-Middle",
+      "cells": {
+        "windows.sysmon": "check",
+        "windows.security": "check",
+        "windows.other": "check",
+        "windows.powershell": "check",
+        "zeek": "check"
+      }
+    },
+    "T1557.001": {
+      "name": "Name Resolution Poisoning and SMB Relay",
+      "cells": {
+        "windows.sysmon": "check",
+        "windows.security": "check",
+        "windows.other": "check",
+        "windows.powershell": "check",
+        "zeek": "check"
+      }
+    },
+    "T1557.002": {
+      "name": "ARP Cache Poisoning",
+      "cells": {
+        "windows.sysmon": "check",
+        "windows.security": "check",
+        "windows.other": "check",
+        "windows.powershell": "check",
+        "zeek": "check"
+      }
+    },
+    "T1557.003": {
+      "name": "DHCP Spoofing",
+      "cells": {
+        "windows.other": "check",
+        "windows.security": "check",
+        "windows.sysmon": "check",
+        "windows.powershell": "check",
+        "zeek": "n/a: Zeek dataset here contains conn/files/ssl/dce_rpc/http/dns/kerberos/smb logs only; no DHCP (dhcp.log) records are present, so DHCP OFFER/ACK parameters cannot be inspected."
+      }
+    },
+    "T1558": {
+      "name": "Steal or Forge Kerberos Tickets",
+      "cells": {
+        "windows.sysmon": "check",
+        "windows.security": "check",
+        "windows.powershell": "check",
+        "windows.other": "check",
+        "zeek": "check"
+      }
+    },
+    "T1558.001": {
+      "name": "Golden Ticket",
+      "cells": {
+        "windows.security": "check",
+        "windows.sysmon": "check",
+        "windows.powershell": "check",
+        "windows.other": "check",
+        "zeek": "check"
+      }
+    },
+    "T1558.002": {
+      "name": "Silver Ticket",
+      "cells": {
+        "windows.security": "check",
+        "windows.sysmon": "check",
+        "windows.powershell": "check",
+        "windows.other": "check",
+        "zeek": "check"
+      }
+    },
+    "T1558.003": {
+      "name": "Kerberoasting",
+      "cells": {
+        "windows.security": "check",
+        "windows.sysmon": "check",
+        "windows.powershell": "check",
+        "windows.other": "check",
+        "zeek": "check"
+      }
+    },
+    "T1558.004": {
+      "name": "AS-REP Roasting",
+      "cells": {
+        "windows.security": "check",
+        "windows.sysmon": "check",
+        "windows.powershell": "check",
+        "windows.other": "check",
+        "zeek": "check"
+      }
+    },
+    "T1606": {
+      "name": "Forge Web Credentials",
+      "cells": {
+        "windows.security": "check",
+        "windows.sysmon": "check",
+        "windows.powershell": "check",
+        "windows.other": "check",
+        "zeek": "check"
+      }
+    },
+    "T1606.001": {
+      "name": "Web Cookies",
+      "cells": {
+        "windows.sysmon": "check",
+        "windows.security": "check",
+        "windows.powershell": "check",
+        "windows.other": "check",
+        "zeek": "check"
+      }
+    },
+    "T1606.002": {
+      "name": "SAML Tokens",
+      "cells": {
+        "windows.security": "check",
+        "windows.powershell": "check",
+        "windows.other": "check",
+        "windows.sysmon": "check",
+        "zeek": "check"
+      }
+    },
+    "T1621": {
+      "name": "Multi-Factor Authentication Request Generation",
+      "cells": {
+        "windows.security": "check",
+        "windows.powershell": "check",
+        "windows.other": "check",
+        "windows.sysmon": "check",
+        "zeek": "n/a: Zeek records network traffic (conn, dns, http, ssl, kerberos, smb, dce_rpc) but not Windows interactive/network logon failures or MFA challenge/denial events; MFA request generation is only observable in Windows Security 4625/4771-type logs"
+      }
+    },
+    "T1649": {
+      "name": "Steal or Forge Authentication Certificates",
+      "cells": {
+        "windows.security": "check",
+        "windows.sysmon": "check",
+        "windows.powershell": "check",
+        "windows.other": "check",
+        "zeek": "n/a: Zeek's kerberos log records ticket requests/responses on the wire but not Windows 4657 registry certificate-store changes or 4768 DC-side events with pre-auth type; certificate theft/forgery on hosts is not recorded in this zeek dataset (it"
+      }
+    }
+  }
+}

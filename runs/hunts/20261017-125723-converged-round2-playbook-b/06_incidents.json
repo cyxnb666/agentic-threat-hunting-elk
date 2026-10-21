@@ -1,0 +1,152 @@
+[
+  {
+    "title": "LSASS memory access with full-access masks by PowerShell on scranton and wsmprovhost on nashua",
+    "technique": "T1003.001",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F01",
+      "F10",
+      "F11",
+      "F17",
+      "F23",
+      "F32",
+      "F34",
+      "F36",
+      "F47",
+      "F59",
+      "F63"
+    ],
+    "rationale": "All these findings describe the same action: PowerShell.exe (PID 2976) on scranton opened lsass.exe with 0x1f3fff/0x1fffff at 03:05:16Z, and wsmprovhost.exe on nashua opened lsass.exe with 0x1f3fff at 03:09:29Z. The full-access handle to LSASS memory is the classic credential-dumping pattern, best mapped to T1003.001 (LSASS Memory).",
+    "incident_id": "I01"
+  },
+  {
+    "title": "Keylogging and clipboard capture on scranton",
+    "technique": "T1056.001",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F57",
+      "F58"
+    ],
+    "rationale": "pbeesly ran Get-Keystrokes with a Keystrokes job and read the clipboard. The primary input-capture action is keylogging (T1056.001).",
+    "incident_id": "I02"
+  },
+  {
+    "title": "Forced authentication via WebDAV/UNC coercion from scranton to 192.168.0.4",
+    "technique": "T1187",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F21"
+    ],
+    "rationale": "SMB attempts to 192.168.0.4 were rejected, then WebDAV requests with Microsoft-WebDAV-MiniRedir were issued and answered 401 — coercion of authentication to an attacker-controlled server, matching T1187 (Forced Authentication).",
+    "incident_id": "I03"
+  },
+  {
+    "title": "Hidden PowerShell stager opened Microsoft Edge processes with PROCESS_ALL_ACCESS",
+    "technique": "T1539",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "medium",
+    "finding_ids": [
+      "F25"
+    ],
+    "rationale": "A hidden, execution-policy-bypassing PowerShell stager decoded a payload from monkey.png and opened Edge processes with 0x1fffff, consistent with in-memory browser session-cookie theft (T1539).",
+    "incident_id": "I04"
+  },
+  {
+    "title": "Unsecured credentials staged and exfiltrated via Invoke-Exfil on scranton",
+    "technique": "T1552",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F29",
+      "F62"
+    ],
+    "rationale": "Invoke-Exfil compressed the Downloads directory (holding exported .pfx) into OfficeSupplies.7z and copied it to \\\\192.168.0.4\\webdav using hardcoded credentials; PsExec also used cleartext password. The credential-access element is unsecured credentials (T1552).",
+    "incident_id": "I05"
+  },
+  {
+    "title": "Credential-hunting file collection and plaintext credential use",
+    "technique": "T1552.001",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F28",
+      "F60"
+    ],
+    "rationale": "pbeesly recursively enumerated the user profile for credential-bearing file patterns and archived them into working.zip, then Rar'd and sdelete'd them; also used plaintext passwords. The credential-access action is credentials in files (T1552.001).",
+    "incident_id": "I06"
+  },
+  {
+    "title": "Get-PrivateKeys exported LocalMachine certificate private keys to .pfx on scranton",
+    "technique": "T1552.004",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F27",
+      "F37",
+      "F56",
+      "F61"
+    ],
+    "rationale": "All describe the same script block (Get-PrivateKeys, readme.ps1) enumerating cert:\\LocalMachine and calling Export-PfxCertificate to write .pfx files protected by hardcoded password 'saribas'. This is private-key theft, T1552.004.",
+    "incident_id": "I07"
+  },
+  {
+    "title": "Credential/certificate theft tooling staged on scranton with no web-credential forging observed",
+    "technique": "T1649",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F52"
+    ],
+    "rationale": "Get-PrivateKeys exported certificate private keys and LSASS was accessed; the theft of authentication certificates maps to T1649 (Steal or Forge Authentication Certificates).",
+    "incident_id": "I08"
+  },
+  {
+    "title": "Low-confidence hostui.exe and sdclt.exe process anomalies on scranton",
+    "technique": "out-of-scope:T1036",
+    "in_scope": false,
+    "assessment": "suspicious",
+    "confidence": "low",
+    "finding_ids": [
+      "F66",
+      "F67"
+    ],
+    "rationale": "hostui.exe spawned by PowerShell and sdclt.exe spawned by cmd are process-execution anomalies (sdclt is UAC-bypass-capable), not observed credential access. Out-of-scope (T1036/T1548).",
+    "incident_id": "I09"
+  },
+  {
+    "title": "Attacker python.exe on nashua as C2/exfil client",
+    "technique": "out-of-scope:T1071",
+    "in_scope": false,
+    "assessment": "suspicious",
+    "confidence": "medium",
+    "finding_ids": [
+      "F09"
+    ],
+    "rationale": "The dropped python.exe unpacks a PyInstaller bundle and makes hundreds of outbound connections to 192.168.0.4:8443 — C2/exfiltration traffic, not network sniffing. Out-of-scope (T1071).",
+    "incident_id": "I10"
+  },
+  {
+    "title": "Sysinternals credential-access toolchain, PsExec lateral movement and anti-forensic cleanup by pbeesly",
+    "technique": "out-of-scope:T1569",
+    "in_scope": false,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F07",
+      "F64"
+    ],
+    "rationale": "These findings cover staging of SysinternalsSuite, accesschk, PsExec64 with cleartext credentials against NASHUA, and sdelete64 wiping artifacts. The core observed action is lateral movement/execution via PsExec, not credential access, so it is out-of-scope (T1569).",
+    "incident_id": "I11"
+  }
+]

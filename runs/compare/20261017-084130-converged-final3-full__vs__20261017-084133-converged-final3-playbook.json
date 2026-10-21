@@ -1,0 +1,184 @@
+{
+  "a": "20261017-084130-converged-final3-full",
+  "b": "20261017-084133-converged-final3-playbook",
+  "rows": [
+    [
+      "Verdict",
+      "Confirmed",
+      "Confirmed"
+    ],
+    [
+      "Ground truth sub-steps found (6.A/6.B/6.C)",
+      "3/3 (6.A:yes, 6.B:yes, 6.C:yes)",
+      "3/3 (6.A:yes, 6.B:yes, 6.C:yes)"
+    ],
+    [
+      "Techniques with malicious/suspicious findings",
+      "T1003.001, T1552.001, T1552.004, T1557.001, T1557.002",
+      "T1003.001, T1187, T1552.001, T1552.004, T1555.003, T1557.001, T1557.002"
+    ],
+    [
+      "Hosts implicated",
+      "nashua.dmevals.local, scranton.dmevals.local, simplerockbuild.simplerock.lan",
+      "bobs.bigwheel.local, nashua.dmevals.local, scranton.dmevals.local, simplerockbuild.simplerock.lan"
+    ],
+    [
+      "Findings (malicious+suspicious / all)",
+      "24 / 61",
+      "25 / 67"
+    ],
+    [
+      "Incidents after consolidation",
+      14,
+      17
+    ],
+    [
+      "Verified evidence events",
+      33,
+      39
+    ],
+    [
+      "Rejected evidence items",
+      1,
+      2
+    ],
+    [
+      "Planned checks / all queries",
+      "337 / 1058",
+      "363 / 1162"
+    ],
+    [
+      "LLM calls / tokens",
+      "123 / {'prompt': 3190527, 'completion': 108879}",
+      "127 / {'prompt': 3284224, 'completion': 81996}"
+    ],
+    [
+      "Duration (s)",
+      587.0,
+      483.6
+    ]
+  ],
+  "similarity": {
+    "verdict_equal": true,
+    "techniques_jaccard": 0.714,
+    "technique_families_jaccard": 0.6,
+    "evidence_jaccard": 0.358,
+    "planned_query_jaccard": 0.093,
+    "coverage_cells_differing": "10 of 265",
+    "ground_truth_equal": true
+  },
+  "evaluation": [
+    {
+      "run": "20261017-084130-converged-final3-full",
+      "verdict": "Confirmed",
+      "steps": {
+        "6.A": {
+          "found": true,
+          "by": [
+            "F61"
+          ],
+          "technique_ok": false,
+          "what": "Chrome password collector run as ...\\SysinternalsSuite\\accesschk.exe"
+        },
+        "6.B": {
+          "found": true,
+          "by": [
+            "F11",
+            "F27",
+            "F26",
+            "F51",
+            "F49"
+          ],
+          "technique_ok": true,
+          "what": "Get-PrivateKeys run in PowerShell, PFX file written"
+        },
+        "6.C": {
+          "found": true,
+          "by": [
+            "F02",
+            "F01",
+            "F15",
+            "F11",
+            "F23",
+            "F31",
+            "F32",
+            "F33"
+          ],
+          "technique_ok": true,
+          "what": "password hashes dumped (PowerShell process opening lsass.exe)"
+        }
+      },
+      "found": 3,
+      "of": 3,
+      "other_malicious_or_suspicious_findings": [
+        "F52 T1552.001 Plaintext credentials in PsExec command lines used for lateral movement to NASHUA",
+        "F53 T1552.001 Hardcoded WebDAV exfil credentials in Invoke-Exfil PowerShell script",
+        "F55 T1552.001 Python interpreter dropped in Temp and launched via PsExec on nashua",
+        "F56 T1552.001 SDelete anti-forensics wiping of payload and staged archives on scranton",
+        "F57 T1552.001 Malicious .scr payload in C:\\ProgramData\\victim launched by explorer on scranton",
+        "F58 T1552.001 csc.exe compiles attacker DLLs from PowerShell on scranton",
+        "F37 T1557.001 Python relay/listener tooling on nashua connecting to 192.168.0.4:8443, plus NTLM network logon",
+        "F59 T1552.001 hostui.exe LOLbin launched by PowerShell on scranton",
+        "F60 T1552.001 sdclt.exe LOLbin launched by cmd.exe on scranton",
+        "F54 T1555.003 Rar.exe used to password-protect and stage collected data on nashua",
+        "F38 T1557.002 Single responder MAC for most Zeek connections (possible L2 redirection)"
+      ]
+    },
+    {
+      "run": "20261017-084133-converged-final3-playbook",
+      "verdict": "Confirmed",
+      "steps": {
+        "6.A": {
+          "found": true,
+          "by": [
+            "F60",
+            "F29"
+          ],
+          "technique_ok": false,
+          "what": "Chrome password collector run as ...\\SysinternalsSuite\\accesschk.exe"
+        },
+        "6.B": {
+          "found": true,
+          "by": [
+            "F28",
+            "F61",
+            "F57"
+          ],
+          "technique_ok": true,
+          "what": "Get-PrivateKeys run in PowerShell, PFX file written"
+        },
+        "6.C": {
+          "found": true,
+          "by": [
+            "F07",
+            "F21",
+            "F33",
+            "F34",
+            "F37",
+            "F48"
+          ],
+          "technique_ok": false,
+          "what": "password hashes dumped (PowerShell process opening lsass.exe)"
+        }
+      },
+      "found": 3,
+      "of": 3,
+      "other_malicious_or_suspicious_findings": [
+        "F08 T1056 Steganographic PowerShell payload (monkey.png) executed with hidden window and bypass",
+        "F09 T1056 Invoke-Exfil PowerShell script with hardcoded credentials and WebDAV exfiltration",
+        "F19 T1187 WebDAV forced authentication via davclnt DavSetCookie on scranton.dmevals.local",
+        "F59 T1552.001 PsExec64 launched on NASHUA with hardcoded plaintext credentials for dmevals\\pbeesly",
+        "F62 T1552.001 Password-protected RAR archive of 'working.zip' created then wiped with sdelete on NASHUA",
+        "F63 T1552.001 python.exe executed on NASHUA via PsExec service under pbeesly",
+        "F65 T1552.001 Suspicious .scr payload in C:\\ProgramData\\victim launched by explorer on scranton",
+        "F47 T1557 Adversary-in-the-Middle positioning via ARP poisoning on the 10.0.1.0/24 segment",
+        "F44 T1557.002 ARP cache poisoning: MAC fc:bd:67:e1:a9:c1 impersonates IP 10.0.1.4 to intercept traffic to NASHUA (10.0.1.6)",
+        "F20 T1187 Outbound SMB/WebDAV to 192.168.0.4 and SMB to 10.0.1.6 from scranton (10.0.1.4)",
+        "F64 T1552.001 PowerShell compiles in-memory C# credential tooling via csc.exe on scranton",
+        "F66 T1552.001 hostui.exe spawned by PowerShell on scranton",
+        "F67 T1552.001 sdclt.exe spawned by cmd on scranton",
+        "F45 T1557.001 SMB/WinRM/RPC traffic from spoofed 10.0.1.4 to NASHUA with Kerberos cifs/NASHUA tickets (possible SMB relay)"
+      ]
+    }
+  ]
+}

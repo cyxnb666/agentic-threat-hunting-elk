@@ -1,0 +1,173 @@
+{
+  "a": "20261017-081620-converged-final-full",
+  "b": "20261017-081623-converged-final-playbook",
+  "rows": [
+    [
+      "Verdict",
+      "Confirmed",
+      "Confirmed"
+    ],
+    [
+      "Ground truth sub-steps found (6.A/6.B/6.C)",
+      "2/3 (6.A:no, 6.B:yes, 6.C:yes)",
+      "3/3 (6.A:yes, 6.B:yes, 6.C:yes)"
+    ],
+    [
+      "Techniques with malicious/suspicious findings",
+      "T1003, T1003.001, T1056.001, T1056.002, T1187, T1552, T1552.001, T1552.004",
+      "T1003, T1003.001, T1003.002, T1056.004, T1187, T1552.001, T1552.004, T1558.001, T1558.003"
+    ],
+    [
+      "Hosts implicated",
+      "nashua.dmevals.local, scranton.dmevals.local, simplerockbuild.simplerock.lan",
+      "nashua.dmevals.local, newyork.dmevals.local, scranton.dmevals.local, simplerockbuild.simplerock.lan"
+    ],
+    [
+      "Findings (malicious+suspicious / all)",
+      "16 / 56",
+      "24 / 63"
+    ],
+    [
+      "Incidents after consolidation",
+      10,
+      13
+    ],
+    [
+      "Verified evidence events",
+      31,
+      40
+    ],
+    [
+      "Rejected evidence items",
+      1,
+      1
+    ],
+    [
+      "Planned checks / all queries",
+      "343 / 1061",
+      "363 / 1181"
+    ],
+    [
+      "LLM calls / tokens",
+      "128 / {'prompt': 3307343, 'completion': 107521}",
+      "132 / {'prompt': 3410426, 'completion': 86480}"
+    ],
+    [
+      "Duration (s)",
+      565.7,
+      486.0
+    ]
+  ],
+  "similarity": {
+    "verdict_equal": true,
+    "techniques_jaccard": 0.417,
+    "technique_families_jaccard": 0.8,
+    "evidence_jaccard": 0.224,
+    "planned_query_jaccard": 0.076,
+    "coverage_cells_differing": "8 of 265",
+    "ground_truth_equal": false
+  },
+  "evaluation": [
+    {
+      "run": "20261017-081620-converged-final-full",
+      "verdict": "Confirmed",
+      "steps": {
+        "6.A": {
+          "found": false,
+          "by": [],
+          "technique_ok": false,
+          "what": "Chrome password collector run as ...\\SysinternalsSuite\\accesschk.exe"
+        },
+        "6.B": {
+          "found": true,
+          "by": [
+            "F22",
+            "F51"
+          ],
+          "technique_ok": true,
+          "what": "Get-PrivateKeys run in PowerShell, PFX file written"
+        },
+        "6.C": {
+          "found": true,
+          "by": [
+            "F01",
+            "F10",
+            "F42",
+            "F56",
+            "F26",
+            "F37"
+          ],
+          "technique_ok": true,
+          "what": "password hashes dumped (PowerShell process opening lsass.exe)"
+        }
+      },
+      "found": 2,
+      "of": 3,
+      "other_malicious_or_suspicious_findings": [
+        "F02 T1003 Credential-access tooling staged via PsExec and hidden PowerShell on compromised hosts",
+        "F09 T1056.001 PowerShell keylogger (Get-Keystrokes) executed on scranton by user pbeesly",
+        "F11 T1056.002 Screen capture and clipboard harvesting in the same attacker PowerShell session",
+        "F18 T1187 WebDAV forced authentication via rundll32 davclnt.dll DavSetCookie on scranton.dmevals.local",
+        "F55 T1552 PyInstaller python.exe staged via PsExec on nashua beacons to 192.168.0.4:8443 and drives the harvesting chain",
+        "F23 T1552.001 PowerShell Invoke-Exfil script with embedded plaintext credentials and archive of Downloads",
+        "F53 T1552.001 PowerShell on nashua harvests credential-named files across user profile into password-protected archive",
+        "F54 T1552.001 Rar.exe on nashua creates password-protected archive of harvested files, then sdelete wipes artifacts"
+      ]
+    },
+    {
+      "run": "20261017-081623-converged-final-playbook",
+      "verdict": "Confirmed",
+      "steps": {
+        "6.A": {
+          "found": true,
+          "by": [
+            "F28"
+          ],
+          "technique_ok": false,
+          "what": "Chrome password collector run as ...\\SysinternalsSuite\\accesschk.exe"
+        },
+        "6.B": {
+          "found": true,
+          "by": [
+            "F02",
+            "F27",
+            "F59",
+            "F55"
+          ],
+          "technique_ok": true,
+          "what": "Get-PrivateKeys run in PowerShell, PFX file written"
+        },
+        "6.C": {
+          "found": true,
+          "by": [
+            "F01",
+            "F09",
+            "F21",
+            "F31",
+            "F32",
+            "F34",
+            "F45"
+          ],
+          "technique_ok": true,
+          "what": "password hashes dumped (PowerShell process opening lsass.exe)"
+        }
+      },
+      "found": 3,
+      "of": 3,
+      "other_malicious_or_suspicious_findings": [
+        "F60 T1003.002 lsass.exe creates C:\\Windows\\debug\\PASSWD.LOG on scranton (SAM credential log artifact)",
+        "F08 T1056.004 Reflective in-memory API resolution (GetProcAddress/GetModuleHandle) via PowerShell on scranton",
+        "F19 T1187 WebDAV/SMB forced-authentication coercion from scranton (10.0.1.4) to 192.168.0.4",
+        "F58 T1552.001 Sysinternals pspasswd.exe/pspasswd64.exe downloaded to Downloads on scranton (password-manipulation tool)",
+        "F62 T1552.001 Rar.exe on nashua creates password-protected working.zip then sdelete64 wipes it",
+        "F63 T1552.001 Invoke-Exfil compresses Downloads with password 'lolol' and exfiltrates to WebDAV with hardcoded creds",
+        "F61 T1003.002 SAM registry hive opened with KEY_ALL_ACCESS (0xf003f) by lsass.exe on scranton",
+        "F07 T1040 PsExec-delivered python.exe payload on nashua is lateral movement, not sniffing",
+        "F26 T1539 PsExec-launched python.exe on nashua and WebDAV python.exe retrieval (lateral movement, not cookie theft)",
+        "F47 T1558.001 Kerberos service-ticket requests for the krbtgt service with RC4 encryption",
+        "F46 T1558.003 RC4-downgraded Kerberos service-ticket requests for machine accounts (Kerberoasting pattern)",
+        "F52 T1606.002 No SAML token forging; only an unrelated in-memory PowerShell loader on scranton"
+      ]
+    }
+  ]
+}

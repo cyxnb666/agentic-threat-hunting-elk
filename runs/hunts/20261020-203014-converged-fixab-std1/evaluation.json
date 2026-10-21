@@ -1,0 +1,62 @@
+{
+  "run": "20261020-203014-converged-fixab-std1",
+  "verdict": "Confirmed",
+  "steps": {
+    "6.A": {
+      "found": true,
+      "by": [
+        "F27",
+        "F58"
+      ],
+      "technique_ok": false,
+      "what": "Chrome password collector run as ...\\SysinternalsSuite\\accesschk.exe"
+    },
+    "6.B": {
+      "found": true,
+      "by": [
+        "F26",
+        "F55",
+        "F30",
+        "F34",
+        "F53"
+      ],
+      "technique_ok": true,
+      "what": "Get-PrivateKeys run in PowerShell, PFX file written"
+    },
+    "6.C": {
+      "found": true,
+      "by": [
+        "F01",
+        "F10",
+        "F14",
+        "F17",
+        "F20",
+        "F24",
+        "F30",
+        "F34",
+        "F31",
+        "F46"
+      ],
+      "technique_ok": true,
+      "what": "password hashes dumped (PowerShell process opening lsass.exe)"
+    }
+  },
+  "found": 3,
+  "of": 3,
+  "other_malicious_or_suspicious_findings": [
+    "F59 T1056 Scranton: masqueraded .scr dropper and hidden steganographic PowerShell stager",
+    "F61 T1056 Scranton: PowerShell-driven csc.exe compiled attacker DLLs in Temp",
+    "F62 T1056 Scranton: cmd.exe from the .scr dropper launched the attacker PowerShell chain",
+    "F11 T1056.001 Clipboard/keystroke capture: Get-Clipboard executed in the pbeesly session on scranton after the stager ran",
+    "F54 T1552.001 Nashua: PsExec-launched python.exe ran PowerShell credential-file harvesting and RAR staging",
+    "F57 T1555.003 Scranton: user credential-bearing files archived and staged for exfiltration",
+    "F43 T1557 AiTM positioning confirmed by L2 redirection; ARP.EXE/ROUTE.EXE/ipconfig hits are Azure guest-agent telemetry (benign)",
+    "F41 T1557.002 Single MAC 12:34:56:78:9a:bc answers as L2 peer for every off-subnet destination (ARP cache poisoning)",
+    "F02 T1003 Credential-access tooling staged: SysinternalsSuite downloaded and extracted by the same hidden PowerShell on scranton",
+    "F56 T1003.002 Scranton: SAM hive opened with 0xf003f by lsass.exe after attacker tooling ran",
+    "F28 T1552.002 Registry reads of LSA and Winlogon keys by powershell.exe on scranton",
+    "F63 T1552.002 Scranton: sdclt.exe spawned by cmd.exe in attacker session",
+    "F42 T1557.001 SMB sessions to 10.0.1.6:445 relayed through the same rogue MAC; SMB/RPC used for credential access and lateral movement",
+    "F51 T1606.001 Only WebDAV cookie set by davclnt.dll during exfiltration staging; no browser cookie theft/forgery"
+  ]
+}

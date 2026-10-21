@@ -1,0 +1,74 @@
+{
+  "apt29-sysmon": {
+    "template": "windows-sysmon",
+    "template_version": 1,
+    "dataset": "windows.sysmon",
+    "registered_at": "2026-10-20T12:25:11+00:00",
+    "channel": "pull",
+    "decision": "reused",
+    "reason": "All 199 sampled records are flat NXLog JSON Sysmon exports (Channel=Microsoft-Windows-Sysmon/Operational, SourceName=Microsoft-Windows-Sysmon, im_msvistalog). The builtin windows-sysmon template matches with ratio 1.0 and passed the output contract on all 199 records: @timestamp from UtcTime (UTC), host.name from Hostname, event.module=sysmon, event.dataset=windows.sysmon, event.original kept, hunt.template set, no processor failures.",
+    "sample_records": 199,
+    "sample_records_ok": 199,
+    "onboarding_run": "runs\\onboarding\\20261020-202507-apt29-sysmon"
+  },
+  "apt29-security": {
+    "template": "windows-security",
+    "template_version": 1,
+    "dataset": "windows.security",
+    "registered_at": "2026-10-20T12:26:04+00:00",
+    "channel": "push",
+    "decision": "reused",
+    "reason": "All 199 sampled records are flat NXLog im_msvistalog Windows Security audit events (Channel Security/security, SourceName Microsoft-Windows-Security-Auditing, EventTime present). The builtin windows-security template matches with ratio 1.0 and passed the output contract on every record (199/199): @timestamp parsed from EventTime with -04:00, host.name from Hostname, event.module=security, event.dataset=windows.security, event.original kept, hunt.template set, no processor failures. No new template needed.",
+    "sample_records": 199,
+    "sample_records_ok": 199,
+    "onboarding_run": "runs\\onboarding\\20261020-202601-apt29-security"
+  },
+  "apt29-windows-other": {
+    "template": "windows-other",
+    "template_version": 1,
+    "dataset": "windows.other",
+    "registered_at": "2026-10-20T12:26:40+00:00",
+    "channel": "push",
+    "decision": "created",
+    "reason": "No existing template matched (windows-security and windows-sysmon both 0.0 ratio; these records come from WMI-Activity, System, TerminalServices and Firewall channels). Created windows-other, which parses the flat NXLog JSON into win.*, takes @timestamp from EventTime with the verified -04:00 offset, maps host.name from Hostname, event.code/provider, user.*, process.pid and keeps event.original; it passed on all 157 sampled records.",
+    "sample_records": 157,
+    "sample_records_ok": 157,
+    "onboarding_run": "runs\\onboarding\\20261020-202633-apt29-windows-other"
+  },
+  "apt29-powershell": {
+    "template": "windows-powershell",
+    "template_version": 1,
+    "dataset": "windows.powershell",
+    "registered_at": "2026-10-20T12:27:05+00:00",
+    "channel": "stream",
+    "decision": "created",
+    "reason": "New NXLog-exported Windows PowerShell records (channels \"Windows PowerShell\" and \"Microsoft-Windows-PowerShell/Operational\", SourceModuleType im_msvistalog). No existing template matched (all 0.0). Created windows-powershell template: parses the JSON message into win.*, sets @timestamp from EventTime with -04:00 timezone, maps host.name, event.code/provider/module/dataset, user, process pid/thread/command_line (ScriptBlockText), and keeps event.original. Validated 194/194 records.",
+    "sample_records": 194,
+    "sample_records_ok": 194,
+    "onboarding_run": "runs\\onboarding\\20261020-202658-apt29-powershell"
+  },
+  "zeek-scranton": {
+    "template": "zeek",
+    "template_version": 1,
+    "dataset": "zeek",
+    "registered_at": "2026-10-20T12:27:42+00:00",
+    "channel": "pull",
+    "decision": "created",
+    "reason": "New Zeek JSON source (all @proc=zeek streams: conn, dns, http, files, ssl, dhcp, notice, ...). No existing template matched (all Windows/NXLog templates had ratio 0.0). Created template 'zeek' (dataset zeek) which parses the JSON into zeek.*, takes @timestamp from ts with UNIX format, sets observer.name from @system (sensor, not host.name), maps ECS network/dns/http/file/tls fields, and passed 181/181 sampled records.",
+    "sample_records": 181,
+    "sample_records_ok": 181,
+    "onboarding_run": "runs\\onboarding\\20261020-202732-zeek-scranton"
+  },
+  "zeek-nashua": {
+    "template": "zeek",
+    "template_version": 1,
+    "dataset": "zeek",
+    "registered_at": "2026-10-20T12:28:04+00:00",
+    "channel": "pull",
+    "decision": "reused",
+    "reason": "All 196 sampled records are Zeek JSON logs (@proc=zeek, @stream in conn/ssl/files/x509/dce_rpc/smb_files/kerberos/smb_mapping) and the existing 'zeek' template matches them at ratio 1.0 and passed the full output-contract simulation (196/196). It parses ts as UNIX epoch into @timestamp, sets observer.name from @system (sensor, not host.name), event.module=zeek, event.dataset=zeek, keeps originals under zeek.*, and sets hunt.template. No new template required.",
+    "sample_records": 196,
+    "sample_records_ok": 196,
+    "onboarding_run": "runs\\onboarding\\20261020-202759-zeek-nashua"
+  }
+}

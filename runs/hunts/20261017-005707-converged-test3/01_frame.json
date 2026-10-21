@@ -1,0 +1,8 @@
+{
+  "tactics": [
+    "credential-access"
+  ],
+  "restated": "An adversary with existing access to Windows hosts on this network harvested credentials from those hosts.",
+  "what_would_confirm": "Evidence of credential theft tooling or artifacts on Windows hosts, such as LSASS process memory access (e.g., procdump, comsvcs.dll MiniDump, Task Manager dump), Mimikatz/Sekurlsa module execution, SAM/SECURITY/SYSTEM registry hive or NTDS.dit extraction, cached domain credential access, DPAPI master key or Credential Manager vault access, browser password store reads, or Kerberos ticket extraction (kirbi files, Rubeus/kerberoasting), correlated with suspicious process lineage or unauthorized access to those credential stores.",
+  "what_would_refute": "No credential-access artifacts or telemetry on any Windows host: no LSASS memory reads or dumps, no registry hive or NTDS.dit copies, no DPAPI/Credential Manager/browser credential store access, no Kerberos ticket extraction, and no credential-dumping tool execution or related file writes across the environment."
+}

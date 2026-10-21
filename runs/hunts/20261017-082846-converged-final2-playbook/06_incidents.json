@@ -1,0 +1,133 @@
+[
+  {
+    "title": "PowerShell and WinRM host processes opened LSASS with full memory-read access on scranton and nashua",
+    "technique": "T1003.001",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F01",
+      "F08",
+      "F16",
+      "F26",
+      "F27",
+      "F39",
+      "F43",
+      "F49"
+    ],
+    "rationale": "All of these findings describe the same attacker action: PowerShell.exe (PID 2976, user pbeesly) on scranton.dmevals.local and wsmprovhost.exe (PID 7720) on nashua.dmevals.local opening lsass.exe with GrantedAccess 0x1FFFFF (PROCESS_ALL_ACCESS) and 0x1F3FFF at 2020-05-02T03:05:16Z and 03:09:29Z respectively. Full-access handles to LSASS memory are the canonical signature of OS credential dumping from LSASS memory, so T1003.001 (LSASS Memory) is the best-fitting in-scope technique; the findings' alternate labels (T1056.004, T1110.002, T1212, T1555, T1556, T1558) are not supported by the observed action.",
+    "incident_id": "I01"
+  },
+  {
+    "title": "LSASS wrote cached domain credential entry HKLM\\SECURITY\\Cache\\NL$1 on nashua",
+    "technique": "T1003.005",
+    "in_scope": true,
+    "assessment": "suspicious",
+    "confidence": "medium",
+    "finding_ids": [
+      "F02"
+    ],
+    "rationale": "lsass.exe on nashua.dmevals.local repeatedly set HKLM\\SECURITY\\Cache\\NL$1 between 03:11:40Z and 03:15:03Z. The SECURITY\\Cache\\NL$ keys hold cached domain credentials (DCC/DCC2 hashes), so this is best described as Cached Domain Credentials (T1003.005); the finding itself notes lsass legitimately updates this key on interactive logon, hence suspicious rather than malicious.",
+    "incident_id": "I02"
+  },
+  {
+    "title": "Keystroke logging (Get-Keystrokes) and clipboard capture on scranton",
+    "technique": "T1056.001",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F62"
+    ],
+    "rationale": "pbeesly on scranton.dmevals.local ran Get-Keystrokes (a keylogger logging keys, time and active window) as a background job and separately ran Get-Clipboard. Capturing keystrokes is input capture for credential theft, best fitting T1056.001 (Keylogging).",
+    "incident_id": "I03"
+  },
+  {
+    "title": "Obfuscated PowerShell resolving native APIs via GetProcAddress/UnsafeNativeMethods on scranton",
+    "technique": "T1056.004",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F09"
+    ],
+    "rationale": "pbeesly on scranton.dmevals.local executed an obfuscated PowerShell script block (function 'jzI') that resolves Microsoft.Win32.UnsafeNativeMethods and calls GetProcAddress via reflection to dynamically invoke native APIs. Dynamically resolving and invoking native APIs in this manner is consistent with credential API hooking, so T1056.004 is the best-fitting in-scope technique.",
+    "incident_id": "I04"
+  },
+  {
+    "title": "Credential-harvesting and exfiltration toolkit staged in SysinternalsSuite on scranton",
+    "technique": "T1552",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F04",
+      "F35"
+    ],
+    "rationale": "Both findings describe the same pbeesly PowerShell toolkit on scranton.dmevals.local (psversion.ps1) containing Get-Keystrokes, Get-Clipboard, Invoke-ScreenCapture and Invoke-Exfil, which compresses user files and copies them to a WebDAV share. The credential-collection functions (keystrokes, clipboard) are unsecured credential collection from the host, best fitting T1552 (Unsecured Credentials); the exfiltration staging is part of the same action.",
+    "incident_id": "I05"
+  },
+  {
+    "title": "Hardcoded credentials in PowerShell scripts and PsExec command line on scranton",
+    "technique": "T1552.001",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F34",
+      "F60"
+    ],
+    "rationale": "Both findings describe the same exposure: pbeesly on scranton.dmevals.local ran PsExec64.exe four times passing the plaintext password (-p Fl0nk3rt0n!T0by) to run C:\\Windows\\Temp\\python.exe on \\\\NASHUA, and the Invoke-Exfil script embeds hardcoded credentials ($UserName \"cozy\", $Password \"MyCozyPassw0rd!\") for a WebDAV share. Credentials embedded in scripts and command lines are credentials in files, best fitting T1552.001.",
+    "incident_id": "I06"
+  },
+  {
+    "title": "Get-PrivateKeys exports all LocalMachine certificates to password-protected .pfx files on scranton",
+    "technique": "T1552.004",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F33",
+      "F58",
+      "F61"
+    ],
+    "rationale": "All three findings describe the same action: pbeesly on scranton.dmevals.local ran Get-PrivateKeys (masqueraded as readme.ps1/psversion.ps1), which recursively enumerates cert:\\LocalMachine and exports every certificate with a private key to a randomly named .pfx under Downloads protected by the hardcoded password \"saribas\", producing C:\\Users\\pbeesly\\Downloads\\coyn5igj.3io.pfx. This is direct private-key theft, best fitting T1552.004 (Private Keys).",
+    "incident_id": "I07"
+  },
+  {
+    "title": "LSASS full-access handles consistent with Windows Credential Manager / DPAPI secret harvesting",
+    "technique": "T1555.004",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "medium",
+    "finding_ids": [
+      "F40"
+    ],
+    "rationale": "The 0x1fffff/0x1f3fff handles to lsass.exe opened by pbeesly's PowerShell.exe (scranton) and wsmprovhost.exe (nashua) give read access to LSASS memory where Windows Credential Manager / DPAPI master-key material resides, and the same user ran Get-PrivateKeys. The finding notes no legitimate Credential Manager cmdlet activity was observed, so the best-fitting in-scope technique for harvesting Windows Credential Manager secrets is T1555.004, at medium confidence.",
+    "incident_id": "I08"
+  },
+  {
+    "title": "Kerberos TGS requests for krbtgt and host SPNs by pbeesly (RC4)",
+    "technique": "T1558.003",
+    "in_scope": true,
+    "assessment": "suspicious",
+    "confidence": "medium",
+    "finding_ids": [
+      "F50"
+    ],
+    "rationale": "On newyork.dmevals.local, pbeesly@DMEVALS.LOCAL requested Kerberos service tickets (4769) for the krbtgt service and repeatedly for host SPNs NEWYORK$/NASHUA$ with TicketEncryptionType 0x12 (RC4), and SCRANTON$ requested krbtgt TGS. RC4 TGS requests for krbtgt are consistent with Kerberoasting-style ticket requests, best fitting T1558.003; the finding notes krbtgt is not a typical Kerberoasting target, hence suspicious/medium.",
+    "incident_id": "I09"
+  },
+  {
+    "title": "PsExec with cleartext password and sdelete on scranton/nashua (not network sniffing)",
+    "technique": "out-of-scope:T1021",
+    "in_scope": false,
+    "assessment": "suspicious",
+    "confidence": "medium",
+    "finding_ids": [
+      "F07"
+    ],
+    "rationale": "The finding itself states the observed activity is PsExec64.exe run against \\\\NASHUA with a cleartext password spawning python.exe via PSEXESVC, plus sdelete64.exe wiping files — credential/lateral-movement activity, not packet sniffing, so it does not satisfy T1040. The best-fitting ATT&CK technique for the observed action is remote services (T1021), which is out of scope for this credential-access hypothesis.",
+    "incident_id": "I10"
+  }
+]

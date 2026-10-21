@@ -1,0 +1,6 @@
+[ingest] delivering data/sources/security.ndjson.gz via push as source 'apt29-security' ...
+[watch] onboarding new source apt29-security (41002 records, channel push)
+[watch] apt29-security: {'decision': 'reused', 'template': 'windows-security', 'dataset': 'windows.security', 'reason': 'All 199 sampled records are flat NXLog im_msvistalog Windows Security audit events (Channel Security/security, SourceName Microsoft-Windows-Security-Auditing, EventTime present). The builtin windows-security template matches with ratio 1.0 and passed the output contract on every record (199/199): @timestamp parsed from EventTime with -04:00, host.name from Hostname, event.module=security, event.dataset=windows.security, event.original kept, hunt.template set, no processor failures. No new template needed.', 'validation': {'records': 199, 'records_ok': 199, 'match_ratio': 1.0}}
+[watch] backfilled 41002 records of apt29-security into logs-windows.security-default (failed 0)
+[ingest] sent=41002 (done) parsed=41002 waiting=0
+{"channel": "push", "source_id": "apt29-security", "records": 41002, "parsed": 41002, "pipeline_errors": 0, "first_event": "2020-05-02T02:55:25.000Z", "last_event": "2020-05-02T03:28:09.000Z", "seconds": 30.9}

@@ -1,0 +1,214 @@
+[
+  {
+    "title": "PowerShell opens LSASS with full-access rights on scranton (credential dumping access)",
+    "technique": "T1003.001",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F07",
+      "F21",
+      "F33",
+      "F34",
+      "F37",
+      "F48"
+    ],
+    "rationale": "All six findings describe the same action: PowerShell.exe (PID 2976) on scranton.dmevals.local opening lsass.exe with GrantedAccess 0x1f3fff/0x1fffff (PROCESS_VM_READ/PROCESS_ALL_ACCESS) at 2020-05-02T03:05:16Z, plus the wsmprovhost.exe LSASS access on nashua. This is the canonical LSASS memory access pattern for credential extraction, best fitting T1003.001 (LSASS Memory). F34/F37/F48 note the absence of authentication-process modification artifacts, so T1556/T1555.004 are not the best fit.",
+    "incident_id": "I01"
+  },
+  {
+    "title": "WebDAV forced authentication via davclnt DavSetCookie to 192.168.0.4",
+    "technique": "T1187",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F19"
+    ],
+    "rationale": "The WebClient service spawning rundll32 davclnt.dll,DavSetCookie pointed at attacker host 192.168.0.4 is the canonical forced-authentication mechanism causing the victim to authenticate and leak NTLM credentials, matching T1187.",
+    "incident_id": "I02"
+  },
+  {
+    "title": "accesschk.exe creates 'passwordsDB' file on scranton",
+    "technique": "T1552.001",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "medium",
+    "finding_ids": [
+      "F29",
+      "F60"
+    ],
+    "rationale": "Both findings describe accesschk.exe (invoked by pbeesly) writing a file named 'passwordsDB' to disk, indicating credential material collected into a file — unsecured credentials in files (T1552.001).",
+    "incident_id": "I03"
+  },
+  {
+    "title": "PsExec64 launched on NASHUA with hardcoded plaintext credentials",
+    "technique": "T1552.001",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F59"
+    ],
+    "rationale": "PsExec64 invoked with cleartext -u dmevals\\pbeesly -p Fl0nk3rt0n!T0by on the command line is credential material embedded in a command line, matching unsecured credentials (T1552.001).",
+    "incident_id": "I04"
+  },
+  {
+    "title": "PowerShell Get-PrivateKeys exports LocalMachine certificates with private keys to .pfx",
+    "technique": "T1552.004",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F28",
+      "F57"
+    ],
+    "rationale": "Both findings describe the same Get-PrivateKeys script (readme.ps1) enumerating cert:\\LocalMachine and calling Export-PfxCertificate to write private keys to .pfx files protected by hardcoded password 'saribas' — direct private-key theft, matching T1552.004.",
+    "incident_id": "I05"
+  },
+  {
+    "title": "PowerShell exports private-key .pfx to Downloads on scranton",
+    "technique": "T1555.003",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "medium",
+    "finding_ids": [
+      "F61"
+    ],
+    "rationale": "powershell.exe writing coyn5igj.3io.pfx to the user's Downloads is credential material exported to disk; the finding is tagged as credentials from password stores (T1555.003).",
+    "incident_id": "I06"
+  },
+  {
+    "title": "SMB/WinRM/RPC traffic from spoofed 10.0.1.4 to NASHUA with Kerberos cifs/NASHUA tickets",
+    "technique": "T1557.001",
+    "in_scope": true,
+    "assessment": "suspicious",
+    "confidence": "medium",
+    "finding_ids": [
+      "F45"
+    ],
+    "rationale": "Spoofed-source SMB/WinRM/RPC traffic to NASHUA with Kerberos TGS requests for cifs/NASHUA and HTTP/NASHUA immediately after MAC takeover is consistent with name-resolution poisoning/SMB relay credential capture, matching T1557.001.",
+    "incident_id": "I07"
+  },
+  {
+    "title": "ARP cache poisoning / AiTM positioning on 10.0.1.0/24",
+    "technique": "T1557.002",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F44",
+      "F47"
+    ],
+    "rationale": "Both findings describe MAC fc:bd:67:e1:a9:c1 claiming IP 10.0.1.4 alongside the legitimate MAC, redirecting 10.0.1.4<->10.0.1.6 flows — the signature of ARP cache poisoning, matching T1557.002.",
+    "incident_id": "I08"
+  },
+  {
+    "title": "Outbound SMB/WebDAV probing to 192.168.0.4 and SMB to 10.0.1.6 from scranton",
+    "technique": "out-of-scope:T1021",
+    "in_scope": false,
+    "assessment": "suspicious",
+    "confidence": "medium",
+    "finding_ids": [
+      "F20"
+    ],
+    "rationale": "Rejected SMB connections to 192.168.0.4 and large SMB transfers to 10.0.1.6 are network connection/remote-service activity, not credential access.",
+    "incident_id": "I09"
+  },
+  {
+    "title": "PowerShell compiles in-memory C# credential tooling via csc.exe on scranton",
+    "technique": "out-of-scope:T1027.004",
+    "in_scope": false,
+    "assessment": "suspicious",
+    "confidence": "medium",
+    "finding_ids": [
+      "F64"
+    ],
+    "rationale": "csc.exe compiling C# source into DLLs in random temp folders is in-memory tooling compilation (execution), not credential access itself.",
+    "incident_id": "I10"
+  },
+  {
+    "title": "Invoke-Exfil script with hardcoded credentials and WebDAV exfiltration",
+    "technique": "out-of-scope:T1041",
+    "in_scope": false,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F09"
+    ],
+    "rationale": "The Invoke-Exfil script compresses the Downloads folder and copies it to a WebDAV share at 192.168.0.4; this is collection and exfiltration over web service, not credential access.",
+    "incident_id": "I11"
+  },
+  {
+    "title": "Steganographic PowerShell loader (monkey.png) executed hidden with execution-policy bypass",
+    "technique": "out-of-scope:T1059.001",
+    "in_scope": false,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F08"
+    ],
+    "rationale": "control.exe spawning PowerShell with -noni -noexit -ep bypass -window hidden to decode and IEX a payload from monkey.png is execution/defense-evasion (PowerShell execution), not credential access itself.",
+    "incident_id": "I12"
+  },
+  {
+    "title": "Password-protected RAR archive created then wiped with sdelete on NASHUA",
+    "technique": "out-of-scope:T1074.001",
+    "in_scope": false,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F62"
+    ],
+    "rationale": "Rar.exe creating a password-protected archive of working.zip followed by sdelete64.exe secure deletion is local data staging and indicator removal, not credential access.",
+    "incident_id": "I13"
+  },
+  {
+    "title": "Suspicious .scr payload in C:\\ProgramData\\victim launched by explorer on scranton",
+    "technique": "out-of-scope:T1204.002",
+    "in_scope": false,
+    "assessment": "malicious",
+    "confidence": "medium",
+    "finding_ids": [
+      "F65"
+    ],
+    "rationale": "The .scr binary launched by explorer.exe is the steganographic-payload staging binary — user execution of a malicious file, not credential access.",
+    "incident_id": "I14"
+  },
+  {
+    "title": "hostui.exe spawned by PowerShell on scranton",
+    "technique": "out-of-scope:T1548.002",
+    "in_scope": false,
+    "assessment": "suspicious",
+    "confidence": "low",
+    "finding_ids": [
+      "F66"
+    ],
+    "rationale": "hostui.exe spawned by PowerShell is a known UAC-bypass binary invocation (privilege escalation/defense evasion), not credential access.",
+    "incident_id": "I15"
+  },
+  {
+    "title": "sdclt.exe spawned by cmd on scranton",
+    "technique": "out-of-scope:T1548.002",
+    "in_scope": false,
+    "assessment": "suspicious",
+    "confidence": "low",
+    "finding_ids": [
+      "F67"
+    ],
+    "rationale": "sdclt.exe spawned by cmd.exe is a known UAC-bypass binary invocation (privilege escalation/defense evasion), not credential access.",
+    "incident_id": "I16"
+  },
+  {
+    "title": "python.exe executed on NASHUA via PsExec service under pbeesly",
+    "technique": "out-of-scope:T1569.002",
+    "in_scope": false,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F63"
+    ],
+    "rationale": "python.exe spawned by PSEXESVC.exe on NASHUA is remote execution via PsExec service (lateral movement), not credential access.",
+    "incident_id": "I17"
+  }
+]

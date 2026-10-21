@@ -1,0 +1,136 @@
+[
+  {
+    "title": "lsass.exe writing C:\\Windows\\debug\\PASSWD.LOG on scranton",
+    "technique": "T1003",
+    "in_scope": true,
+    "assessment": "suspicious",
+    "confidence": "low",
+    "finding_ids": [
+      "F65"
+    ],
+    "rationale": "F65 documents a Sysmon file-create event showing lsass.exe (PID 748) creating C:\\Windows\\debug\\PASSWD.LOG on scranton.dmevals.local, with a CreationUtcTime of 2020-03-12 suggesting a pre-existing file re-touched rather than a fresh dump — a credential-named artifact on the compromised host, best fitting OS Credential Dumping (T1003) at low confidence.",
+    "incident_id": "I01"
+  },
+  {
+    "title": "LSASS memory accessed with full-access masks by PowerShell on scranton and wsmprovhost on nashua",
+    "technique": "T1003.001",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F01",
+      "F05",
+      "F13",
+      "F37",
+      "F39"
+    ],
+    "rationale": "All five findings describe the same action: PowerShell.exe (PID 2976, user pbeesly) on scranton.dmevals.local opening lsass.exe with GrantedAccess 0x1f3fff/0x1FFFFF (PROCESS_ALL_ACCESS) with an UNKNOWN-module CallTrace, corroborated by the 4663 object-access event on \\Device\\HarddiskVolume2\\Windows\\System32\\lsass.exe, plus the same 0x1f3fff mask used by wsmprovhost.exe on nashua.dmevals.local. F05 and F39 explicitly note no separate LSA-secrets or auth-process modification artifact exists, so the best-fitting in-scope technique is LSASS memory dumping (T1003.001).",
+    "incident_id": "I02"
+  },
+  {
+    "title": "PowerShell screen-capture function (Invoke-ScreenCapture) run by pbeesly on scranton",
+    "technique": "T1056.002",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F12"
+    ],
+    "rationale": "F12 documents pbeesly defining and invoking Invoke-ScreenCapture on scranton.dmevals.local, a background job using System.Windows.Forms/System.Drawing CopyFromScreen to capture the screen — GUI input capture, matching T1056.002.",
+    "incident_id": "I03"
+  },
+  {
+    "title": "PowerShell script blocks are credential/file collection, not forced authentication",
+    "technique": "T1187",
+    "in_scope": true,
+    "assessment": "suspicious",
+    "confidence": "medium",
+    "finding_ids": [
+      "F27"
+    ],
+    "rationale": "F27 documents that the 4104 script blocks on scranton.dmevals.local under pbeesly are recursive enumeration of credential-named user files compressed to $env:APPDATA\\Draft.Zip and a System.Drawing bitmap steganography loader (monkey.png) — collection/credential-access behavior with no UNC/WebDAV coercion or outbound authentication trigger, so it is not T1187.",
+    "incident_id": "I04"
+  },
+  {
+    "title": "APT29-style PowerShell screen capture and exfil present but unrelated to cookie theft",
+    "technique": "T1539",
+    "in_scope": true,
+    "assessment": "suspicious",
+    "confidence": "medium",
+    "finding_ids": [
+      "F30"
+    ],
+    "rationale": "F30 documents the same pbeesly PowerShell tooling on scranton.dmevals.local (Invoke-ScreenCapture, Invoke-Exfil with 7-Zip password 'lolol' and WebDAV copy to \\\\192.168.0.4\\webdav) but explicitly notes it does not touch browser cookie stores, so it is not T1539 activity.",
+    "incident_id": "I05"
+  },
+  {
+    "title": "Post-exploitation PowerShell credential toolkit run by pbeesly on scranton",
+    "technique": "T1552",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F02",
+      "F14",
+      "F33",
+      "F38"
+    ],
+    "rationale": "These findings all describe the same pbeesly PowerShell session on scranton.dmevals.local loading a multi-function toolkit from C:\\Program Files\\SysinternalsSuite (psversion.ps1/readme.ps1): Invoke-Discovery, Invoke-Persistence, Get-PrivateKeys, Invoke-ScreenCapture, Get-Keystrokes, Get-Clipboard, credential-file harvesting, Invoke-Exfil and Invoke-BeachCleanup, plus hidden encoded PowerShell, a Javasoft registry Invoke-Expression one-liner, hostui.exe elevation and a monkey.png steganographic loader. The unifying action is harvesting unsecured credentials and credential-bearing files from the host, best fitting T1552.",
+    "incident_id": "I06"
+  },
+  {
+    "title": "Hardcoded credentials in attacker PowerShell tooling and explicit-credential logons to NASHUA",
+    "technique": "T1552.001",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F32",
+      "F61",
+      "F62",
+      "F64"
+    ],
+    "rationale": "These findings all concern credentials found in files and attacker tooling: Invoke-Exfil embedding plaintext credentials ($UserName 'cozy', $Password 'MyCozyPassw0rd!') and mapping \\\\192.168.0.4\\webdav, pbeesly's explicit-credential logons to NASHUA, the nashua PowerShell harvesting of *pass*/*login*/*admin*/*vpn* files into working.zip, the password-protected RAR archive (-hpfGzq5yKw) with sdelete wiping, and accesschk.exe writing passwordsDB on scranton. The unifying action is credentials in files, matching T1552.001.",
+    "incident_id": "I07"
+  },
+  {
+    "title": "Get-PrivateKeys exported machine certificate private keys to .pfx on scranton",
+    "technique": "T1552.004",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F31",
+      "F59"
+    ],
+    "rationale": "F31 and F59 describe the same action: pbeesly on scranton.dmevals.local running Get-PrivateKeys (from C:\\Program Files\\SysinternalsSuite\\readme.ps1), which enumerates cert:\\LocalMachine and calls Export-PfxCertificate for every certificate with a Thumbprint, writing private keys to $env:USERPROFILE\\Downloads\\<random>.pfx protected by hardcoded password 'saribas', with the .pfx file creation and certificate registry blob events corroborating it. This is private-key theft, matching T1552.004.",
+    "incident_id": "I08"
+  },
+  {
+    "title": "No DHCP spoofing; NDIS Capture service toggle is a brief reverted change",
+    "technique": "T1557.003",
+    "in_scope": true,
+    "assessment": "suspicious",
+    "confidence": "low",
+    "finding_ids": [
+      "F49"
+    ],
+    "rationale": "F49 documents that no DHCP traffic (UDP 67/68) exists in any dataset; the only anomaly is a 4-second toggle of the Microsoft NDIS Capture service start type on scranton.dmevals.local, consistent with a packet-capture driver being briefly enabled rather than a rogue DHCP server, and the xDNSServerAddress script blocks on newyork are legitimate DSC. Not T1557.003.",
+    "incident_id": "I09"
+  },
+  {
+    "title": "PsExec lateral movement with plaintext credentials and python.exe payload on nashua",
+    "technique": "out-of-scope:T1021",
+    "in_scope": false,
+    "assessment": "suspicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F11",
+      "F21",
+      "F24",
+      "F63"
+    ],
+    "rationale": "These findings describe the same activity: pbeesly using PsExec64.exe with plaintext credentials (-u dmevals\\pbeesly -p Fl0nk3rt0n!T0by) to install PSEXESVC and launch C:\\Windows\\Temp\\python.exe on \\\\NASHUA, the 4648 explicit-credential logons being PsExec-driven reuse of one account (not spraying, not MFA interception), and the PyInstaller python.exe executing as a child of PSEXESVC.exe. This is remote service execution/lateral movement, not credential access, so it is out-of-scope (T1021).",
+    "incident_id": "I10"
+  }
+]

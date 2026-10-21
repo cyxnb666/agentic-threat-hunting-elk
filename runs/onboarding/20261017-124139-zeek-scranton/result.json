@@ -1,0 +1,829 @@
+{
+  "source_id": "zeek-scranton",
+  "channel": "pull",
+  "sample_records": 170,
+  "outcome": {
+    "decision": "created",
+    "template": "zeek",
+    "dataset": "zeek",
+    "reason": "Zeek JSON records (@proc=zeek, @system=sensor, ts epoch seconds) from the zeek-scranton pull source. No existing template matched (all Windows templates ratio 0.0). New 'zeek' template parses message JSON into zeek.*, sets @timestamp from ts with UNIX format, observer.name from @system (sensor, not host.name), event.module/dataset=zeek, and maps conn/http/dns/file/tls fields to ECS. Validated: 170/170 records pass.",
+    "validation": {
+      "records": 170,
+      "records_ok": 170,
+      "match_ratio": 1.0
+    }
+  },
+  "created_templates": [
+    "zeek"
+  ],
+  "tool_trace": [
+    {
+      "step": 1,
+      "tool": "inspect_sample",
+      "args": {},
+      "result_summary": {
+        "records": 170
+      }
+    },
+    {
+      "step": 1,
+      "tool": "list_templates",
+      "args": {},
+      "result_summary": "list of 4"
+    },
+    {
+      "step": 2,
+      "tool": "get_template",
+      "args": {
+        "name": "windows-sysmon"
+      },
+      "result_summary": {}
+    },
+    {
+      "step": 3,
+      "tool": "create_template",
+      "args": null,
+      "result_summary": {
+        "error": "JSONDecodeError: Expecting property name enclosed in double quotes: line 1 column 924 (char 923)"
+      }
+    },
+    {
+      "step": 4,
+      "tool": "create_template",
+      "args": {
+        "name": "zeek",
+        "dataset": "zeek",
+        "description": "Zeek network sensor logs (conn, http, dns, files, ssl, smb, etc.) exported as JSON with @proc=zeek. Keeps every original field under zeek.*, maps common fields to ECS. The sensor (@system) is the observer, not the host.",
+        "match": {
+          "format": "json",
+          "required_keys": [
+            "@proc",
+            "@system",
+            "ts"
+          ],
+          "equals": {
+            "@proc": [
+              "zeek"
+            ]
+          }
+        },
+        "processors": [
+          {
+            "json": {
+              "field": "message",
+              "target_field": "zeek"
+            }
+          },
+          {
+            "date": {
+              "field": "zeek.ts",
+              "target_field": "@timestamp",
+              "formats": [
+                "UNIX"
+              ]
+            }
+          },
+          {
+            "set": {
+              "field": "event.kind",
+              "value": "event"
+            }
+          },
+          {
+            "set": {
+              "field": "event.module",
+              "value": "zeek"
+            }
+          },
+          {
+            "set": {
+              "field": "event.dataset",
+              "value": "zeek"
+            }
+          },
+          {
+            "set": {
+              "field": "observer.name",
+              "copy_from": "zeek.@system"
+            }
+          },
+          {
+            "set": {
+              "field": "event.action",
+              "copy_from": "zeek.@stream"
+            }
+          },
+          {
+            "set": {
+              "field": "network.transport",
+              "copy_from": "zeek.proto",
+              "if": "ctx.zeek?.proto != null"
+            }
+          },
+          {
+            "set": {
+              "field": "source.ip",
+              "copy_from": "zeek.id_orig_h",
+              "if": "ctx.zeek?.id_orig_h != null"
+            }
+          },
+          {
+            "set": {
+              "field": "source.port",
+              "copy_from": "zeek.id_orig_p",
+              "if": "ctx.zeek?.id_orig_p != null"
+            }
+          },
+          {
+            "set": {
+              "field": "destination.ip",
+              "copy_from": "zeek.id_resp_h",
+              "if": "ctx.zeek?.id_resp_h != null"
+            }
+          },
+          {
+            "set": {
+              "field": "destination.port",
+              "copy_from": "zeek.id_resp_p",
+              "if": "ctx.zeek?.id_resp_p != null"
+            }
+          },
+          {
+            "convert": {
+              "field": "source.port",
+              "type": "long",
+              "ignore_missing": true,
+              "ignore_failure": true
+            }
+          },
+          {
+            "convert": {
+              "field": "destination.port",
+              "type": "long",
+              "ignore_missing": true,
+              "ignore_failure": true
+            }
+          },
+          {
+            "set": {
+              "field": "network.protocol",
+              "copy_from": "zeek.service",
+              "if": "ctx.zeek?.service != null"
+            }
+          },
+          {
+            "set": {
+              "field": "network.bytes",
+              "copy_from": "zeek.orig_bytes",
+              "if": "ctx.zeek?.orig_bytes != null"
+            }
+          },
+          {
+            "set": {
+              "field": "dns.question.name",
+              "copy_from": "zeek.query",
+              "if": "ctx.zeek?.query != null"
+            }
+          },
+          {
+            "set": {
+              "field": "dns.response_code",
+              "copy_from": "zeek.rcode_name",
+              "if": "ctx.zeek?.rcode_name != null"
+            }
+          },
+          {
+            "set": {
+              "field": "url.original",
+              "copy_from": "zeek.uri",
+              "if": "ctx.zeek?.uri != null"
+            }
+          },
+          {
+            "set": {
+              "field": "url.domain",
+              "copy_from": "zeek.host",
+              "if": "ctx.zeek?.host != null"
+            }
+          },
+          {
+            "set": {
+              "field": "http.request.method",
+              "copy_from": "zeek.method",
+              "if": "ctx.zeek?.method != null"
+            }
+          },
+          {
+            "set": {
+              "field": "http.response.status_code",
+              "copy_from": "zeek.status_code",
+              "if": "ctx.zeek?.status_code != null"
+            }
+          },
+          {
+            "convert": {
+              "field": "http.response.status_code",
+              "type": "long",
+              "ignore_missing": true,
+              "ignore_failure": true
+            }
+          },
+          {
+            "set": {
+              "field": "user_agent.original",
+              "copy_from": "zeek.user_agent",
+              "if": "ctx.zeek?.user_agent != null"
+            }
+          },
+          {
+            "set": {
+              "field": "file.path",
+              "copy_from": "zeek.filename",
+              "if": "ctx.zeek?.filename != null"
+            }
+          },
+          {
+            "set": {
+              "field": "file.hash.md5",
+              "copy_from": "zeek.md5",
+              "if": "ctx.zeek?.md5 != null"
+            }
+          },
+          {
+            "set": {
+              "field": "file.hash.sha1",
+              "copy_from": "zeek.sha1",
+              "if": "ctx.zeek?.sha1 != null"
+            }
+          },
+          {
+            "set": {
+              "field": "file.mime_type",
+              "copy_from": "zeek.mime_type",
+              "if": "ctx.zeek?.mime_type != null"
+            }
+          },
+          {
+            "set": {
+              "field": "tls.client.server_name",
+              "copy_from": "zeek.server_name",
+              "if": "ctx.zeek?.server_name != null"
+            }
+          },
+          {
+            "set": {
+              "field": "event.code",
+              "copy_from": "zeek.conn_state",
+              "if": "ctx.zeek?.conn_state != null"
+            }
+          },
+          {
+            "set": {
+              "field": "message",
+              "copy_from": "zeek.@stream",
+              "if": "ctx.zeek?.@stream != null"
+            }
+          },
+          {
+            "set": {
+              "field": "hunt.template",
+              "value": "zeek"
+            }
+          }
+        ]
+      },
+      "result_summary": {
+        "passed": false,
+        "records": 170,
+        "problems": [
+          "simulate rejected the pipeline: BadRequestError(400, 'script_exception', 'compile error', unexpected character [@].)"
+        ]
+      }
+    },
+    {
+      "step": 5,
+      "tool": "create_template",
+      "args": {
+        "dataset": "zeek",
+        "description": "Zeek network sensor logs (conn, http, dns, files, ssl, smb, etc.) exported as JSON with @proc=zeek. Keeps every original field under zeek.*, maps common fields to ECS. The sensor (@system) is the observer, not the host.",
+        "match": {
+          "equals": {
+            "@proc": [
+              "zeek"
+            ]
+          },
+          "format": "json",
+          "required_keys": [
+            "@proc",
+            "@system",
+            "ts"
+          ]
+        },
+        "name": "zeek",
+        "processors": [
+          {
+            "json": {
+              "field": "message",
+              "target_field": "zeek"
+            }
+          },
+          {
+            "date": {
+              "field": "zeek.ts",
+              "formats": [
+                "UNIX"
+              ],
+              "target_field": "@timestamp"
+            }
+          },
+          {
+            "set": {
+              "field": "event.kind",
+              "value": "event"
+            }
+          },
+          {
+            "set": {
+              "field": "event.module",
+              "value": "zeek"
+            }
+          },
+          {
+            "set": {
+              "field": "event.dataset",
+              "value": "zeek"
+            }
+          },
+          {
+            "set": {
+              "field": "observer.name",
+              "copy_from": "zeek.@system"
+            }
+          },
+          {
+            "set": {
+              "field": "event.action",
+              "copy_from": "zeek.@stream"
+            }
+          },
+          {
+            "set": {
+              "field": "network.transport",
+              "copy_from": "zeek.proto",
+              "if": "ctx.zeek?.proto != null"
+            }
+          },
+          {
+            "set": {
+              "field": "source.ip",
+              "copy_from": "zeek.id_orig_h",
+              "if": "ctx.zeek?.id_orig_h != null"
+            }
+          },
+          {
+            "set": {
+              "field": "source.port",
+              "copy_from": "zeek.id_orig_p",
+              "if": "ctx.zeek?.id_orig_p != null"
+            }
+          },
+          {
+            "set": {
+              "field": "destination.ip",
+              "copy_from": "zeek.id_resp_h",
+              "if": "ctx.zeek?.id_resp_h != null"
+            }
+          },
+          {
+            "set": {
+              "field": "destination.port",
+              "copy_from": "zeek.id_resp_p",
+              "if": "ctx.zeek?.id_resp_p != null"
+            }
+          },
+          {
+            "convert": {
+              "field": "source.port",
+              "ignore_failure": true,
+              "ignore_missing": true,
+              "type": "long"
+            }
+          },
+          {
+            "convert": {
+              "field": "destination.port",
+              "ignore_failure": true,
+              "ignore_missing": true,
+              "type": "long"
+            }
+          },
+          {
+            "set": {
+              "field": "network.protocol",
+              "copy_from": "zeek.service",
+              "if": "ctx.zeek?.service != null"
+            }
+          },
+          {
+            "set": {
+              "field": "network.bytes",
+              "copy_from": "zeek.orig_bytes",
+              "if": "ctx.zeek?.orig_bytes != null"
+            }
+          },
+          {
+            "set": {
+              "field": "dns.question.name",
+              "copy_from": "zeek.query",
+              "if": "ctx.zeek?.query != null"
+            }
+          },
+          {
+            "set": {
+              "field": "dns.response_code",
+              "copy_from": "zeek.rcode_name",
+              "if": "ctx.zeek?.rcode_name != null"
+            }
+          },
+          {
+            "set": {
+              "field": "url.original",
+              "copy_from": "zeek.uri",
+              "if": "ctx.zeek?.uri != null"
+            }
+          },
+          {
+            "set": {
+              "field": "url.domain",
+              "copy_from": "zeek.host",
+              "if": "ctx.zeek?.host != null"
+            }
+          },
+          {
+            "set": {
+              "field": "http.request.method",
+              "copy_from": "zeek.method",
+              "if": "ctx.zeek?.method != null"
+            }
+          },
+          {
+            "set": {
+              "field": "http.response.status_code",
+              "copy_from": "zeek.status_code",
+              "if": "ctx.zeek?.status_code != null"
+            }
+          },
+          {
+            "convert": {
+              "field": "http.response.status_code",
+              "ignore_failure": true,
+              "ignore_missing": true,
+              "type": "long"
+            }
+          },
+          {
+            "set": {
+              "field": "user_agent.original",
+              "copy_from": "zeek.user_agent",
+              "if": "ctx.zeek?.user_agent != null"
+            }
+          },
+          {
+            "set": {
+              "field": "file.path",
+              "copy_from": "zeek.filename",
+              "if": "ctx.zeek?.filename != null"
+            }
+          },
+          {
+            "set": {
+              "field": "file.hash.md5",
+              "copy_from": "zeek.md5",
+              "if": "ctx.zeek?.md5 != null"
+            }
+          },
+          {
+            "set": {
+              "field": "file.hash.sha1",
+              "copy_from": "zeek.sha1",
+              "if": "ctx.zeek?.sha1 != null"
+            }
+          },
+          {
+            "set": {
+              "field": "file.mime_type",
+              "copy_from": "zeek.mime_type",
+              "if": "ctx.zeek?.mime_type != null"
+            }
+          },
+          {
+            "set": {
+              "field": "tls.client.server_name",
+              "copy_from": "zeek.server_name",
+              "if": "ctx.zeek?.server_name != null"
+            }
+          },
+          {
+            "set": {
+              "field": "event.code",
+              "copy_from": "zeek.conn_state",
+              "if": "ctx.zeek?.conn_state != null"
+            }
+          },
+          {
+            "set": {
+              "field": "message",
+              "copy_from": "zeek.@stream",
+              "if": "ctx.zeek?.@stream != null"
+            }
+          },
+          {
+            "set": {
+              "field": "hunt.template",
+              "value": "zeek"
+            }
+          }
+        ]
+      },
+      "result_summary": {
+        "passed": false,
+        "records": 170,
+        "problems": [
+          "simulate rejected the pipeline: BadRequestError(400, 'script_exception', 'compile error', unexpected character [@].)"
+        ]
+      }
+    },
+    {
+      "step": 6,
+      "tool": "create_template",
+      "args": {
+        "dataset": "zeek",
+        "description": "Zeek network sensor logs (conn, http, dns, files, ssl, smb, etc.) exported as JSON with @proc=zeek. Keeps every original field under zeek.*, maps common fields to ECS. The sensor (@system) is the observer, not the host.",
+        "match": {
+          "equals": {
+            "@proc": [
+              "zeek"
+            ]
+          },
+          "format": "json",
+          "required_keys": [
+            "@proc",
+            "@system",
+            "ts"
+          ]
+        },
+        "name": "zeek",
+        "processors": [
+          {
+            "json": {
+              "field": "message",
+              "target_field": "zeek"
+            }
+          },
+          {
+            "date": {
+              "field": "zeek.ts",
+              "formats": [
+                "UNIX"
+              ],
+              "target_field": "@timestamp"
+            }
+          },
+          {
+            "set": {
+              "field": "event.kind",
+              "value": "event"
+            }
+          },
+          {
+            "set": {
+              "field": "event.module",
+              "value": "zeek"
+            }
+          },
+          {
+            "set": {
+              "field": "event.dataset",
+              "value": "zeek"
+            }
+          },
+          {
+            "set": {
+              "field": "observer.name",
+              "copy_from": "zeek.@system"
+            }
+          },
+          {
+            "set": {
+              "field": "event.action",
+              "copy_from": "zeek.@stream"
+            }
+          },
+          {
+            "set": {
+              "field": "network.transport",
+              "copy_from": "zeek.proto",
+              "if": "ctx.zeek?.proto != null"
+            }
+          },
+          {
+            "set": {
+              "field": "source.ip",
+              "copy_from": "zeek.id_orig_h",
+              "if": "ctx.zeek?.id_orig_h != null"
+            }
+          },
+          {
+            "set": {
+              "field": "source.port",
+              "copy_from": "zeek.id_orig_p",
+              "if": "ctx.zeek?.id_orig_p != null"
+            }
+          },
+          {
+            "set": {
+              "field": "destination.ip",
+              "copy_from": "zeek.id_resp_h",
+              "if": "ctx.zeek?.id_resp_h != null"
+            }
+          },
+          {
+            "set": {
+              "field": "destination.port",
+              "copy_from": "zeek.id_resp_p",
+              "if": "ctx.zeek?.id_resp_p != null"
+            }
+          },
+          {
+            "convert": {
+              "field": "source.port",
+              "ignore_failure": true,
+              "ignore_missing": true,
+              "type": "long"
+            }
+          },
+          {
+            "convert": {
+              "field": "destination.port",
+              "ignore_failure": true,
+              "ignore_missing": true,
+              "type": "long"
+            }
+          },
+          {
+            "set": {
+              "field": "network.protocol",
+              "copy_from": "zeek.service",
+              "if": "ctx.zeek?.service != null"
+            }
+          },
+          {
+            "set": {
+              "field": "network.bytes",
+              "copy_from": "zeek.orig_bytes",
+              "if": "ctx.zeek?.orig_bytes != null"
+            }
+          },
+          {
+            "set": {
+              "field": "dns.question.name",
+              "copy_from": "zeek.query",
+              "if": "ctx.zeek?.query != null"
+            }
+          },
+          {
+            "set": {
+              "field": "dns.response_code",
+              "copy_from": "zeek.rcode_name",
+              "if": "ctx.zeek?.rcode_name != null"
+            }
+          },
+          {
+            "set": {
+              "field": "url.original",
+              "copy_from": "zeek.uri",
+              "if": "ctx.zeek?.uri != null"
+            }
+          },
+          {
+            "set": {
+              "field": "url.domain",
+              "copy_from": "zeek.host",
+              "if": "ctx.zeek?.host != null"
+            }
+          },
+          {
+            "set": {
+              "field": "http.request.method",
+              "copy_from": "zeek.method",
+              "if": "ctx.zeek?.method != null"
+            }
+          },
+          {
+            "set": {
+              "field": "http.response.status_code",
+              "copy_from": "zeek.status_code",
+              "if": "ctx.zeek?.status_code != null"
+            }
+          },
+          {
+            "convert": {
+              "field": "http.response.status_code",
+              "ignore_failure": true,
+              "ignore_missing": true,
+              "type": "long"
+            }
+          },
+          {
+            "set": {
+              "field": "user_agent.original",
+              "copy_from": "zeek.user_agent",
+              "if": "ctx.zeek?.user_agent != null"
+            }
+          },
+          {
+            "set": {
+              "field": "file.path",
+              "copy_from": "zeek.filename",
+              "if": "ctx.zeek?.filename != null"
+            }
+          },
+          {
+            "set": {
+              "field": "file.hash.md5",
+              "copy_from": "zeek.md5",
+              "if": "ctx.zeek?.md5 != null"
+            }
+          },
+          {
+            "set": {
+              "field": "file.hash.sha1",
+              "copy_from": "zeek.sha1",
+              "if": "ctx.zeek?.sha1 != null"
+            }
+          },
+          {
+            "set": {
+              "field": "file.mime_type",
+              "copy_from": "zeek.mime_type",
+              "if": "ctx.zeek?.mime_type != null"
+            }
+          },
+          {
+            "set": {
+              "field": "tls.client.server_name",
+              "copy_from": "zeek.server_name",
+              "if": "ctx.zeek?.server_name != null"
+            }
+          },
+          {
+            "set": {
+              "field": "event.code",
+              "copy_from": "zeek.conn_state",
+              "if": "ctx.zeek?.conn_state != null"
+            }
+          },
+          {
+            "set": {
+              "field": "message",
+              "copy_from": "zeek.@stream",
+              "if": "ctx.zeek != null && ctx.zeek['@stream'] != null"
+            }
+          },
+          {
+            "set": {
+              "field": "hunt.template",
+              "value": "zeek"
+            }
+          }
+        ]
+      },
+      "result_summary": {
+        "passed": true,
+        "records": 170,
+        "records_ok": 170,
+        "match_ratio": 1.0,
+        "failure_counts": {}
+      }
+    },
+    {
+      "step": 7,
+      "tool": "register_source",
+      "args": {
+        "template": "zeek",
+        "reason": "Zeek JSON records (@proc=zeek, @system=sensor, ts epoch seconds) from the zeek-scranton pull source. No existing template matched (all Windows templates ratio 0.0). New 'zeek' template parses message JSON into zeek.*, sets @timestamp from ts with UNIX format, observer.name from @system (sensor, not host.name), event.module/dataset=zeek, and maps conn/http/dns/file/tls fields to ECS. Validated: 170/170 records pass."
+      },
+      "result_summary": {
+        "registered": true,
+        "decision": "created",
+        "template": "zeek"
+      }
+    }
+  ],
+  "llm_calls": 7,
+  "llm_tokens": {
+    "prompt": 48151,
+    "completion": 5386
+  },
+  "model": "deepseek-flash"
+}

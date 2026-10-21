@@ -1,0 +1,62 @@
+  + Exception Group Traceback (most recent call last):
+  |   File "<frozen runpy>", line 198, in _run_module_as_main
+  |   File "<frozen runpy>", line 88, in _run_code
+  |   File "C:\Users\yaoxi\Downloads\project\hunt\__main__.py", line 136, in <module>
+  |     sys.exit(main())
+  |              ~~~~^^
+  |   File "C:\Users\yaoxi\Downloads\project\hunt\__main__.py", line 132, in main
+  |     a.f(a)
+  |     ~~~^^^
+  |   File "C:\Users\yaoxi\Downloads\project\hunt\__main__.py", line 101, in cmd_hunt
+  |     print(run_hunt(a.hypothesis, profile=a.profile, run_name=a.run_name))
+  |           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |   File "C:\Users\yaoxi\Downloads\project\hunt\hunting.py", line 618, in run_hunt
+  |     return asyncio.run(HuntAgent(hypothesis, profile, run_dir).run())
+  |            ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |   File "C:\Users\yaoxi\AppData\Local\Programs\Python\Python313\Lib\asyncio\runners.py", line 195, in run
+  |     return runner.run(main)
+  |            ~~~~~~~~~~^^^^^^
+  |   File "C:\Users\yaoxi\AppData\Local\Programs\Python\Python313\Lib\asyncio\runners.py", line 118, in run
+  |     return self._loop.run_until_complete(task)
+  |            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  |   File "C:\Users\yaoxi\AppData\Local\Programs\Python\Python313\Lib\asyncio\base_events.py", line 725, in run_until_complete
+  |     return future.result()
+  |            ~~~~~~~~~~~~~^^
+  |   File "C:\Users\yaoxi\Downloads\project\hunt\hunting.py", line 472, in run
+  |     async with stdio_client(params, errlog=errlog) as (read, write):
+  |                ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  |   File "C:\Users\yaoxi\AppData\Local\Programs\Python\Python313\Lib\contextlib.py", line 235, in __aexit__
+  |     await self.gen.athrow(value)
+  |   File "C:\Users\yaoxi\Downloads\project\.venv\Lib\site-packages\mcp\client\stdio.py", line 201, in stdio_client
+  |     async with anyio.create_task_group() as tg:
+  |                ~~~~~~~~~~~~~~~~~~~~~~~^^
+  |   File "C:\Users\yaoxi\Downloads\project\.venv\Lib\site-packages\anyio\_backends\_asyncio.py", line 847, in __aexit__
+  |     raise BaseExceptionGroup(
+  |         "unhandled errors in a TaskGroup", self._exceptions
+  |     ) from None
+  | ExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)
+  +-+---------------- 1 ----------------
+    | Exception Group Traceback (most recent call last):
+    |   File "C:\Users\yaoxi\Downloads\project\.venv\Lib\site-packages\mcp\client\stdio.py", line 205, in stdio_client
+    |     yield read_stream, write_stream
+    |   File "C:\Users\yaoxi\Downloads\project\hunt\hunting.py", line 473, in run
+    |     async with ClientSession(read, write) as session:
+    |                ~~~~~~~~~~~~~^^^^^^^^^^^^^
+    |   File "C:\Users\yaoxi\Downloads\project\.venv\Lib\site-packages\mcp\client\session.py", line 514, in __aexit__
+    |     result = await self._task_group.__aexit__(exc_type, exc_val, exc_tb)
+    |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\yaoxi\Downloads\project\.venv\Lib\site-packages\anyio\_backends\_asyncio.py", line 847, in __aexit__
+    |     raise BaseExceptionGroup(
+    |         "unhandled errors in a TaskGroup", self._exceptions
+    |     ) from None
+    | ExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)
+    +-+---------------- 1 ----------------
+      | Traceback (most recent call last):
+      |   File "C:\Users\yaoxi\Downloads\project\hunt\hunting.py", line 484, in run
+      |     findings += await self.pivot(tools, findings)
+      |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      |   File "C:\Users\yaoxi\Downloads\project\hunt\hunting.py", line 325, in pivot
+      |     anchors.append({"finding": f["finding_id"], "technique": f.get("technique"), "host": v.get("host"),
+      |                                ~^^^^^^^^^^^^^^
+      | KeyError: 'finding_id'
+      +------------------------------------

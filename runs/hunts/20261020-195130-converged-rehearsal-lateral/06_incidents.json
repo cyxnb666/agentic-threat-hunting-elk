@@ -1,0 +1,124 @@
+[
+  {
+    "title": "RDP logon (type 10) to SCRANTON by pbeesly from 172.18.39.2",
+    "technique": "T1021.001",
+    "in_scope": true,
+    "assessment": "suspicious",
+    "confidence": "medium",
+    "finding_ids": [
+      "F03"
+    ],
+    "rationale": "Logon type 10 with User32/Negotiate on SCRANTON is an RDP session; source attribution is uncertain, hence suspicious.",
+    "incident_id": "I01"
+  },
+  {
+    "title": "PsExec SMB/ADMIN$ lateral movement from SCRANTON to NASHUA with cleartext credentials",
+    "technique": "T1021.002",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F01",
+      "F15"
+    ],
+    "rationale": "Both findings describe the same PsExec64.exe executions from SCRANTON against \\\\NASHUA passing explicit pbeesly credentials, producing PSEXESVC service installs and 4648 explicit-credential logons over SMB/ADMIN$. Best fit is SMB/Windows Admin Shares remote service execution.",
+    "incident_id": "I02"
+  },
+  {
+    "title": "pbeesly network logons to NEWYORK and IPC$/samr access from SCRANTON and NASHUA",
+    "technique": "T1021.002",
+    "in_scope": true,
+    "assessment": "suspicious",
+    "confidence": "medium",
+    "finding_ids": [
+      "F22"
+    ],
+    "rationale": "Remote SMB/RPC authentication and IPC$/samr access to NEWYORK by the compromised account fits SMB/Windows Admin Shares; no execution observed, hence suspicious.",
+    "incident_id": "I03"
+  },
+  {
+    "title": "PowerShell remoting (WinRM/5985) from SCRANTON to NASHUA",
+    "technique": "T1021.006",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F02"
+    ],
+    "rationale": "Invoke-Command -ComputerName NASHUA over TCP 5985 from SCRANTON to NASHUA is Windows Remote Management lateral movement.",
+    "incident_id": "I04"
+  },
+  {
+    "title": "python.exe written to \\\\NASHUA\\ADMIN$ and executed remotely via PsExec",
+    "technique": "T1080",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F08"
+    ],
+    "rationale": "pbeesly wrote Temp\\python.exe into NASHUA's ADMIN$ share (WriteData) which was then executed on the target, matching taint of shared content.",
+    "incident_id": "I05"
+  },
+  {
+    "title": "PSEXESVC remote service execution on NASHUA launching unsigned python.exe",
+    "technique": "T1210",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F11",
+      "F23"
+    ],
+    "rationale": "Both findings describe the same repeated PSEXESVC service installs on NASHUA spawning C:\\Windows\\Temp\\python.exe as pbeesly; remote service execution via PsExec fits exploitation of remote services.",
+    "incident_id": "I06"
+  },
+  {
+    "title": "PsExec used from SCRANTON to copy PSEXESVC.exe and python.exe to NASHUA over ADMIN$",
+    "technique": "T1570",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F20"
+    ],
+    "rationale": "Tool transfer of PSEXESVC.exe and python.exe to NASHUA over ADMIN$ is lateral tool transfer.",
+    "incident_id": "I07"
+  },
+  {
+    "title": "Hands-on lateral movement scranton->nashua via PsExec; no software deployment tool used",
+    "technique": "out-of-scope:T1021.002",
+    "in_scope": false,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F07"
+    ],
+    "rationale": "Finding documents PsExec-based lateral movement and explicitly notes no SCCM/Intune/WSUS activity, so T1072 does not fit; the observed action is SMB/ADMIN$ remote service execution.",
+    "incident_id": "I08"
+  },
+  {
+    "title": "Compromised pbeesly session on SCRANTON used WinRM/PsExec to move to NASHUA and NEWYORK",
+    "technique": "out-of-scope:T1021.006",
+    "in_scope": false,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F14"
+    ],
+    "rationale": "Finding covers the initial compromise chain plus subsequent lateral movement; the lateral action described is WinRM/PsExec, best represented as Windows Remote Management.",
+    "incident_id": "I09"
+  },
+  {
+    "title": "Encoded PowerShell payload (IEX from bitmap pixels) on SCRANTON",
+    "technique": "out-of-scope:T1059.001",
+    "in_scope": false,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F12"
+    ],
+    "rationale": "Steganographic/encoded PowerShell loader executed as pbeesly is execution, not lateral movement; best ATT&CK fit is PowerShell.",
+    "incident_id": "I10"
+  }
+]

@@ -1,0 +1,6 @@
+[ingest] delivering data/sources/zeek/NASHUA via pull as source 'zeek-nashua' ...
+[watch] onboarding new source zeek-nashua (1725 records, channel pull)
+[watch] zeek-nashua: {'decision': 'reused', 'template': 'zeek', 'dataset': 'zeek', 'reason': "All 196 sampled records are Zeek JSON logs (@proc=zeek, @stream in conn/ssl/files/x509/dce_rpc/smb_files/kerberos/smb_mapping) and the existing 'zeek' template matches them at ratio 1.0 and passed the full output-contract simulation (196/196). It parses ts as UNIX epoch into @timestamp, sets observer.name from @system (sensor, not host.name), event.module=zeek, event.dataset=zeek, keeps originals under zeek.*, and sets hunt.template. No new template required.", 'validation': {'records': 196, 'records_ok': 196, 'match_ratio': 1.0}}
+[watch] backfilled 1725 records of zeek-nashua into logs-zeek-default (failed 0)
+[ingest] sent=1725 (done) parsed=1725 waiting=0
+{"channel": "pull", "source_id": "zeek-nashua", "files": 12, "records": 1725, "parsed": 1725, "pipeline_errors": 0, "first_event": "2020-04-30T00:06:39.824Z", "last_event": "2020-04-30T00:45:00.042Z", "seconds": 18.8}

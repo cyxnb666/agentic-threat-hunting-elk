@@ -1,0 +1,26 @@
+{
+  "apt29-sysmon": {
+    "pipeline": "hunt-tpl-windows-sysmon",
+    "dataset": "windows.sysmon"
+  },
+  "apt29-security": {
+    "pipeline": "hunt-tpl-windows-security",
+    "dataset": "windows.security"
+  },
+  "apt29-windows-other": {
+    "pipeline": "hunt-tpl-windows-other",
+    "dataset": "windows.other"
+  },
+  "apt29-powershell": {
+    "pipeline": "hunt-tpl-windows-powershell",
+    "dataset": "windows.powershell"
+  },
+  "zeek-scranton": {
+    "pipeline": "hunt-tpl-zeek",
+    "dataset": "zeek"
+  },
+  "zeek-nashua": {
+    "pipeline": "hunt-tpl-zeek",
+    "dataset": "zeek"
+  }
+}

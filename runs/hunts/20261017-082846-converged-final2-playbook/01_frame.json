@@ -1,0 +1,9 @@
+{
+  "tactics": [
+    "credential-access"
+  ],
+  "restated": "An adversary with existing access to Windows hosts on this network is stealing credentials from those hosts.",
+  "what_would_confirm": "Observable evidence such as LSASS process memory access (e.g., via Mimikatz or procdump), suspicious access to SAM/SECURITY registry hives, use of Windows Credential Manager APIs, or anomalous authentication events indicating credential theft.",
+  "what_would_refute": "Absence of any credential dumping tool execution, no unauthorized access to LSASS or registry hives, and no anomalous credential-related events on the compromised Windows hosts.",
+  "playbook_from": "credential-access-v1"
+}

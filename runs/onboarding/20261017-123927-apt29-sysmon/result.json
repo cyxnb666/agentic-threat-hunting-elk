@@ -1,0 +1,74 @@
+{
+  "source_id": "apt29-sysmon",
+  "channel": "pull",
+  "sample_records": 199,
+  "outcome": {
+    "decision": "reused",
+    "template": "windows-sysmon",
+    "dataset": "windows.sysmon",
+    "reason": "All 199 sampled records are NXLog im_msvistalog exports from Channel Microsoft-Windows-Sysmon/Operational (SourceName Microsoft-Windows-Sysmon); the builtin windows-sysmon template matches at ratio 1.0 and passed the output contract on every record (UtcTime -> @timestamp, Hostname -> host.name, event.module=sysmon, event.dataset=windows.sysmon, event.original preserved, hunt.template set). No new template required.",
+    "validation": {
+      "records": 199,
+      "records_ok": 199,
+      "match_ratio": 1.0
+    }
+  },
+  "created_templates": [],
+  "tool_trace": [
+    {
+      "step": 1,
+      "tool": "inspect_sample",
+      "args": {},
+      "result_summary": {
+        "records": 199
+      }
+    },
+    {
+      "step": 1,
+      "tool": "list_templates",
+      "args": {},
+      "result_summary": "list of 2"
+    },
+    {
+      "step": 2,
+      "tool": "get_template",
+      "args": {
+        "name": "windows-sysmon"
+      },
+      "result_summary": {}
+    },
+    {
+      "step": 2,
+      "tool": "test_template",
+      "args": {
+        "name": "windows-sysmon"
+      },
+      "result_summary": {
+        "passed": true,
+        "records": 199,
+        "records_ok": 199,
+        "match_ratio": 1.0,
+        "failure_counts": {}
+      }
+    },
+    {
+      "step": 3,
+      "tool": "register_source",
+      "args": {
+        "template": "windows-sysmon",
+        "reason": "All 199 sampled records are NXLog im_msvistalog exports from Channel Microsoft-Windows-Sysmon/Operational (SourceName Microsoft-Windows-Sysmon); the builtin windows-sysmon template matches at ratio 1.0 and passed the output contract on every record (UtcTime -> @timestamp, Hostname -> host.name, event.module=sysmon, event.dataset=windows.sysmon, event.original preserved, hunt.template set). No new template required."
+      },
+      "result_summary": {
+        "registered": true,
+        "decision": "reused",
+        "template": "windows-sysmon"
+      }
+    }
+  ],
+  "llm_calls": 3,
+  "llm_tokens": {
+    "prompt": 12516,
+    "completion": 347
+  },
+  "model": "deepseek-flash"
+}

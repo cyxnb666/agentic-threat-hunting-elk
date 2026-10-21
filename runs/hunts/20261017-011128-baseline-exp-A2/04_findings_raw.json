@@ -1,0 +1,182 @@
+[
+  {
+    "technique": "T1003.001",
+    "title": "LSASS memory accessed with full-access masks and an unbacked remote thread injected by PowerShell on scranton",
+    "assessment": "malicious",
+    "confidence": "high",
+    "summary": "On 2020-05-02 03:05:16 UTC on scranton.dmevals.local, C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe (PID 2976, user DMEVALS\\pbeesly) opened C:\\Windows\\System32\\lsass.exe (PID 736) with GrantedAccess 0x1f3fff and 0x1fffff (Sysmon EID 10) and created a remote thread in it (Sysmon EID 8, NewThreadId 912) starting at 0x00000117610E0000 with StartModule '-' (code in unbacked memory). Security EID 4656 independently shows the same PowerShell process (SubjectUserName pbeesly) requesting handles to \\Device\\HarddiskVolume2\\Windows\\System32\\lsass.exe with AccessMask 0x1f3fff and 0x1fffff at 23:05:16 local (=03:05:16Z). That PowerShell process was launched at 02:58:44 by C:\\Windows\\System32\\control.exe with a hidden command line that decodes an ASCII payload from C:\\Users\\pbeesly\\Downloads\\monkey.png (steganography) and IEXes it, and it then compiled C# in memory via csc.exe (Temp\\RES2758.tmp) and wrote a .pfx to Downloads. A second in-memory loader (reflective delegate via UnsafeNativeMethods.GetProcAddress plus a base64 shellcode blob) was logged for the same host/user at 03:21:29 after the 03:18:30 restart initiated by pbeesly. This is LSASS memory access/credential dumping (T1003.001) on scranton by the pbeesly session; the same account then used PsExec64 with the cleartext password of dmevals\\pbeesly against \\\\NASHUA (PSEXESVC installed 4x on nashua, python.exe run from C:\\Windows\\Temp).",
+    "evidence": [
+      {
+        "index": ".ds-logs-windows.sysmon-default-2026.10.16-000001",
+        "id": "AaFFkNQ25mySA1R-k13z",
+        "field": "win.TargetImage",
+        "value": "C:\\Windows\\System32\\lsass.exe",
+        "query_id": "q-f4c29ad6db"
+      },
+      {
+        "index": ".ds-logs-windows.sysmon-default-2026.10.16-000001",
+        "id": "AaFFkNQ25mySA1R-k13z",
+        "field": "win.StartAddress",
+        "value": "0x00000117610E0000",
+        "query_id": "q-f4c29ad6db"
+      },
+      {
+        "index": ".ds-logs-windows.sysmon-default-2026.10.16-000001",
+        "id": "AaFFkNQ25mySA1R-k13z",
+        "field": "win.StartModule",
+        "value": "-",
+        "query_id": "q-f4c29ad6db"
+      },
+      {
+        "index": ".ds-logs-windows.sysmon-default-2026.10.16-000001",
+        "id": "AaFFkNQ25mySA1R-k13y",
+        "field": "win.GrantedAccess",
+        "value": "0x1f3fff",
+        "query_id": "q-8d60eda11f"
+      },
+      {
+        "index": ".ds-logs-windows.sysmon-default-2026.10.16-000001",
+        "id": "AaFFkNQ25mySA1R-k131",
+        "field": "win.GrantedAccess",
+        "value": "0x1fffff",
+        "query_id": "q-8d60eda11f"
+      },
+      {
+        "index": ".ds-logs-windows.security-default-2026.10.16-000001",
+        "id": "AaFFkdQ25mySA1YldM_p",
+        "field": "win.AccessMask",
+        "value": "0x1fffff",
+        "query_id": "q-aa37985c0c"
+      },
+      {
+        "index": ".ds-logs-windows.security-default-2026.10.16-000001",
+        "id": "AaFFkdQ25mySA1YldM_i",
+        "field": "win.AccessMask",
+        "value": "0x1f3fff",
+        "query_id": "q-aa37985c0c"
+      },
+      {
+        "index": ".ds-logs-windows.sysmon-default-2026.10.16-000001",
+        "id": "AaFFkNQ25mySA1WdFNhN",
+        "field": "process.command_line",
+        "value": "\"PowerShell.exe\" -noni -noexit -ep bypass -window hidden -c \"sal a New-Object;Add-Type -AssemblyName 'System.Drawing'; $g=a System.Drawing.Bitmap('C:\\Users\\pbeesly\\Downloads\\monkey.png')",
+        "query_id": "q-8957457cdc"
+      },
+      {
+        "index": ".ds-logs-windows.sysmon-default-2026.10.16-000001",
+        "id": "AaFFkNQ25mySA1WdEtgZ",
+        "field": "win.TargetFilename",
+        "value": "C:\\Users\\pbeesly\\AppData\\Local\\Temp\\RES2758.tmp",
+        "query_id": "q-3c765ade11"
+      },
+      {
+        "index": ".ds-logs-windows.powershell-default-2026.10.16-000001",
+        "id": "AaFFkdQ25mySA1bzyNfQ",
+        "field": "powershell.script_block_text",
+        "value": "function jzI {\r\n\tParam ($yKR, $cq)\t\t\r\n\t$vvA = ([AppDomain]::CurrentDomain.GetAssemblies() | Where-Object { $_.GlobalAssemblyCache -And $_.Location.Split('\\\\')[-1].Equals('System.dll') }).GetType('Microsoft.Win32.UnsafeNativeMethods')",
+        "query_id": "q-b2c1ad2d88"
+      }
+    ],
+    "finding_id": "F01"
+  },
+  {
+    "technique": "T1003.001",
+    "title": "wsmprovhost.exe full-access handle to LSASS on nashua is Get-Process -IncludeUserName enumeration (benign)",
+    "assessment": "benign",
+    "confidence": "medium",
+    "summary": "On 2020-05-02 03:09:29 UTC on nashua.dmevals.local, C:\\windows\\system32\\wsmprovhost.exe (PID 7720, pbeesly PS-remoting session) accessed C:\\windows\\system32\\lsass.exe with GrantedAccess 0x1f3fff. The same 0x1f3fff mask was requested against a long list of unrelated processes (ApplicationFrameHost.exe, browser_broker.exe, conhost.exe, ctfmon.exe, DllHost.exe, dwm.exe, Explorer.EXE, fontdrvhost.exe, LogonUI.exe), and the PS remoting script block recorded at 03:09:28 on nashua is 'Get-Process -IncludeUserName | Select-Object UserName,SessionId | ...' - the standard signature of Get-Process -IncludeUserName enumerating process owners, not targeted LSASS reading. No dump write or remote thread into lsass exists for this host (Sysmon EID 8 query for nashua returned nothing).",
+    "evidence": [
+      {
+        "index": ".ds-logs-windows.sysmon-default-2026.10.16-000001",
+        "id": "AaFFkNQ25mySA1RrM7IJ",
+        "field": "win.SourceImage",
+        "value": "C:\\windows\\system32\\wsmprovhost.exe",
+        "query_id": "q-6f00616213"
+      },
+      {
+        "index": ".ds-logs-windows.sysmon-default-2026.10.16-000001",
+        "id": "AaFFkNQ25mySA1RrM7IJ",
+        "field": "win.GrantedAccess",
+        "value": "0x1f3fff",
+        "query_id": "q-6f00616213"
+      },
+      {
+        "index": ".ds-logs-windows.sysmon-default-2026.10.16-000001",
+        "id": "AaFFkNQ25mySA1RsM6Q6",
+        "field": "win.TargetImage",
+        "value": "C:\\windows\\system32\\ApplicationFrameHost.exe",
+        "query_id": "q-4917a7f783"
+      },
+      {
+        "index": ".ds-logs-windows.powershell-default-2026.10.16-000001",
+        "id": "AaFFkdQ25mySA1bsxh3J",
+        "field": "powershell.script_block_text",
+        "value": "Get-Process -IncludeUserName | Select-Object UserName,SessionId | Where-Object { $_.UserName -like \"*\\$env:USERNAME\" } | Sort-Object SessionId -Unique ",
+        "query_id": "q-f9bdbc4c13"
+      }
+    ],
+    "finding_id": "F02"
+  },
+  {
+    "technique": "T1003.002",
+    "title": "Only lsass.exe itself wrote to the SAM hive; no SAM dump or hive copy observed",
+    "assessment": "benign",
+    "confidence": "medium",
+    "summary": "Registry-write telemetry matching *SAM* on 2020-05-02 contains only two events, both on scranton.dmevals.local: lsass.exe setting HKLM\\SAM\\SAM\\Domains\\Account\\F at 03:19:10 (immediately after the 03:18:30 restart initiated by pbeesly) and LogonUI.exe setting the LogonUI\\SessionData\\2\\LoggedOnSAMUser value at 03:20:46 - i.e. legitimate post-logon SAM bookkeeping by the SAM owner process. No hive extraction tooling was observed: Security 4688 has no reg.exe/reg save, esentutl, ntdsutil or vssadmin executions, and no file-create event writes the SAM/SECURITY/SYSTEM hive files. SAM-hash theft is therefore not demonstrated in this window (LSASS itself was attacked instead - see the T1003.001 finding).",
+    "evidence": [
+      {
+        "index": ".ds-logs-windows.sysmon-default-2026.10.16-000001",
+        "id": "AaFFkNQ25mySA1NY3HhA",
+        "field": "process.executable",
+        "value": "C:\\windows\\system32\\lsass.exe",
+        "query_id": "q-6732500511"
+      },
+      {
+        "index": ".ds-logs-windows.sysmon-default-2026.10.16-000001",
+        "id": "AaFFkNQ25mySA1NY3HhA",
+        "field": "message",
+        "value": "TargetObject: HKLM\\SAM\\SAM\\Domains\\Account\\F",
+        "query_id": "q-6732500511"
+      },
+      {
+        "index": ".ds-logs-windows.other-default-2026.10.16-000001",
+        "id": "AaFFkdQ25mySA1aOnx2d",
+        "field": "message",
+        "value": "The process C:\\Windows\\System32\\RuntimeBroker.exe (SCRANTON) has initiated the restart of computer SCRANTON on behalf of user DMEVALS\\pbeesly for the following reason: Other (Unplanned)",
+        "query_id": "q-e6cfba11bd"
+      }
+    ],
+    "finding_id": "F03"
+  },
+  {
+    "technique": "T1558.003",
+    "title": "Kerberos ticketing is AES256-only service/TGT traffic - no RC4 Kerberoasting pattern",
+    "assessment": "benign",
+    "confidence": "medium",
+    "summary": "In windows.security the 28 Kerberos service-ticket requests (EID 4769) are all TicketEncryptionType 0x12 (AES256) for user pbeesly@DMEVALS.LOCAL against machine accounts (ServiceName NEWYORK$, NASHUA$, krbtgt) with Status 0x0, and the 14 TGT requests (EID 4768) are likewise 0x12 for pbeesly/krbtgt - no RC4 (0x17/0x18) ticket storm and no anomalous service SPNs, so Kerberoasting is not evidenced. In the separate, non-overlapping zeek capture window (2020-04-30) every Kerberos record carries cipher aes256-cts-hmac-sha1-96 and the only failures are AS-REQ exchanges answered with KDC_ERR_PREAUTH_REQUIRED for pbeesly (normal pre-authentication, which also argues against AS-REP roasting of that account).",
+    "evidence": [
+      {
+        "index": ".ds-logs-windows.security-default-2026.10.16-000001",
+        "id": "AaFFkdQ25mySA1YhYtYv",
+        "field": "win.TicketEncryptionType",
+        "value": "0x12",
+        "query_id": "q-4d88b6f37f"
+      },
+      {
+        "index": ".ds-logs-windows.security-default-2026.10.16-000001",
+        "id": "AaFFkdQ25mySA1YhYtYv",
+        "field": "win.ServiceName",
+        "value": "NEWYORK$",
+        "query_id": "q-4d88b6f37f"
+      },
+      {
+        "index": ".ds-logs-zeek-default-2026.10.16-000001",
+        "id": "AaFFktQ25mySA1aO8Idf",
+        "field": "message",
+        "value": "\"request_type\":\"AS\",\"client\":\"pbeesly/DMEVALS.LOCAL\",\"service\":\"krbtgt/DMEVALS.LOCAL\",\"success\":false,\"error_msg\":\"KDC_ERR_PREAUTH_REQUIRED\"",
+        "query_id": "q-d16a0b10de"
+      }
+    ],
+    "finding_id": "F04"
+  }
+]

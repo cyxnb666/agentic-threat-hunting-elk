@@ -1,0 +1,198 @@
+{
+  "a": "20261017-124400-converged-round1-a",
+  "b": "20261017-124403-converged-round1-b",
+  "rows": [
+    [
+      "Verdict",
+      "Confirmed",
+      "Confirmed"
+    ],
+    [
+      "Ground truth sub-steps found (6.A/6.B/6.C)",
+      "3/3 (6.A:yes, 6.B:yes, 6.C:yes)",
+      "3/3 (6.A:yes, 6.B:yes, 6.C:yes)"
+    ],
+    [
+      "Techniques with malicious/suspicious findings",
+      "T1003.001, T1003.006, T1187, T1552.001, T1552.004, T1555.004, T1558.001",
+      "T1003, T1003.001, T1056.001, T1056.002, T1111, T1187, T1212, T1552.001, T1552.002, T1552.004, T1555, T1555.003, T1556, T1557, T1557.001, T1557.002, T1558, T1606, T1649"
+    ],
+    [
+      "Hosts implicated",
+      "nashua.dmevals.local, newyork.dmevals.local, scranton.dmevals.local, simplerockbuild.simplerock.lan",
+      "bobs.bigwheel.local, nashua.dmevals.local, scranton.dmevals.local, simplerockbuild.simplerock.lan"
+    ],
+    [
+      "Findings (malicious+suspicious / all)",
+      "23 / 65",
+      "33 / 68"
+    ],
+    [
+      "Incidents after consolidation",
+      12,
+      23
+    ],
+    [
+      "Verified evidence events",
+      52,
+      70
+    ],
+    [
+      "Rejected evidence items",
+      1,
+      0
+    ],
+    [
+      "Planned checks / all queries",
+      "349 / 1383",
+      "349 / 1316"
+    ],
+    [
+      "LLM calls / tokens",
+      "219 / {'prompt': 4505338, 'completion': 153337}",
+      "146 / {'prompt': 4030000, 'completion': 137352}"
+    ],
+    [
+      "Duration (s)",
+      700.5,
+      600.5
+    ]
+  ],
+  "similarity": {
+    "verdict_equal": true,
+    "techniques_jaccard": 0.182,
+    "technique_families_jaccard": 0.417,
+    "evidence_jaccard": 0.22,
+    "planned_query_jaccard": 0.072,
+    "coverage_cells_differing": "24 of 265",
+    "ground_truth_equal": true
+  },
+  "evaluation": [
+    {
+      "run": "20261017-124400-converged-round1-a",
+      "verdict": "Confirmed",
+      "steps": {
+        "6.A": {
+          "found": true,
+          "by": [
+            "F64",
+            "F31"
+          ],
+          "technique_ok": true,
+          "what": "Chrome password collector run as ...\\SysinternalsSuite\\accesschk.exe"
+        },
+        "6.B": {
+          "found": true,
+          "by": [
+            "F27",
+            "F57",
+            "F17",
+            "F53"
+          ],
+          "technique_ok": true,
+          "what": "Get-PrivateKeys run in PowerShell, PFX file written"
+        },
+        "6.C": {
+          "found": true,
+          "by": [
+            "F37",
+            "F48",
+            "F01",
+            "F17",
+            "F31",
+            "F49",
+            "F53"
+          ],
+          "technique_ok": true,
+          "what": "password hashes dumped (PowerShell process opening lsass.exe)"
+        }
+      },
+      "found": 3,
+      "of": 3,
+      "other_malicious_or_suspicious_findings": [
+        "F03 T1003 Credential-harvesting PowerShell on scranton/nashua (file collection of *pass*/*login*/*vpn*, Sysinternals download, hidden encoded loader)",
+        "F11 T1056 Malicious .scr dropper in C:\\ProgramData\\victim executed by pbeesly on scranton",
+        "F65 T1056 .scr dropper in C:\\ProgramData\\victim executed by pbeesly on SCRANTON",
+        "F10 T1056.004 PowerShell shellcode loader creates remote thread inside LSASS on scranton",
+        "F21 T1187 WebDAV forced-authentication (DavClnt / WebDAV-MiniRedir) from 10.0.1.4 to 192.168.0.4",
+        "F28 T1552.001 Harvested keys staged into password-protected archive and exfiltrated via WebDAV; plaintext credentials in scripts",
+        "F59 T1552.001 NASHUA: pbeesly PowerShell harvested credential-named files and password-protected them with Temp Rar.exe",
+        "F60 T1552.001 PsExec64 from SCRANTON passed cleartext domain password to NASHUA",
+        "F61 T1552.001 Invoke-Exfil on SCRANTON embeds WebDAV credentials and archive password",
+        "F63 T1003.001 Additional query-limited LSASS handle by PowerShell on SCRANTON",
+        "F02 T1003.006 DS-Replication-Get-Changes (1131f6aa) access on newyork.dmevals.local by machine account NEWYORK$",
+        "F22 T1187 Shortcut/lure file creation on scranton.dmevals.local (Explorer Recent .lnk and PowerShell StartUp hostui.lnk)",
+        "F62 T1555.004 Unsigned hostui.exe launched elevated from PowerShell on SCRANTON"
+      ]
+    },
+    {
+      "run": "20261017-124403-converged-round1-b",
+      "verdict": "Confirmed",
+      "steps": {
+        "6.A": {
+          "found": true,
+          "by": [
+            "F08",
+            "F67",
+            "F01",
+            "F27",
+            "F58"
+          ],
+          "technique_ok": false,
+          "what": "Chrome password collector run as ...\\SysinternalsSuite\\accesschk.exe"
+        },
+        "6.B": {
+          "found": true,
+          "by": [
+            "F01",
+            "F18",
+            "F27",
+            "F26",
+            "F63",
+            "F57",
+            "F56",
+            "F64",
+            "F21"
+          ],
+          "technique_ok": true,
+          "what": "Get-PrivateKeys run in PowerShell, PFX file written"
+        },
+        "6.C": {
+          "found": true,
+          "by": [
+            "F01",
+            "F61",
+            "F12",
+            "F66",
+            "F18",
+            "F23",
+            "F21",
+            "F31",
+            "F47",
+            "F52"
+          ],
+          "technique_ok": true,
+          "what": "password hashes dumped (PowerShell process opening lsass.exe)"
+        }
+      },
+      "found": 3,
+      "of": 3,
+      "other_malicious_or_suspicious_findings": [
+        "F59 T1056.001 Get-Keystrokes keylogger job run on scranton",
+        "F13 T1056.002 Invoke-ScreenCapture PowerShell function repeatedly captured the desktop on scranton.dmevals.local",
+        "F65 T1056.002 Invoke-ScreenCapture job on scranton",
+        "F22 T1187 WebDAV forced authentication from 10.0.1.4 to 192.168.0.4 after SMB fallback (DavClnt / Microsoft-WebDAV-MiniRedir)",
+        "F68 T1552 Unsecured credentials in attacker scripts and files",
+        "F42 T1556 Adversary activity on scranton/nashua is credential theft and exfiltration, not authentication-process modification",
+        "F46 T1557 Adversary-in-the-middle position on the 10.0.1.0/24 segment evidenced by MAC/IP mismatch; Windows-side netsh/arp hits are benign Azure telemetry",
+        "F43 T1557.002 Single non-vendor MAC 12:34:56:78:9a:bc answers for four distinct IPs on the 10.0.1.0/24 segment (ARP cache poisoning / AiTM position)",
+        "F02 T1003.001 wsmprovhost.exe on nashua opened lsass.exe with 0x1F3FFF during a remote PowerShell session as pbeesly",
+        "F11 T1040 Attacker tooling on nashua.dmevals.local is a PsExec-delivered python.exe C2 client, not a sniffer",
+        "F28 T1552.002 Winlogon registry key queried by pbeesly's powershell.exe alongside mostly routine system reads",
+        "F60 T1552.002 Registry value piped to Invoke-Expression on scranton",
+        "F62 T1555 Vault Latest.dat touched only by lsass.exe",
+        "F44 T1557.001 NBT-NS/LLMNR name resolution for SCRANTON/NASHUA broadcast unanswered by any host; SMB auth traffic to 10.0.0.4/10.0.1.6 intercepted by the rogue MAC"
+      ]
+    }
+  ]
+}

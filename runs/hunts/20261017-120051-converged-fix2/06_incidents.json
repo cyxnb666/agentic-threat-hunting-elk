@@ -1,0 +1,266 @@
+[
+  {
+    "title": "Steganographic PowerShell loader opened full-access LSASS handles on SCRANTON and NASHUA",
+    "technique": "T1003.001",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F01",
+      "F13",
+      "F22",
+      "F29",
+      "F33",
+      "F34",
+      "F44",
+      "F59"
+    ],
+    "rationale": "Same events: hidden steganography-launched PowerShell (PID 2976) on scranton opened lsass.exe with 0x1f3fff/0x1fffff at 03:05:16Z, and wsmprovhost.exe on nashua opened lsass with 0x1f3fff at 03:09:29Z. Full-access LSASS handle opens are best described as LSASS memory credential dumping; no auth-process modification or API hooking was directly evidenced.",
+    "incident_id": "I01"
+  },
+  {
+    "title": "SAM_SERVER handles requested on SCRANTON",
+    "technique": "T1003.002",
+    "in_scope": true,
+    "assessment": "suspicious",
+    "confidence": "medium",
+    "finding_ids": [
+      "F60"
+    ],
+    "rationale": "lsass on scranton requested SAM_SERVER handles with 0xf003f at 03:19-03:20; no dump file observed — SAM credential access attempt.",
+    "incident_id": "I02"
+  },
+  {
+    "title": "Get-Keystrokes keylogger and clipboard collection on SCRANTON",
+    "technique": "T1056.001",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F55",
+      "F56"
+    ],
+    "rationale": "Same pbeesly session: Get-Clipboard, Keystroke-Check AV check, then Get-Keystrokes background job viewed and removed — keylogging.",
+    "incident_id": "I03"
+  },
+  {
+    "title": "WebDAV forced authentication from SCRANTON to attacker server 192.168.0.4",
+    "technique": "T1187",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F20"
+    ],
+    "rationale": "DavClnt/WebDAV-MiniRedir sequence drove 10.0.1.4 to authenticate (AUTHORIZATION header, pbeesly/DMEVALS.LOCAL) to 192.168.0.4 and download payloads — forced authentication.",
+    "incident_id": "I04"
+  },
+  {
+    "title": "Password-targeted file collection and encrypted archiving on SCRANTON and NASHUA",
+    "technique": "T1552.001",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F26",
+      "F57"
+    ],
+    "rationale": "Same collection action: recursive enumeration of user profile for credential-named files (*psw*, *pass*, *login*, *admin*, *vpn*) compressed into working.zip on nashua and OfficeSupplies.7z on scranton, then Rar-encrypted and sdelete-wiped — credentials in files.",
+    "incident_id": "I05"
+  },
+  {
+    "title": "Registry value read and piped to Invoke-Expression on SCRANTON",
+    "technique": "T1552.002",
+    "in_scope": true,
+    "assessment": "suspicious",
+    "confidence": "medium",
+    "finding_ids": [
+      "F27"
+    ],
+    "rationale": "Get-ItemPropertyValue 'HKLM:\\SOFTWARE\\Javasoft' 'value Supplement' | Invoke-Expression — registry-stored payload/credential pattern; no registry credential read confirmed.",
+    "incident_id": "I06"
+  },
+  {
+    "title": "Get-PrivateKeys exported LocalMachine certificates to password-protected .pfx on SCRANTON",
+    "technique": "T1552.004",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F25",
+      "F52",
+      "F58"
+    ],
+    "rationale": "Same script block (Get-PrivateKeys from readme.ps1) enumerating cert:\\LocalMachine and calling Export-PfxCertificate to Downloads\\coyn5igj.3io.pfx with hardcoded password 'saribas' — private key theft.",
+    "incident_id": "I07"
+  },
+  {
+    "title": "SMB/WinRM authentication traffic duplicated across two L2 paths",
+    "technique": "T1557.001",
+    "in_scope": true,
+    "assessment": "suspicious",
+    "confidence": "low",
+    "finding_ids": [
+      "F41"
+    ],
+    "rationale": "Kerberos/GSSAPI SMB and WinRM sessions from 10.0.1.4 to 10.0.1.6 recorded twice with different MAC pairs — shape of SMB relay/name-resolution interception; WPAD queries answered normally.",
+    "incident_id": "I08"
+  },
+  {
+    "title": "Same IP 10.0.1.4 on two L2 addresses toward 10.0.1.6",
+    "technique": "T1557.002",
+    "in_scope": true,
+    "assessment": "suspicious",
+    "confidence": "medium",
+    "finding_ids": [
+      "F40"
+    ],
+    "rationale": "Duplicate flows with source IP 10.0.1.4 but two different MAC pairs — possible ARP cache poisoning/on-path host.",
+    "incident_id": "I09"
+  },
+  {
+    "title": "Credential material accessed on SCRANTON but no offline cracking observed",
+    "technique": "out-of-scope:T1003",
+    "in_scope": false,
+    "assessment": "suspicious",
+    "confidence": "medium",
+    "finding_ids": [
+      "F16"
+    ],
+    "rationale": "LSASS handle opens and certificate export occurred, but no hashcat/Mimikatz/SAM/NTDS cracking evidence — the observed action is credential dumping, not password cracking.",
+    "incident_id": "I10"
+  },
+  {
+    "title": "PsExec64 with plaintext credentials delivered python.exe implant to NASHUA",
+    "technique": "out-of-scope:T1021.002",
+    "in_scope": false,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F08",
+      "F62"
+    ],
+    "rationale": "Same events: Invoke-SeaDukeStage and PsExec64 -u dmevals\\pbeesly -p Fl0nk3rt0n!T0by launching C:\\Windows\\Temp\\python.exe on NASHUA, which beacons over TLS to 192.168.0.4:8443 — remote execution/lateral movement, not credential access.",
+    "incident_id": "I11"
+  },
+  {
+    "title": "csc.exe compiled in-memory loader DLLs from hidden PowerShell on SCRANTON",
+    "technique": "out-of-scope:T1027.004",
+    "in_scope": false,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F66"
+    ],
+    "rationale": "csc.exe compiling loader DLLs in Temp under hidden PowerShell — compile-after-delivery execution, not credential access.",
+    "incident_id": "I12"
+  },
+  {
+    "title": "Credential material exfiltrated to attacker WebDAV share 192.168.0.4",
+    "technique": "out-of-scope:T1041",
+    "in_scope": false,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F61"
+    ],
+    "rationale": "Invoke-Exfil compressed Downloads into OfficeSupplies.7z and copied it to \\\\192.168.0.4\\webdav — exfiltration to attacker-controlled share, not credential access.",
+    "incident_id": "I13"
+  },
+  {
+    "title": "Credential-access chain staged via sdclt/control.exe and PsExec-delivered python.exe",
+    "technique": "out-of-scope:T1059.001",
+    "in_scope": false,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F10"
+    ],
+    "rationale": "Summary finding of the sdclt.exe→control.exe→hidden PowerShell stager and PsExec-delivered python.exe chain; the underlying actions are covered by the LSASS, forced-auth, and lateral-movement incidents, and the chain itself is PowerShell execution.",
+    "incident_id": "I14"
+  },
+  {
+    "title": "No on-host AiTM tooling; Temp python.exe via PsExec unrelated to AiTM",
+    "technique": "out-of-scope:T1059.003",
+    "in_scope": false,
+    "assessment": "suspicious",
+    "confidence": "low",
+    "finding_ids": [
+      "F43"
+    ],
+    "rationale": "Only network-adjacent executions are Azure guest-agent diagnostics; the unusual process is PsExec-launched C:\\Windows\\Temp\\python.exe — remote execution, not adversary-in-the-middle.",
+    "incident_id": "I15"
+  },
+  {
+    "title": "accesschk.exe permission discovery on SCRANTON",
+    "technique": "out-of-scope:T1069",
+    "in_scope": false,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F64"
+    ],
+    "rationale": "accesschk.exe run from attacker-staged SysinternalsSuite for permission discovery — discovery, not credential access.",
+    "incident_id": "I16"
+  },
+  {
+    "title": "Credential-access tooling and anti-forensics in the SCRANTON PowerShell session",
+    "technique": "out-of-scope:T1070.004",
+    "in_scope": false,
+    "assessment": "malicious",
+    "confidence": "medium",
+    "finding_ids": [
+      "F02"
+    ],
+    "rationale": "Summary finding combining sdelete64 secure deletion, accesschk execution, Get-PrivateKeys export, and Get-Keystrokes; the credential actions are covered by the certificate, keylogging, and LSASS incidents, and the distinct action here is indicator removal.",
+    "incident_id": "I17"
+  },
+  {
+    "title": "Rar.exe and sdelete64.exe used to encrypt and wipe collected data on NASHUA",
+    "technique": "out-of-scope:T1070.004",
+    "in_scope": false,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F63"
+    ],
+    "rationale": "Rar.exe password-encrypted working.zip and sdelete64 wiped the tool and archive — defense evasion/indicator removal, not credential access.",
+    "incident_id": "I18"
+  },
+  {
+    "title": "Explicit-credential logons are pbeesly reusing its own credentials to NASHUA via PsExec",
+    "technique": "out-of-scope:T1078",
+    "in_scope": false,
+    "assessment": "suspicious",
+    "confidence": "medium",
+    "finding_ids": [
+      "F17"
+    ],
+    "rationale": "All 4648 events involve pbeesly's own credentials to NASHUA via PSEXESVC; no spraying pattern — valid account use, not brute force.",
+    "incident_id": "I19"
+  },
+  {
+    "title": "sdclt.exe abused to spawn hidden PowerShell on SCRANTON",
+    "technique": "out-of-scope:T1218.011",
+    "in_scope": false,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F67"
+    ],
+    "rationale": "sdclt.exe launched from cmd spawning hidden PowerShell — signed binary proxy execution, not credential access.",
+    "incident_id": "I20"
+  },
+  {
+    "title": "hostui.exe launched with runas by PowerShell on SCRANTON",
+    "technique": "out-of-scope:T1548.002",
+    "in_scope": false,
+    "assessment": "suspicious",
+    "confidence": "medium",
+    "finding_ids": [
+      "F68"
+    ],
+    "rationale": "PowerShell started hostui.exe -verb runas to elevate before the HKLM Javasoft payload — privilege escalation via UAC bypass, not credential access.",
+    "incident_id": "I21"
+  }
+]

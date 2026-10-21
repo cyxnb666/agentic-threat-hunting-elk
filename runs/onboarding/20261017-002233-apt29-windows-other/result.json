@@ -1,0 +1,225 @@
+{
+  "source_id": "apt29-windows-other",
+  "channel": "push",
+  "sample_records": 158,
+  "outcome": {
+    "decision": "created",
+    "template": "windows-other",
+    "dataset": "windows.other",
+    "reason": "New NXLog flat-JSON Windows event source covering miscellaneous channels (WMI-Activity, System, TerminalServices, Firewall, Bits-Client). No existing template matched (windows-security and windows-sysmon both 0.0). Created windows-other with the same win.* namespace and ECS mapping pattern as windows-sysmon, restricted by equals on the six observed Channel values; it passed on all 158 sampled records (match_ratio 1.0).",
+    "validation": {
+      "records": 158,
+      "records_ok": 158,
+      "match_ratio": 1.0
+    }
+  },
+  "created_templates": [
+    "windows-other"
+  ],
+  "tool_trace": [
+    {
+      "step": 1,
+      "tool": "inspect_sample",
+      "args": {},
+      "result_summary": {
+        "records": 158
+      }
+    },
+    {
+      "step": 1,
+      "tool": "list_templates",
+      "args": {},
+      "result_summary": "list of 2"
+    },
+    {
+      "step": 2,
+      "tool": "get_template",
+      "args": {
+        "name": "windows-sysmon"
+      },
+      "result_summary": {}
+    },
+    {
+      "step": 3,
+      "tool": "create_template",
+      "args": {
+        "name": "windows-other",
+        "dataset": "windows.other",
+        "description": "Miscellaneous Windows event log channels (WMI-Activity, System, TerminalServices, Firewall, Bits-Client) exported as flat NXLog JSON (im_msvistalog). Keeps every original field under win.*, maps the common ones to ECS.",
+        "match": {
+          "format": "json",
+          "required_keys": [
+            "Channel",
+            "EventID",
+            "Hostname",
+            "EventTime"
+          ],
+          "equals": {
+            "Channel": [
+              "Microsoft-Windows-WMI-Activity/Operational",
+              "System",
+              "Microsoft-Windows-TerminalServices-RemoteConnectionManager/Operational",
+              "Microsoft-Windows-Windows Firewall With Advanced Security/Firewall",
+              "Microsoft-Windows-TerminalServices-LocalSessionManager/Operational",
+              "Microsoft-Windows-Bits-Client/Operational"
+            ]
+          }
+        },
+        "processors": [
+          {
+            "json": {
+              "field": "message",
+              "target_field": "win"
+            }
+          },
+          {
+            "date": {
+              "field": "win.EventTime",
+              "target_field": "@timestamp",
+              "formats": [
+                "yyyy-MM-dd HH:mm:ss"
+              ],
+              "timezone": "-04:00"
+            }
+          },
+          {
+            "set": {
+              "field": "event.kind",
+              "value": "event"
+            }
+          },
+          {
+            "set": {
+              "field": "event.module",
+              "value": "windows"
+            }
+          },
+          {
+            "set": {
+              "field": "event.dataset",
+              "value": "windows.other"
+            }
+          },
+          {
+            "set": {
+              "field": "event.code",
+              "copy_from": "win.EventID"
+            }
+          },
+          {
+            "set": {
+              "field": "event.provider",
+              "copy_from": "win.SourceName",
+              "if": "ctx.win?.SourceName != null"
+            }
+          },
+          {
+            "set": {
+              "field": "host.name",
+              "copy_from": "win.Hostname"
+            }
+          },
+          {
+            "lowercase": {
+              "field": "host.name"
+            }
+          },
+          {
+            "set": {
+              "field": "winlog.channel",
+              "copy_from": "win.Channel"
+            }
+          },
+          {
+            "set": {
+              "field": "winlog.computer_name",
+              "copy_from": "win.Hostname"
+            }
+          },
+          {
+            "set": {
+              "field": "winlog.record_id",
+              "copy_from": "win.RecordNumber",
+              "if": "ctx.win?.RecordNumber != null"
+            }
+          },
+          {
+            "set": {
+              "field": "message",
+              "copy_from": "win.Message",
+              "if": "ctx.win?.Message != null"
+            }
+          },
+          {
+            "set": {
+              "field": "process.pid",
+              "copy_from": "win.ExecutionProcessID",
+              "if": "ctx.win?.ExecutionProcessID != null"
+            }
+          },
+          {
+            "convert": {
+              "field": "process.pid",
+              "type": "long",
+              "ignore_missing": true,
+              "ignore_failure": true
+            }
+          },
+          {
+            "set": {
+              "field": "user.name",
+              "copy_from": "win.AccountName",
+              "if": "ctx.win?.AccountName != null"
+            }
+          },
+          {
+            "set": {
+              "field": "user.domain",
+              "copy_from": "win.Domain",
+              "if": "ctx.win?.Domain != null"
+            }
+          },
+          {
+            "set": {
+              "field": "user.id",
+              "copy_from": "win.UserID",
+              "if": "ctx.win?.UserID != null"
+            }
+          },
+          {
+            "set": {
+              "field": "hunt.template",
+              "value": "windows-other"
+            }
+          }
+        ]
+      },
+      "result_summary": {
+        "passed": true,
+        "records": 158,
+        "records_ok": 158,
+        "match_ratio": 1.0,
+        "failure_counts": {}
+      }
+    },
+    {
+      "step": 4,
+      "tool": "register_source",
+      "args": {
+        "template": "windows-other",
+        "reason": "New NXLog flat-JSON Windows event source covering miscellaneous channels (WMI-Activity, System, TerminalServices, Firewall, Bits-Client). No existing template matched (windows-security and windows-sysmon both 0.0). Created windows-other with the same win.* namespace and ECS mapping pattern as windows-sysmon, restricted by equals on the six observed Channel values; it passed on all 158 sampled records (match_ratio 1.0)."
+      },
+      "result_summary": {
+        "registered": true,
+        "decision": "created",
+        "template": "windows-other"
+      }
+    }
+  ],
+  "llm_calls": 4,
+  "llm_tokens": {
+    "prompt": 19893,
+    "completion": 1102
+  },
+  "model": "deepseek-flash"
+}

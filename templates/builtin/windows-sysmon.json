@@ -1,0 +1,66 @@
+{
+  "name": "windows-sysmon",
+  "version": 1,
+  "origin": "builtin",
+  "dataset": "windows.sysmon",
+  "description": "Sysmon (Microsoft-Windows-Sysmon/Operational) records exported as flat NXLog JSON (im_msvistalog). Keeps every original field under win.*, maps the common ones to ECS.",
+  "notes": [
+    "@timestamp from UtcTime (UTC, written by Sysmon). EventTime is the collector's local time: UtcTime - EventTime = 240 min on all 143,883 records that have both (checked 2026-10-16), so EventTime is UTC-4 and is only a fallback.",
+    "ECS mapping follows the Elastic windows integration pipeline (elastic/integrations packages/windows/_dev/shared/ingest_pipeline/sysmon_operational.yml): Image/SourceImage -> process.executable, TargetFilename/ImageLoaded -> file.path, TargetObject -> registry.path, SourceIp/DestinationIp -> source.ip/destination.ip, QueryName -> dns.question.name, User 'DOMAIN\\name' -> user.domain/user.name.",
+    "This dataset spells SourceProcessGUID (EID 10) and SourceProcessGuid (EID 8) differently; both are handled."
+  ],
+  "match": {
+    "format": "json",
+    "required_keys": ["Channel", "EventID", "Hostname", "EventTime"],
+    "equals": {"Channel": ["Microsoft-Windows-Sysmon/Operational"]}
+  },
+  "processors": [
+    {"json": {"field": "message", "target_field": "win"}},
+    {"date": {"field": "win.UtcTime", "target_field": "@timestamp", "formats": ["yyyy-MM-dd HH:mm:ss.SSS", "yyyy-MM-dd HH:mm:ss"], "timezone": "UTC", "if": "ctx.win?.UtcTime != null"}},
+    {"date": {"field": "win.EventTime", "target_field": "@timestamp", "formats": ["yyyy-MM-dd HH:mm:ss"], "timezone": "-04:00", "if": "ctx.win?.UtcTime == null"}},
+    {"set": {"field": "event.kind", "value": "event"}},
+    {"set": {"field": "event.module", "value": "sysmon"}},
+    {"set": {"field": "event.dataset", "value": "windows.sysmon"}},
+    {"set": {"field": "event.code", "copy_from": "win.EventID"}},
+    {"set": {"field": "event.provider", "copy_from": "win.SourceName", "if": "ctx.win?.SourceName != null"}},
+    {"set": {"field": "host.name", "copy_from": "win.Hostname"}},
+    {"lowercase": {"field": "host.name"}},
+    {"set": {"field": "winlog.channel", "copy_from": "win.Channel"}},
+    {"set": {"field": "winlog.computer_name", "copy_from": "win.Hostname"}},
+    {"set": {"field": "winlog.record_id", "copy_from": "win.RecordNumber", "if": "ctx.win?.RecordNumber != null"}},
+    {"set": {"field": "message", "copy_from": "win.Message", "if": "ctx.win?.Message != null"}},
+
+    {"set": {"field": "process.executable", "copy_from": "win.Image", "if": "ctx.win?.Image != null"}},
+    {"set": {"field": "process.entity_id", "copy_from": "win.ProcessGuid", "if": "ctx.win?.ProcessGuid != null"}},
+    {"set": {"field": "process.pid", "copy_from": "win.ProcessId", "if": "ctx.win?.ProcessId != null"}},
+    {"set": {"field": "process.command_line", "copy_from": "win.CommandLine", "if": "ctx.win?.CommandLine != null"}},
+    {"set": {"field": "process.parent.executable", "copy_from": "win.ParentImage", "if": "ctx.win?.ParentImage != null"}},
+    {"set": {"field": "process.parent.entity_id", "copy_from": "win.ParentProcessGuid", "if": "ctx.win?.ParentProcessGuid != null"}},
+    {"set": {"field": "process.parent.pid", "copy_from": "win.ParentProcessId", "if": "ctx.win?.ParentProcessId != null"}},
+    {"set": {"field": "process.parent.command_line", "copy_from": "win.ParentCommandLine", "if": "ctx.win?.ParentCommandLine != null"}},
+    {"set": {"field": "process.executable", "copy_from": "win.SourceImage", "if": "ctx.win?.SourceImage != null"}},
+    {"set": {"field": "process.pid", "copy_from": "win.SourceProcessId", "if": "ctx.win?.SourceProcessId != null"}},
+    {"set": {"field": "process.entity_id", "copy_from": "win.SourceProcessGUID", "if": "ctx.win?.SourceProcessGUID != null"}},
+    {"set": {"field": "process.entity_id", "copy_from": "win.SourceProcessGuid", "if": "ctx.win?.SourceProcessGuid != null"}},
+    {"convert": {"field": "process.pid", "type": "long", "ignore_missing": true, "ignore_failure": true}},
+    {"convert": {"field": "process.parent.pid", "type": "long", "ignore_missing": true, "ignore_failure": true}},
+    {"dissect": {"field": "win.User", "pattern": "%{user.domain}\\%{user.name}", "if": "ctx.win?.User != null && ctx.win.User.contains('\\\\')"}},
+
+    {"set": {"field": "file.path", "copy_from": "win.TargetFilename", "if": "ctx.win?.TargetFilename != null"}},
+    {"set": {"field": "file.path", "copy_from": "win.ImageLoaded", "if": "ctx.win?.ImageLoaded != null"}},
+    {"set": {"field": "registry.path", "copy_from": "win.TargetObject", "if": "ctx.win?.TargetObject != null"}},
+    {"set": {"field": "registry.data.strings", "copy_from": "win.Details", "if": "ctx.win?.Details != null"}},
+
+    {"set": {"field": "source.ip", "copy_from": "win.SourceIp", "if": "ctx.win?.SourceIp != null && ctx.win.SourceIp != '-'"}},
+    {"set": {"field": "source.port", "copy_from": "win.SourcePort", "if": "ctx.win?.SourcePort != null"}},
+    {"set": {"field": "destination.ip", "copy_from": "win.DestinationIp", "if": "ctx.win?.DestinationIp != null && ctx.win.DestinationIp != '-'"}},
+    {"set": {"field": "destination.port", "copy_from": "win.DestinationPort", "if": "ctx.win?.DestinationPort != null"}},
+    {"set": {"field": "destination.domain", "copy_from": "win.DestinationHostname", "if": "ctx.win?.DestinationHostname != null && ctx.win.DestinationHostname != '-'"}},
+    {"set": {"field": "network.transport", "copy_from": "win.Protocol", "if": "ctx.win?.Protocol != null"}},
+    {"convert": {"field": "source.port", "type": "long", "ignore_missing": true, "ignore_failure": true}},
+    {"convert": {"field": "destination.port", "type": "long", "ignore_missing": true, "ignore_failure": true}},
+    {"set": {"field": "dns.question.name", "copy_from": "win.QueryName", "if": "ctx.win?.QueryName != null"}},
+
+    {"set": {"field": "hunt.template", "value": "windows-sysmon"}}
+  ]
+}

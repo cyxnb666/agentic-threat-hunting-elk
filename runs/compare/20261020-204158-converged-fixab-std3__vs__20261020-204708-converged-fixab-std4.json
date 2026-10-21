@@ -1,0 +1,187 @@
+{
+  "a": "20261020-204158-converged-fixab-std3",
+  "b": "20261020-204708-converged-fixab-std4",
+  "rows": [
+    [
+      "Verdict",
+      "Confirmed",
+      "Confirmed"
+    ],
+    [
+      "Ground truth sub-steps found (6.A/6.B/6.C)",
+      "3/3 (6.A:yes, 6.B:yes, 6.C:yes)",
+      "3/3 (6.A:yes, 6.B:yes, 6.C:yes)"
+    ],
+    [
+      "Techniques with malicious/suspicious findings",
+      "T1003.001, T1003.004, T1056.002, T1212, T1539, T1552.001, T1552.002, T1552.004, T1557.002, T1649",
+      "T1003.001, T1003.005, T1110.002, T1110.003, T1187, T1552.001, T1552.004, T1552.006, T1555.003, T1555.004, T1558, T1649"
+    ],
+    [
+      "Hosts implicated",
+      "bobs.bigwheel.local, nashua.dmevals.local, scranton.dmevals.local, simplerockbuild.simplerock.lan",
+      "bobs.bigwheel.local, nashua.dmevals.local, newyork.dmevals.local, scranton.dmevals.local, simplerockbuild.simplerock.lan"
+    ],
+    [
+      "Findings (malicious+suspicious / all)",
+      "25 / 61",
+      "26 / 64"
+    ],
+    [
+      "Incidents after consolidation",
+      12,
+      18
+    ],
+    [
+      "Verified evidence events",
+      65,
+      63
+    ],
+    [
+      "Rejected evidence items",
+      0,
+      0
+    ],
+    [
+      "Planned checks / all queries",
+      "348 / 1297",
+      "337 / 1290"
+    ],
+    [
+      "LLM calls / tokens",
+      "153 / {'prompt': 4628582, 'completion': 137359}",
+      "156 / {'prompt': 4810507, 'completion': 129292}"
+    ],
+    [
+      "Duration (s)",
+      620.4,
+      610.0
+    ]
+  ],
+  "similarity": {
+    "verdict_equal": true,
+    "techniques_jaccard": 0.222,
+    "technique_families_jaccard": 0.273,
+    "evidence_jaccard": 0.28,
+    "planned_query_jaccard": 0.121,
+    "coverage_cells_differing": "29 of 265",
+    "ground_truth_equal": true
+  },
+  "evaluation": [
+    {
+      "run": "20261020-204158-converged-fixab-std3",
+      "verdict": "Confirmed",
+      "steps": {
+        "6.A": {
+          "found": true,
+          "by": [
+            "F25",
+            "F57"
+          ],
+          "technique_ok": false,
+          "what": "Chrome password collector run as ...\\SysinternalsSuite\\accesschk.exe"
+        },
+        "6.B": {
+          "found": true,
+          "by": [
+            "F24",
+            "F56",
+            "F52"
+          ],
+          "technique_ok": true,
+          "what": "Get-PrivateKeys run in PowerShell, PFX file written"
+        },
+        "6.C": {
+          "found": true,
+          "by": [
+            "F01",
+            "F08",
+            "F19",
+            "F28",
+            "F33",
+            "F44",
+            "F49"
+          ],
+          "technique_ok": true,
+          "what": "password hashes dumped (PowerShell process opening lsass.exe)"
+        }
+      },
+      "found": 3,
+      "of": 3,
+      "other_malicious_or_suspicious_findings": [
+        "F09 T1056.002 PowerShell screen-capture loop (System.Windows.Forms / CopyFromScreen) run by pbeesly on SCRANTON",
+        "F59 T1552 Masqueraded .scr loader in C:\\ProgramData\\victim drops the steganographic monkey.png carrier on SCRANTON",
+        "F60 T1552 Hidden PowerShell compiles attacker C# with csc.exe into qkbkqqbs.dll and 0piklvia.dll on SCRANTON",
+        "F55 T1552.001 PyInstaller-packed python.exe pushed via PsExec to NASHUA beacons to 192.168.0.4:8443 and archives pbeesly's credential-named files into a password-protected RAR",
+        "F26 T1552.002 Registry value HKLM\\SOFTWARE\\Javasoft\\'value Supplement' used as a hidden payload store and read back with Invoke-Expression",
+        "F58 T1552.002 hostui.exe launched with 'runas' from PowerShell re-reads the hidden HKLM\\SOFTWARE\\Javasoft 'value Supplement' payload via Invoke-Expression",
+        "F03 T1003.004 Malicious C:\\ProgramData\\victim\\cod.3aka3.scr read HKLM\\SYSTEM\\ControlSet001\\Control\\Lsa on scranton",
+        "F20 T1212 wsmprovhost.exe (PowerShell Remoting session) opens LSASS with 0x1F3FFF on NASHUA",
+        "F22 T1539 PowerShell opened Microsoft Edge processes with full access (0x1FFFFF) on scranton.dmevals.local",
+        "F61 T1552 sdclt.exe started three times by cmd.exe from the attacker working directory C:\\ProgramData\\victim on SCRANTON",
+        "F43 T1557 No end-to-end AiTM chain confirmed; only the shared-MAC anomaly in Zeek",
+        "F40 T1557.002 Single MAC 12:34:56:78:9a:bc answering for three distinct IPs (10.0.0.4, 10.0.1.6, 192.168.0.4) in Zeek conn logs",
+        "F53 T1649 Root certificate store 'Blob' value modified on nashua.dmevals.local by C:\\Windows\\Sysmon.exe"
+      ]
+    },
+    {
+      "run": "20261020-204708-converged-fixab-std4",
+      "verdict": "Confirmed",
+      "steps": {
+        "6.A": {
+          "found": true,
+          "by": [
+            "F64"
+          ],
+          "technique_ok": false,
+          "what": "Chrome password collector run as ...\\SysinternalsSuite\\accesschk.exe"
+        },
+        "6.B": {
+          "found": true,
+          "by": [
+            "F19",
+            "F23",
+            "F27",
+            "F60",
+            "F55"
+          ],
+          "technique_ok": true,
+          "what": "Get-PrivateKeys run in PowerShell, PFX file written"
+        },
+        "6.C": {
+          "found": true,
+          "by": [
+            "F01",
+            "F08",
+            "F16",
+            "F19",
+            "F23",
+            "F32",
+            "F36",
+            "F47",
+            "F52"
+          ],
+          "technique_ok": true,
+          "what": "password hashes dumped (PowerShell process opening lsass.exe)"
+        }
+      },
+      "found": 3,
+      "of": 3,
+      "other_malicious_or_suspicious_findings": [
+        "F58 T1003.001 NASHUA: python.exe delivered via PsExec opened LSASS with 0x1f3fff, then read LSA secrets and staged/exfiltrated a credential archive",
+        "F17 T1110.003 No password spraying: no failed logons, and the repeated pbeesly network logons are lateral movement with already-stolen credentials",
+        "F20 T1187 WebDAV/UNC forced-authentication path used by pbeesly on SCRANTON to reach attacker WebDAV server 192.168.0.4",
+        "F59 T1552.001 NASHUA: PowerShell on the PsExec-launched python.exe session harvested password/login-named files and password-protected them into working.zip",
+        "F63 T1552.001 SCRANTON: unsigned .scr dropped in C:\\ProgramData\\victim launched by explorer.exe and wrote the steganographic monkey.png payload",
+        "F05 T1003.005 HKLM\\SECURITY\\Cache\\NL$1 writes are lsass.exe caching the intruder's own logons, not cachedump",
+        "F09 T1056.004 wsmprovhost.exe (WinRM remote session) opened LSASS with 0x1f3fff on nashua",
+        "F21 T1187 NASHUA python.exe beaconing to 192.168.0.4:8443 with self-signed TLS cert (credential-capture listener)",
+        "F28 T1552.001 Credential-harvesting tooling staged as .ps1 files in SysinternalsSuite; no plaintext credential files read",
+        "F62 T1552.006 SCRANTON: hidden PowerShell read HKLM\\SOFTWARE\\Javasoft 'value Supplement' and Invoke-Expression'd it, then launched hostui.exe elevated",
+        "F61 T1555.003 SCRANTON: sdclt.exe (UAC bypass launcher) spawned by cmd.exe under pbeesly, immediately followed by hidden steganographic PowerShell and csc.exe compile",
+        "F33 T1555.004 Windows Vault / Credential Manager artifacts touched on scranton during the intrusion",
+        "F56 T1649 Single ROOT certificate store blob modification on nashua by Sysmon.exe (no corroborating forgery activity)"
+      ]
+    }
+  ]
+}

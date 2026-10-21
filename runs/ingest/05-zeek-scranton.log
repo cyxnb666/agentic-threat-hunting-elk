@@ -1,0 +1,8 @@
+[ingest] delivering data/sources/zeek/SCRANTON via pull as source 'zeek-scranton' ...
+[ingest] sent=415 (done) parsed=0 waiting=0
+[ingest] sent=415 (done) parsed=0 waiting=0
+[watch] onboarding new source zeek-scranton (415 records, channel pull)
+[watch] zeek-scranton: {'decision': 'created', 'template': 'zeek', 'dataset': 'zeek', 'reason': "New Zeek JSON source (all @proc=zeek streams: conn, dns, http, files, ssl, dhcp, notice, ...). No existing template matched (all Windows/NXLog templates had ratio 0.0). Created template 'zeek' (dataset zeek) which parses the JSON into zeek.*, takes @timestamp from ts with UNIX format, sets observer.name from @system (sensor, not host.name), maps ECS network/dns/http/file/tls fields, and passed 181/181 sampled records.", 'validation': {'records': 181, 'records_ok': 181, 'match_ratio': 1.0}}
+[watch] backfilled 415 records of zeek-scranton into logs-zeek-default (failed 0)
+[ingest] sent=415 (done) parsed=415 waiting=0
+{"channel": "pull", "source_id": "zeek-scranton", "files": 14, "records": 415, "parsed": 415, "pipeline_errors": 0, "first_event": "2020-04-30T00:06:38.899Z", "last_event": "2020-04-30T00:45:00.760Z", "seconds": 35.4}

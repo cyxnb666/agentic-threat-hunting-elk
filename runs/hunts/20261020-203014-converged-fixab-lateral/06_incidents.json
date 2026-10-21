@@ -1,0 +1,163 @@
+[
+  {
+    "title": "RDP logon (LogonType 10) as pbeesly on SCRANTON from 172.18.39.2",
+    "technique": "T1021.001",
+    "in_scope": true,
+    "assessment": "suspicious",
+    "confidence": "low",
+    "finding_ids": [
+      "F03"
+    ],
+    "rationale": "F03 records 4624 LogonType 10 for pbeesly on scranton from 172.18.39.2, but with no mstsc.exe, no 4778/4779 and no outbound 3389, assessed as likely interactive/console. Best fit for the observed remote-interactive logon is Remote Desktop Protocol (T1021.001), kept suspicious/low confidence.",
+    "incident_id": "I01"
+  },
+  {
+    "title": "pbeesly interactive (LogonType 2) sessions on NASHUA following each PsExec network logon",
+    "technique": "T1021.001",
+    "in_scope": true,
+    "assessment": "suspicious",
+    "confidence": "medium",
+    "finding_ids": [
+      "F28"
+    ],
+    "rationale": "F28 describes LogonType 2 interactive logons for pbeesly on nashua at 03:11:40, 03:12:46, 03:13:49 and 03:15:03, each within ~20s of a LogonType 3 from 10.0.1.4 and a PSEXESVC start plus python.exe launch, i.e. the -i 2 remote interactive session side effect. Best fit is Remote Desktop Protocol (T1021.001) as remote interactive access, kept suspicious/medium.",
+    "incident_id": "I02"
+  },
+  {
+    "title": "PsExec over SMB ADMIN$ from SCRANTON to NASHUA with cleartext credentials, repeated 4x",
+    "technique": "T1021.002",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F01",
+      "F07",
+      "F11",
+      "F16",
+      "F18"
+    ],
+    "rationale": "All five findings describe the same action: pbeesly on scranton.dmevals.local repeatedly ran PsExec64.exe against \\\\NASHUA with -u dmevals\\pbeesly -p Fl0nk3rt0n!T0by to launch C:\\Windows\\Temp\\python.exe, installing PSEXESVC on nashua. F01/F07/F16/F18 share the same command-line events; F11 explicitly notes the lateral movement is PsExec over SMB rather than removable media. Best fit is SMB/Windows Admin Shares (T1021.002).",
+    "incident_id": "I03"
+  },
+  {
+    "title": "pbeesly network logons to NEWYORK (DC) from SCRANTON with IPC$ access",
+    "technique": "T1021.002",
+    "in_scope": true,
+    "assessment": "suspicious",
+    "confidence": "medium",
+    "finding_ids": [
+      "F26"
+    ],
+    "rationale": "F26 describes six LogonType 3 logons for pbeesly on newyork.dmevals.local, five from 10.0.1.4 (SCRANTON) and one from 10.0.1.6 (NASHUA), with a 5140 IPC$ share access from 10.0.1.4 mirroring the PsExec ADMIN$ pattern. Best fit is SMB/Windows Admin Shares (T1021.002), kept suspicious/medium.",
+    "incident_id": "I04"
+  },
+  {
+    "title": "WinRM (port 5985) remote shell from SCRANTON to NASHUA for session/process enumeration",
+    "technique": "T1021.006",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F02",
+      "F12"
+    ],
+    "rationale": "F02 and F12 describe the same WinRM action: powershell.exe as pbeesly on scranton (10.0.1.4) ran Invoke-Command -ComputerName NASHUA, with outbound TCP 5985 connections to 10.0.1.6 and wsmprovhost.exe -Embedding plus LogonType 3 on nashua. Best fit is Windows Remote Management (T1021.006).",
+    "incident_id": "I05"
+  },
+  {
+    "title": "Attacker tooling on SCRANTON: sdclt/csc payload compilation, hostui.exe and sdelete cleanup",
+    "technique": "T1072",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F31"
+    ],
+    "rationale": "F31 describes the attacker chain on scranton: sdclt.exe run three times, csc.exe compiling payload DLLs, hostui.exe execution and sdelete64.exe wiping the stager, Draft.Zip and SysinternalsSuite.zip. This is attacker tooling/software deployment on the host that enabled the lateral movement, best fit Software Deployment Tools (T1072).",
+    "incident_id": "I06"
+  },
+  {
+    "title": "Single NTLM network logon for pbeesly on SCRANTON consistent with PsExec auth",
+    "technique": "T1550.002",
+    "in_scope": true,
+    "assessment": "suspicious",
+    "confidence": "medium",
+    "finding_ids": [
+      "F19"
+    ],
+    "rationale": "F19 reports the only NTLM LogonType 3 for pbeesly on scranton (NtLmSsp, NTLM V2) from 172.18.39.2, temporally consistent with the PsExec activity, with no pass-the-hash evidence. Best fit is Pass the Hash (T1550.002) as the alternate-authentication-material hypothesis, kept suspicious/medium.",
+    "incident_id": "I07"
+  },
+  {
+    "title": "PsExec tool transfer from SCRANTON to NASHUA via ADMIN$ share (PSEXESVC.exe + python.exe dropped)",
+    "technique": "T1570",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F23"
+    ],
+    "rationale": "not grouped by the consolidation step",
+    "incident_id": "I08"
+  },
+  {
+    "title": "Tool transfer onto NASHUA: python.exe, Rar.exe and sdelete64.exe written to C:\\Windows\\Temp and executed",
+    "technique": "T1570",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F27"
+    ],
+    "rationale": "F27 describes the attacker-written python.exe on nashua writing Rar.exe and sdelete64.exe to C:\\Windows\\Temp, then spawning powershell/cmd to run Rar.exe and sdelete64.exe for archiving and anti-forensic cleanup. This is tool staging/transfer onto the victim host, best fit Lateral Tool Transfer (T1570).",
+    "incident_id": "I09"
+  },
+  {
+    "title": "Sysinternals suite downloaded to SCRANTON and accessChk.exe run for permission enumeration",
+    "technique": "T1570",
+    "in_scope": true,
+    "assessment": "suspicious",
+    "confidence": "medium",
+    "finding_ids": [
+      "F29"
+    ],
+    "rationale": "F29 describes powershell.exe as pbeesly downloading SysinternalsSuite.zip to Downloads, extracting it, and running accesschk.exe from C:\\Program Files\\SysinternalsSuite at 03:04:34 before the PsExec movement. This is tool staging on the host, best fit Lateral Tool Transfer (T1570), kept suspicious/medium.",
+    "incident_id": "I10"
+  },
+  {
+    "title": "Steganographic PowerShell loader (monkey.png) on SCRANTON",
+    "technique": "out-of-scope:T1027",
+    "in_scope": false,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F14"
+    ],
+    "rationale": "F14 describes a PowerShell 4104 script block decoding monkey.png into a byte array and executing it with IEX on scranton. This is obfuscated payload execution on the source host, not lateral movement, so out-of-scope:T1027.",
+    "incident_id": "I11"
+  },
+  {
+    "title": "PowerShell Invoke-Exfil script on SCRANTON copies archive to remote WebDAV share",
+    "technique": "out-of-scope:T1048",
+    "in_scope": false,
+    "assessment": "suspicious",
+    "confidence": "medium",
+    "finding_ids": [
+      "F25"
+    ],
+    "rationale": "F25 describes a 4104 script block defining Invoke-Exfil that installs 7Zip4Powershell, compresses Downloads into OfficeSupplies.7z with password 'lolol', maps \\\\192.168.0.4\\webdav with hardcoded credentials and Copy-Items the archive there. This is exfiltration over an alternate channel, not lateral movement, so out-of-scope:T1048.",
+    "incident_id": "I12"
+  },
+  {
+    "title": "Post-access collection and RAR archiving on NASHUA via the remote shell",
+    "technique": "out-of-scope:T1560",
+    "in_scope": false,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F13"
+    ],
+    "rationale": "F13 describes hands-on collection on nashua: process enumeration, recursive file collection from the user profile, Compress-Archive and Rar.exe archiving into working.zip. This is collection/archive staging, not lateral movement, so out-of-scope:T1560.",
+    "incident_id": "I13"
+  }
+]

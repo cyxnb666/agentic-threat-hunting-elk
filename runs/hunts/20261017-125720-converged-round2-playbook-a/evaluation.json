@@ -1,0 +1,63 @@
+{
+  "run": "20261017-125720-converged-round2-playbook-a",
+  "verdict": "Confirmed",
+  "steps": {
+    "6.A": {
+      "found": true,
+      "by": [
+        "F61",
+        "F26"
+      ],
+      "technique_ok": false,
+      "what": "Chrome password collector run as ...\\SysinternalsSuite\\accesschk.exe"
+    },
+    "6.B": {
+      "found": true,
+      "by": [
+        "F25",
+        "F57",
+        "F30",
+        "F41",
+        "F50",
+        "F54",
+        "F34",
+        "F45"
+      ],
+      "technique_ok": true,
+      "what": "Get-PrivateKeys run in PowerShell, PFX file written"
+    },
+    "6.C": {
+      "found": true,
+      "by": [
+        "F01",
+        "F10",
+        "F20",
+        "F30",
+        "F58",
+        "F34",
+        "F45",
+        "F52"
+      ],
+      "technique_ok": true,
+      "what": "password hashes dumped (PowerShell process opening lsass.exe)"
+    }
+  },
+  "found": 3,
+  "of": 3,
+  "other_malicious_or_suspicious_findings": [
+    "F02 T1003 Credential-access tooling staged on scranton: Sysinternals suite, keystroke logger, archive/exfil scripts",
+    "F09 T1056.001 Keystroke-Check AV-evasion function staged in psversion.ps1 on scranton, followed by remote keylogger deployment to nashua",
+    "F18 T1187 WebDAV/UNC forced-authentication path used by pbeesly PowerShell exfil tooling on SCRANTON (10.0.1.4) toward 192.168.0.4",
+    "F24 T1552 Adversary staged and archived credential-named files from pbeesly's profile on scranton and nashua",
+    "F60 T1552 Attacker tooling staged in C:\\Windows\\Temp on nashua (python.exe, Rar.exe, sdelete64.exe)",
+    "F62 T1552 Suspicious screen-saver payload in C:\\ProgramData\\victim launched by explorer on scranton",
+    "F63 T1552 csc.exe compiled attacker .NET payloads from PowerShell response files on scranton",
+    "F56 T1552.001 Credential-named file harvesting and password-protected archiving on nashua",
+    "F59 T1552.001 Cleartext pbeesly password on PsExec64 command lines to NASHUA",
+    "F15 T1110.003 No password spraying; instead valid pbeesly credentials were reused via PsExec64 to NASHUA",
+    "F17 T1111 No MFA/smart-card interception artifacts; LSASS access on nashua is PowerShell Remoting logon-session enumeration by compromised account pbeesly",
+    "F21 T1212 wsmprovhost.exe (PowerShell remoting) on nashua.dmevals.local opened lsass.exe with 0x1F3FFF \u2014 PowerShell/.NET call trace, no credential-dump payload observed",
+    "F64 T1552 hostui.exe elevation attempt followed by registry-stored encoded PowerShell stager on scranton",
+    "F65 T1552 sdclt.exe execution proxy runs before payload compilation on scranton"
+  ]
+}
