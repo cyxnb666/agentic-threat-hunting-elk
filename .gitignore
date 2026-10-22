@@ -13,9 +13,12 @@ data/
 # copies of the sources delivered through the pull channel
 dropzone/*
 !dropzone/.gitkeep
-# full LLM transcripts are too large for the repository; reports, plans, results and MCP audit logs are kept
-runs/**/llm_calls.jsonl
-runs/**/mcp_server.log
+# produced by running the system (ingest logs, onboarding transcripts, hunt reports, comparisons, MCP audit logs)
+runs/
+# templates the onboarding agent creates at run time; every rebuild deletes them and the agent creates them again
+templates/generated/*
+!templates/generated/.gitkeep
+# the registry files stay in git as empty {}: Logstash reads them at startup; the onboarding agent fills them
 
 # Editor / OS
 .vscode/

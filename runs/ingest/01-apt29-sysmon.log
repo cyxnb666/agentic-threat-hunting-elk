@@ -1,8 +1,0 @@
-[ingest] delivering data/sources/sysmon.ndjson.gz via pull as source 'apt29-sysmon' ...
-[ingest] sent=143884 (done) parsed=0 waiting=0
-[ingest] sent=143884 (done) parsed=0 waiting=0
-[watch] onboarding new source apt29-sysmon (18403 records, channel pull)
-[watch] apt29-sysmon: {'decision': 'reused', 'template': 'windows-sysmon', 'dataset': 'windows.sysmon', 'reason': 'All 200 sampled records are NXLog-exported Microsoft-Windows-Sysmon/Operational events (Channel discriminator, SourceName Microsoft-Windows-Sysmon, im_msvistalog). The builtin windows-sysmon template matches at ratio 1.0 and passed the full simulation on every record: @timestamp parsed from UtcTime (UTC), host.name from Hostname, event.module=sysmon, event.dataset=windows.sysmon, event.original preserved, hunt.template set, no processor failures. No new template needed.', 'validation': {'records': 200, 'records_ok': 200, 'match_ratio': 1.0}}
-[watch] backfilled 143884 records of apt29-sysmon into logs-windows.sysmon-default (failed 0)
-[ingest] sent=143884 (done) parsed=143884 waiting=0
-{"channel": "pull", "source_id": "apt29-sysmon", "files": 1, "records": 143884, "parsed": 143884, "pipeline_errors": 0, "first_event": "2020-05-02T02:55:23.551Z", "last_event": "2020-05-02T03:28:17.683Z", "seconds": 66.0}

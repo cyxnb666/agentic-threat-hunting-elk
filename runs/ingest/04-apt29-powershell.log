@@ -1,6 +1,0 @@
-[ingest] delivering data/sources/powershell.ndjson.gz via stream as source 'apt29-powershell' ...
-[watch] onboarding new source apt29-powershell (3000 records, channel stream)
-[watch] apt29-powershell: {'decision': 'created', 'template': 'windows-powershell', 'dataset': 'windows.powershell', 'reason': 'No existing template matched the sample (all 0.0). Created windows-powershell for NXLog-exported PowerShell records (channels "Windows PowerShell" and "Microsoft-Windows-PowerShell/Operational"); it validated on all 197 sampled records (match_ratio 1.0) with EventTime parsed as UTC-04:00, host.name from Hostname, event.module/dataset set, and originals kept under win.*.', 'validation': {'records': 197, 'records_ok': 197, 'match_ratio': 1.0}}
-[watch] backfilled 9250 records of apt29-powershell into logs-windows.powershell-default (failed 0)
-[ingest] sent=10979 (done) parsed=10979 waiting=0
-{"channel": "stream", "source_id": "apt29-powershell", "records": 10979, "seconds": 25.8, "parsed": 10979, "pipeline_errors": 0, "first_event": "2020-05-02T02:56:14.000Z", "last_event": "2020-05-02T03:21:30.000Z"}

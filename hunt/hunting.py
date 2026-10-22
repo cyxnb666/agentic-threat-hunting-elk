@@ -5,9 +5,11 @@ Phases (each one leaves files in runs/hunts/<run>/):
   1 frame        LLM maps the hypothesis to ATT&CK tactics
   2 plan         coverage matrix technique x dataset (techniques from the ATT&CK v20.0 knowledge base): every
                  cell gets checks or a stated reason why the dataset cannot show the technique; reasons that only
-                 cite a different time window are refused; a second pass fills the cells the first pass skipped
+                 cite a different time window are refused; a second pass fills the cells the first pass skipped.
+                 The batches of a pass are sent to the LLM at the same time and applied in batch order.
   3 execute      every planned check runs through MCP; failed queries get one LLM repair
-  4 triage       one bounded tool loop per technique family with hits (fresh context each): investigate, then
+  4 triage       one bounded tool loop per technique family with hits (fresh context each, all families at the
+                 same time, results merged in family order): investigate, then
                  submit findings + a status per technique. Evidence is verified at submission and failures are
                  returned once for correction; if no valid resubmission arrives, the verified part of the first
                  submission is kept. A submission cut off at the output limit (finish_reason "length", or arguments
@@ -30,6 +32,7 @@ Profiles (the repeatability experiment compares them):
 """
 import asyncio
 import collections
+import concurrent.futures
 import datetime as dt
 import json
 import os
@@ -53,6 +56,10 @@ TRIAGE_STEPS = 8         # converged: tool calls per technique family
 FIX_STEPS = 4            # extra tool calls allowed after a failed verification
 PIVOT_STEPS = 12
 PLAN_BATCH = 6
+# LLM requests in flight at once (planning batches, triage families). Until 2026-10-22 every call waited for the
+# previous one: 621 of a hunt's 649 s were spent waiting for DeepSeek. The DeepSeek limit is 2,500 concurrent
+# requests per account for deepseek-flash (api-docs.deepseek.com/quick_start/rate_limit, read 2026-10-22).
+MAX_PARALLEL = 16
 QUERY_TOOLS = ["search", "count", "aggregate", "timeline", "esql", "get_event", "get_fields"]
 CHECK_TOOLS = ("search", "count", "aggregate", "esql", "timeline")
 NA_REFUSED = re.compile(r"overlap|time[- ]window", re.IGNORECASE)
@@ -142,19 +149,6 @@ def _verified_part(findings: list[dict], checked: list[dict]) -> list[dict]:
     return out
 
 
-def _last_finish_reason(log_path) -> str | None:
-    """finish_reason of the newest record in llm_calls.jsonl (LLM.chat logs it but returns only the message). The
-    key is written after the response, so it lies in the last few KB even when the record holds a long conversation."""
-    try:
-        with open(log_path, "rb") as f:
-            f.seek(max(0, f.seek(0, os.SEEK_END) - 8192))
-            tail = f.read().decode("utf-8", "replace")
-    except OSError:
-        return None
-    found = re.findall(r'"finish_reason": (?:"(\w+)"|null)', tail)
-    return (found[-1] or None) if found else None
-
-
 class HuntAgent:
     def __init__(self, hypothesis: str, profile: str, run_dir, plan_from=None):
         self.plan_from = plan_from
@@ -228,13 +222,13 @@ class HuntAgent:
         if self.p["structured"]:
             techs = self.techniques_for(frame["tactics"])
             self.scope_techniques = {t["id"]: t["name"] for t in techs}
-            for i in range(0, len(techs), PLAN_BATCH):
-                self._plan_batch(frame, techs[i:i + PLAN_BATCH], None, checks, f"plan batch {i // PLAN_BATCH + 1}")
+            self._plan_batches(frame, [(techs[i:i + PLAN_BATCH], None, f"plan batch {i // PLAN_BATCH + 1}")
+                                       for i in range(0, len(techs), PLAN_BATCH)], checks)
             gaps = {t: [ds for ds, v in c["cells"].items() if v.startswith("GAP")] for t, c in self.coverage.items()}
             gaps = {t: g for t, g in gaps.items() if g}
             gap_techs = [t for t in techs if t["id"] in gaps]
-            for i in range(0, len(gap_techs), PLAN_BATCH):
-                self._plan_batch(frame, gap_techs[i:i + PLAN_BATCH], gaps, checks, f"plan gap-fill {i // PLAN_BATCH + 1}")
+            self._plan_batches(frame, [(gap_techs[i:i + PLAN_BATCH], gaps, f"plan gap-fill {i // PLAN_BATCH + 1}")
+                                       for i in range(0, len(gap_techs), PLAN_BATCH)], checks)
         else:
             self._plan_free(frame, checks)
             self.scope_techniques = {t: c["name"] for t, c in self.coverage.items()}
@@ -243,7 +237,21 @@ class HuntAgent:
         self.save("02_plan.json", {"checks": checks, "coverage": self.coverage})
         return checks
 
+    def _plan_batches(self, frame, batches, checks):
+        """batches = [(techniques, only, purpose)]. Each prompt depends only on its own batch, so the LLM answers are
+        requested at the same time; they are applied in batch order, so checks and coverage come out in the same
+        order as when the batches ran one after another."""
+        if not batches:
+            return
+        with concurrent.futures.ThreadPoolExecutor(max_workers=min(MAX_PARALLEL, len(batches))) as pool:
+            answers = list(pool.map(lambda b: self.ask_json(*self._plan_prompt(frame, b[0], b[1]), b[2]), batches))
+        for (batch, only, _), out in zip(batches, answers):
+            self._plan_apply(batch, only, out, checks)
+
     def _plan_batch(self, frame, batch, only, checks, purpose):
+        self._plan_apply(batch, only, self.ask_json(*self._plan_prompt(frame, batch, only), purpose), checks)
+
+    def _plan_prompt(self, frame, batch, only):
         spec = [{"id": t["id"], "name": t["name"], "description": t["description"][:350],
                  "datasets_to_decide": only[t["id"]] if only else self.datasets,
                  "attack_log_sources": sorted({f"{ls['log_source']} {ls.get('channel') or ''}".strip()
@@ -261,7 +269,9 @@ class HuntAgent:
                 "Prefer aggregate (stacking) for broad conditions. No time filter: the whole retention of each dataset is searched.\n"
                 'Answer {"techniques": [{"technique": "T....", "checks": [{"dataset": "...", "tool": "...", "args": {...}, '
                 '"purpose": "..."}], "not_applicable": [{"dataset": "...", "reason": "..."}]}]}')
-        out = self.ask_json(system, user, purpose)
+        return system, user
+
+    def _plan_apply(self, batch, only, out, checks):
         got = {p.get("technique"): p for p in out.get("techniques", [])}
         for t in batch:
             p = got.get(t["id"], {})
@@ -330,39 +340,57 @@ class HuntAgent:
 
     # ---- phase 4 (converged): per technique family -------------------------------------------------------
     async def triage(self, tools: Tools, results: list[dict]) -> list[dict]:
+        """The families run at the same time (each loop has its own context and only its own techniques); their
+        findings, statuses and log entries are merged in family order, as when they ran one after another."""
         by_family = collections.defaultdict(list)
         for r in results:
             by_family[r["technique"].split(".")[0]].append(r)
-        findings = []
-        for fam in sorted(by_family):
-            rs = by_family[fam]
-            techs = sorted({r["technique"] for r in rs} | {t for t in self.scope_techniques if t.split(".")[0] == fam})
-            if not any((r.get("total") or 0) > 0 for r in rs):
-                for t in techs:
-                    n = sum(1 for r in rs if r["technique"] == t)
-                    self.technique_status[t] = {"status": "not_observed" if n else "not_checked",
-                                                "reason": f"{n} planned checks, all with zero hits" if n else "no check planned"}
-                continue
-            datasets = sorted({r["dataset"] for r in rs})
-            hits = [_brief(r) for r in rs if (r.get("total") or 0) > 0]
-            zero = [f"{r['check_id']} {r['technique']} {r['dataset']}: {json.dumps(r['args'])[:200]}" for r in rs
-                    if not r.get("error") and not (r.get("total") or 0)]
-            system = ("You are a senior threat hunter triaging one ATT&CK technique family. Investigate the hits with the "
-                      "read-only tools, separate attacker activity from normal system behaviour, then call submit_findings "
-                      "with findings and one status per technique.\n" + AGENT_RULES +
-                      f"\nFindings may only use these techniques: {techs}. You have at most {TRIAGE_STEPS} tool calls.")
-            user = (f"Hypothesis: {self.hypothesis}\n\nTechnique family {fam}: "
-                    f"{json.dumps({t: self.scope_techniques.get(t, '') for t in techs})}\n\n"
-                    f"Data:\n{self.inventory_brief(datasets)}\n\nChecks with hits:\n{json.dumps(hits, ensure_ascii=False)[:45000]}\n\n"
-                    f"Checks with zero hits:\n" + "\n".join(zero)[:6000] +
-                    "\n\nInvestigate (stack high-volume hits, read full events with get_event before citing them), then call "
-                    "submit_findings. Benign explanations of hits are findings with assessment 'benign'.")
-            fs, statuses = await self._loop(tools, system, user, TRIAGE_STEPS, f"triage {fam}", verify_on_submit=True, allowed=set(techs))
+        families = sorted(by_family)
+        gate = asyncio.Semaphore(MAX_PARALLEL)
+
+        async def one(fam):
+            async with gate:
+                return await self._triage_family(tools, fam, by_family[fam])
+        outcomes = await asyncio.gather(*(one(fam) for fam in families))
+        findings, merged = [], {}
+        for techs, fs, statuses in outcomes:
             findings += fs
             for t in techs:
-                st = statuses.get(t) or self.technique_status.get(t) or {"status": "not_observed", "reason": "no status submitted"}
-                self.technique_status[t] = st
+                merged[t] = statuses.get(t) or self.technique_status.get(t) or {"status": "not_observed", "reason": "no status submitted"}
+        # rebuilt in family order: the loops' own setdefault calls happened in whatever order the loops finished
+        self.technique_status = {**{t: s for t, s in self.technique_status.items() if t not in merged}, **merged}
+        order = {f"triage {fam}": n for n, fam in enumerate(families)}
+        for entries in (self.context, self.corrections, self.state.get("cut_off_submissions", []),
+                        self.state.get("submission_fallbacks", [])):
+            entries.sort(key=lambda e: order.get(e.get("phase"), len(order)))     # stable: keeps each family's order
         return findings
+
+    async def _triage_family(self, tools: Tools, fam: str, rs: list[dict]):
+        """One technique family: (its techniques, findings, statuses)."""
+        techs = sorted({r["technique"] for r in rs} | {t for t in self.scope_techniques if t.split(".")[0] == fam})
+        if not any((r.get("total") or 0) > 0 for r in rs):
+            statuses = {}
+            for t in techs:
+                n = sum(1 for r in rs if r["technique"] == t)
+                statuses[t] = {"status": "not_observed" if n else "not_checked",
+                               "reason": f"{n} planned checks, all with zero hits" if n else "no check planned"}
+            return techs, [], statuses
+        datasets = sorted({r["dataset"] for r in rs})
+        hits = [_brief(r) for r in rs if (r.get("total") or 0) > 0]
+        zero = [f"{r['check_id']} {r['technique']} {r['dataset']}: {json.dumps(r['args'])[:200]}" for r in rs
+                if not r.get("error") and not (r.get("total") or 0)]
+        system = ("You are a senior threat hunter triaging one ATT&CK technique family. Investigate the hits with the "
+                  "read-only tools, separate attacker activity from normal system behaviour, then call submit_findings "
+                  "with findings and one status per technique.\n" + AGENT_RULES +
+                  f"\nFindings may only use these techniques: {techs}. You have at most {TRIAGE_STEPS} tool calls.")
+        user = (f"Hypothesis: {self.hypothesis}\n\nTechnique family {fam}: "
+                f"{json.dumps({t: self.scope_techniques.get(t, '') for t in techs})}\n\n"
+                f"Data:\n{self.inventory_brief(datasets)}\n\nChecks with hits:\n{json.dumps(hits, ensure_ascii=False)[:45000]}\n\n"
+                f"Checks with zero hits:\n" + "\n".join(zero)[:6000] +
+                "\n\nInvestigate (stack high-volume hits, read full events with get_event before citing them), then call "
+                "submit_findings. Benign explanations of hits are findings with assessment 'benign'.")
+        fs, statuses = await self._loop(tools, system, user, TRIAGE_STEPS, f"triage {fam}", verify_on_submit=True, allowed=set(techs))
+        return techs, fs, statuses
 
     async def pivot(self, tools: Tools, findings: list[dict]) -> list[dict]:
         """Time-window pivot. Code first runs the same fixed queries around every host/time window of verified
@@ -470,10 +498,10 @@ class HuntAgent:
         return incidents
 
     # ---- shared tool loop -----------------------------------------------------------------------------------
-    def _chat(self, messages, tools, purpose):
-        """One loop step: the message and its finish_reason ("length" = cut off at the output token limit)."""
-        msg = self.llm.chat(messages, tools=tools, purpose=purpose)
-        return msg, _last_finish_reason(self.llm.log_path)
+    async def _chat(self, messages, tools, purpose):
+        """One loop step: the message and its finish_reason ("length" = cut off at the output token limit). The
+        request runs in a worker thread, so loops of other technique families can wait for DeepSeek meanwhile."""
+        return await asyncio.to_thread(self.llm.chat_with_finish, messages, tools=tools, purpose=purpose)
 
     async def _loop(self, tools, system, user, steps, phase, verify_on_submit, allowed=None, required=None):
         messages = [{"role": "system", "content": system}, {"role": "user", "content": user}]
@@ -485,7 +513,7 @@ class HuntAgent:
             force = used >= budget
             if force:
                 messages.append({"role": "user", "content": "Tool budget used up. Call submit_findings now."})
-            msg, finish = self._chat(messages, [_SUBMIT] if force else tool_defs, f"{phase} step {used + 1}")
+            msg, finish = await self._chat(messages, [_SUBMIT] if force else tool_defs, f"{phase} step {used + 1}")
             turn = msg.model_dump(exclude_none=True)
             messages.append(turn)
             if not msg.tool_calls:
@@ -891,9 +919,19 @@ def _value_matches(claimed, actual) -> bool:
 
 
 def _read_jsonl(path):
+    """Records of a JSON-lines file. A last line that is not complete JSON is skipped: with parallel triage loops
+    the MCP server may still be writing another loop's audit record while one loop verifies its evidence."""
     if not path.exists():
         return []
-    return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
+    lines = [line for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
+    out = []
+    for n, line in enumerate(lines):
+        try:
+            out.append(json.loads(line))
+        except ValueError:
+            if n < len(lines) - 1:
+                raise
+    return out
 
 
 def run_hunt(hypothesis: str, profile: str = "converged", run_name: str | None = None, plan_from: str | None = None) -> str:

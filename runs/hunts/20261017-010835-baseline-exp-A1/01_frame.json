@@ -1,8 +1,0 @@
-{
-  "tactics": [
-    "credential-access"
-  ],
-  "restated": "An adversary who has compromised Windows hosts on this network stole credentials from those hosts.",
-  "what_would_confirm": "Observable evidence such as process access to lsass.exe, LSASS memory dumps, SAM/SECURITY/NTDS.dit registry hive extraction, credential-dumping tool execution, or subsequent authentication with stolen credentials.",
-  "what_would_refute": "Observable absence of LSASS access, credential-dump files, SAM/SECURITY/NTDS.dit reads or exfiltration, credential-dumping tool execution, and no evidence of stolen credentials used elsewhere."
-}

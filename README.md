@@ -1,7 +1,7 @@
 # Agentic threat hunting on the Elastic Stack
 
 A hunt capability that takes a hypothesis in plain language and returns an evidenced verdict.
-Step-by-step record: the project log (a Google Doc, written in Chinese).
+Step-by-step instructions: [docs/usage.md](docs/usage.md).
 
 ```
  sources                    Logstash 9.5.5                    Elasticsearch 9.5.5              agents
@@ -22,17 +22,22 @@ Step-by-step record: the project log (a Google Doc, written in Chinese).
 | `docker-compose.yml`, `elk/` | Elastic Stack: certs + setup one-shots, es01, kibana, logstash (pipelines per channel) |
 | `hunt/ingest.py` | pull / push / stream senders, watcher, backfill, quality check |
 | `hunt/onboarding.py`, `hunt/templates.py`, `hunt/registry.py` | onboarding agent, template library + validation contract, source registry |
-| `templates/builtin`, `templates/generated` | parsing templates (written by hand / created by the agent) |
+| `templates/builtin` | parsing templates written by hand (Sysmon, Windows Security) |
+| `templates/generated` | parsing templates the onboarding agent creates at run time (empty in git) |
+| `registry/` | which template each source uses, written by the onboarding agent and read by Logstash (empty in git) |
+| `dropzone/` | drop folder of the pull channel |
 | `hunt/mcp_server.py` | MCP server: list_data_sources, get_fields, search, count, aggregate, timeline, esql, get_event, get_registry |
 | `hunt/hunting.py`, `hunt/report.py` | hunt agent (scope, frame, plan, execute, investigate, verify, verdict) and report writer |
 | `hunt/evaluate.py`, `hunt/compare.py` | scoring against the APT29 plan, run comparison |
 | `knowledge/` | ATT&CK v20.0 Windows techniques with detection strategies (built by `scripts/build_attack_kb.py`) |
-| `scripts/` | dataset download/preparation, ingest-all, MCP smoke test, env init, stack checks |
-| `runs/` | everything the system produced: ingest logs, onboarding transcripts, hunt reports, comparisons |
+| `playbooks/` | a frozen hunt plan for repeatable runs (`--plan-from`) |
+| `scripts/` | dataset download/preparation, rebuild, ingest-all, MCP smoke test, env init, stack checks |
+| `tests/` | unit tests |
+| `runs/` | created when the system runs (not in git): ingest logs, onboarding transcripts, hunt reports, comparisons |
 
 ## One command
 
-After the one-time setup below: `.venv\Scripts\python scripts\rebuild_all.py` deletes all project data and
+After the one-time setup and the data download below: `.venv\Scripts\python scripts\rebuild_all.py` deletes all project data and
 volumes, starts the stack, checks it, installs templates, ingests all six sources through the three channels
 (onboarding agent included), checks that the agent onboarded every source, creates Kibana data views and runs the
 full verification (`scripts\verify_all.py`). Every rebuild starts from nothing, whether the stack is running or
@@ -49,7 +54,8 @@ restart of the computer or Docker Desktop, run `docker compose up -d`, then `scr
 3. `docker compose up -d` (first start pulls ~6.6 GB of images), then copy the CA for the host clients:
    `docker compose cp es01:/usr/share/elasticsearch/config/certs/ca/ca.crt elk/certs/ca.crt`
 4. `py -3.13 -m venv .venv` and `.venv\Scripts\python -m pip install -r requirements.txt`
-5. `.venv\Scripts\python scripts\verify_stack.py` — TLS, auth, least privilege, health, ports.
+5. `.venv\Scripts\python scripts\verify_stack.py --pre-ingest`: TLS, auth, least privilege, health, ports
+   (without `--pre-ingest` it also expects ingested data).
 
 Kibana: http://localhost:5601 (user `elastic`, password `ELASTIC_PASSWORD` from `.env`).
 
@@ -57,9 +63,10 @@ Kibana: http://localhost:5601 (user `elastic`, password `ELASTIC_PASSWORD` from 
 
 ```
 .venv\Scripts\python scripts\download_apt29.py      # OTRF APT29 Day 1, verified by git blob SHA-1
-.venv\Scripts\python scripts\prepare_sources.py     # split by log type (gzip; see the Defender note in the record)
-.venv\Scripts\python scripts\build_attack_kb.py     # MITRE ATT&CK v20.0 knowledge base
+.venv\Scripts\python scripts\prepare_sources.py     # split by log type (gzip; the script's docstring explains why)
 ```
+`knowledge/` already holds the ATT&CK v20.0 knowledge base; `scripts\build_attack_kb.py` rebuilds it from MITRE's
+STIX data.
 
 ## Ingest ("point the system at a source")
 
@@ -91,11 +98,12 @@ shows a client). Read-only Elasticsearch user `hunt_mcp`; every call is audited 
 .venv\Scripts\python -m hunt compare runs\hunts\<run A> runs\hunts\<run B>
 .venv\Scripts\python scripts\evaluate_step8.py runs\hunts\<run>      # a lateral-movement hunt, scored on APT29 step 8
 ```
-Each run writes `runs/hunts/<run>/report.md` (verdict, incidents, findings with evidence, per-technique conclusions,
-coverage matrix, every query) plus the raw material: LLM transcript, MCP audit log, plan, results, verification.
+A hunt takes about 3 minutes. Each run writes `runs/hunts/<run>/report.md` (verdict, incidents, findings with
+evidence, per-technique conclusions, coverage matrix, every query) plus the raw material: LLM transcript, MCP audit
+log, plan, results, verification.
 
 - Frozen playbook: `--plan-from playbooks/credential-access-v1` re-uses a stored plan, so repeated runs execute the
-  same queries (see the repeatability experiment in the record).
+  same queries.
 - `--profile baseline` is the unconstrained agent used as the experiment's reference.
 - `python -m hunt render <run>` re-creates report.md from report.json.
 

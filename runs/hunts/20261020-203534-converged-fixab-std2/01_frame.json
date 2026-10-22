@@ -1,8 +1,0 @@
-{
-  "tactics": [
-    "credential-access"
-  ],
-  "restated": "An adversary with existing access to Windows hosts on this network harvested credentials from those hosts.",
-  "what_would_confirm": "LSASS memory access by non-standard processes, SAM/NTDS.dit or registry hive reads, credential-dumping tool execution (e.g., Mimikatz, procdump on lsass), suspicious access to DPAPI secrets or browser credential stores, and subsequent authentication with harvested accounts.",
-  "what_would_refute": "No process access to LSASS or credential stores, no dumping tool artifacts or hive copies, and no anomalous authentication using accounts whose credentials reside on the affected hosts."
-}

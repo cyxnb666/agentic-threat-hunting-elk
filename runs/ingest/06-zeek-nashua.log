@@ -1,7 +1,0 @@
-[ingest] delivering data/sources/zeek/NASHUA via pull as source 'zeek-nashua' ...
-[ingest] sent=1725 (done) parsed=0 waiting=0
-[watch] onboarding new source zeek-nashua (1725 records, channel pull)
-[watch] zeek-nashua: {'decision': 'reused', 'template': 'zeek', 'dataset': 'zeek', 'reason': "All 193 sampled records are Zeek JSON logs (@proc=zeek, @system=bobs.bigwheel.local) and the existing 'zeek' template matches them at ratio 1.0 and passed the full output contract on every record: @timestamp parsed from ts (UNIX), observer.name set to the sensor, event.module/dataset = zeek, event.original kept, hunt.template set, no processor failures.", 'validation': {'records': 193, 'records_ok': 193, 'match_ratio': 1.0}}
-[watch] backfilled 1725 records of zeek-nashua into logs-zeek-default (failed 0)
-[ingest] sent=1725 (done) parsed=1725 waiting=0
-{"channel": "pull", "source_id": "zeek-nashua", "files": 12, "records": 1725, "parsed": 1725, "pipeline_errors": 0, "first_event": "2020-04-30T00:06:39.824Z", "last_event": "2020-04-30T00:45:00.042Z", "seconds": 23.9}

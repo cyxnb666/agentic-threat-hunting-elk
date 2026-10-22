@@ -1,10 +1,10 @@
 # Usage guide
 
-This guide assumes a Windows 11 computer with Docker Desktop and Python 3.13 installed (`py -3.13` works), with the
-project in `C:\Users\yaoxi\Downloads\project`. Run every command below in PowerShell, from the project folder:
+This guide assumes a Windows 11 computer with Docker Desktop and Python 3.13 installed (`py -3.13` works). Run every
+command below in PowerShell, from the project folder (the folder that holds `README.md`):
 
 ```
-cd C:\Users\yaoxi\Downloads\project
+cd <project folder>
 ```
 
 ## 1. First-time setup (once only)
@@ -24,12 +24,13 @@ cd C:\Users\yaoxi\Downloads\project
    py -3.13 -m venv .venv
    .venv\Scripts\python -m pip install -r requirements.txt
    ```
-4. **Download and prepare the data** (about 15 MB of dataset + 55 MB of ATT&CK knowledge base):
+4. **Download and prepare the data** (about 15 MB):
    ```
    .venv\Scripts\python scripts\download_apt29.py
    .venv\Scripts\python scripts\prepare_sources.py
-   .venv\Scripts\python scripts\build_attack_kb.py
    ```
+   The ATT&CK knowledge base is already in `knowledge/`; `.venv\Scripts\python scripts\build_attack_kb.py` rebuilds it
+   from MITRE's data if needed.
 
 ## One-command rebuild and self-check
 
@@ -47,9 +48,10 @@ Parts 2 and 3 below are what this command does internally; they can also be run 
 ```
 docker compose up -d
 docker compose cp es01:/usr/share/elasticsearch/config/certs/ca/ca.crt elk/certs/ca.crt
-.venv\Scripts\python scripts\verify_stack.py
+.venv\Scripts\python scripts\verify_stack.py --pre-ingest
 ```
-The last command should show PASS for every check. Kibana: <http://localhost:5601>, user `elastic`, password
+The last command should show PASS for every check (`--pre-ingest` skips the check that needs ingested data; run it
+without the flag after part 3). Kibana: <http://localhost:5601>, user `elastic`, password
 `ELASTIC_PASSWORD` from `.env`. `.venv\Scripts\python scripts\kibana_dataviews.py` creates a Kibana data view for
 each dataset.
 
@@ -83,7 +85,9 @@ A file can also be dropped in by hand: first run `.venv\Scripts\python -m hunt w
 ```
 .venv\Scripts\python -m hunt hunt "An adversary who compromised Windows hosts in this network stole credentials from them (MITRE ATT&CK tactic: Credential Access)." --profile converged
 ```
-It takes about 10 to 12 minutes. The terminal shows no output while it runs and prints one result line at the end.
+It takes about 3 minutes (166 to 201 s in the four runs of 2026-10-22; 9 to 11 minutes before the planning batches
+and the technique families were sent to DeepSeek in parallel). The terminal shows no output while it runs and prints
+one result line at the end.
 The result is in `runs\hunts\<time>-converged\report.md`: the verdict, every finding with its evidence (event ID,
 field values, ID of the query that produced it), the conclusion for each ATT&CK technique, the coverage matrix and
 every query of the run.

@@ -4,7 +4,8 @@ A template is an Elasticsearch ingest pipeline named hunt-tpl-<name> whose _meta
   {"hunt_template": true, "name", "version", "description", "dataset", "origin": "builtin"|"generated",
    "match": {"format": "json", "required_keys": [...], "equals": {"field": [allowed values]}}}
 Elasticsearch is the registry of templates (the agent lists them from there); every template is also kept as a
-JSON spec file under templates/builtin or templates/generated so it is versioned in git.
+JSON spec file: templates/builtin (written by hand, in git) or templates/generated (created by the onboarding agent
+at run time, not in git).
 
 Validation = run the template with the simulate pipeline API on raw sample records, then check an output
 contract on every resulting document (see CONTRACT below).

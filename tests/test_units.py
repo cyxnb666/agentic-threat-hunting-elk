@@ -119,19 +119,135 @@ def test_pivot_candidates_are_deterministic_and_complete():
     assert hunting.missing_candidates(req, [{"executable": "accesschk.exe"}, {"executable": "whoami.exe"}]) == []
 
 
-def test_tool_args_and_finish_reason_from_the_call_log(tmp_path):
+def test_tool_args():
     assert hunting._tool_args('{"findings": []}') == {"findings": []}
     assert hunting._tool_args("") == {} and hunting._tool_args(None) == {}
     assert hunting._tool_args('{"findings": [{"title": "cut') is None      # demo2 pivot step 13
     assert hunting._tool_args("[1, 2]") is None
-    log = tmp_path / "llm_calls.jsonl"
-    assert hunting._last_finish_reason(log) is None                       # no log yet
-    rec = {"purpose": "pivot step 12", "messages": [{"content": "x" * 20000}], "response": {}, "finish_reason": "tool_calls",
-           "usage": {"completion_tokens": 6916}}
-    log.write_text(json.dumps(rec) + "\n" + json.dumps({**rec, "finish_reason": "length"}) + "\n", encoding="utf-8")
-    assert hunting._last_finish_reason(log) == "length"                   # newest record, read from the file end
-    log.write_text(json.dumps({**rec, "finish_reason": None}) + "\n", encoding="utf-8")
-    assert hunting._last_finish_reason(log) is None
+
+
+def _fake_llm(tmp_path, finish):
+    """LLM whose API client answers at once with a long message and the given finish_reason (no network)."""
+    import threading
+    from types import SimpleNamespace as NS
+    from hunt.llm import LLM
+    llm = LLM.__new__(LLM)
+    llm.model, llm.temperature, llm.thinking, llm.max_retries = "m", 0.0, False, 1
+    llm.log_path, llm.calls, llm.tokens, llm._lock = tmp_path / "llm_calls.jsonl", 0, {"prompt": 0, "completion": 0}, threading.Lock()
+
+    class Msg:
+        content = "x" * 50000
+
+        def model_dump(self, exclude_none=True):
+            return {"role": "assistant", "content": self.content}
+
+    def create(**kwargs):
+        usage = NS(prompt_tokens=10, completion_tokens=2, model_dump=lambda: {"prompt_tokens": 10, "completion_tokens": 2})
+        return NS(model="m", choices=[NS(message=Msg(), finish_reason=finish)], usage=usage)
+    llm.client = NS(chat=NS(completions=NS(create=create)))
+    return llm
+
+
+def test_llm_call_returns_its_own_finish_reason_and_parallel_calls_log_whole_records(tmp_path):
+    # until 2026-10-22 the hunt read finish_reason from the last line of llm_calls.jsonl, which belongs to another
+    # call once triage families run in parallel
+    import concurrent.futures
+    llm = _fake_llm(tmp_path, "length")
+    msg, finish = llm.chat_with_finish([{"role": "user", "content": "hi"}], purpose="p")
+    assert finish == "length" and llm.chat([{"role": "user", "content": "hi"}]).content == "x" * 50000
+    with concurrent.futures.ThreadPoolExecutor(16) as pool:
+        list(pool.map(lambda n: llm.chat_with_finish([{"role": "user", "content": str(n)}], purpose=f"p{n}"), range(40)))
+    recs = [json.loads(line) for line in llm.log_path.read_text(encoding="utf-8").splitlines()]
+    assert len(recs) == 42 == llm.calls and llm.tokens == {"prompt": 420, "completion": 84}
+    assert {r["finish_reason"] for r in recs} == {"length"}
+
+
+def test_audit_records_stay_whole_when_tools_run_in_parallel(tmp_path, monkeypatch):
+    import concurrent.futures
+    from hunt import mcp_server
+    monkeypatch.setenv("HUNT_AUDIT_FILE", str(tmp_path / "mcp_audit.jsonl"))
+    hits = {"total": 1, "hits": [{"_id": "x" * 20, "v": "y" * 20000}]}
+    with concurrent.futures.ThreadPoolExecutor(16) as pool:
+        list(pool.map(lambda n: mcp_server._audited("search", {"n": n}, {}, lambda: hits), range(64)))
+    recs = [json.loads(line) for line in (tmp_path / "mcp_audit.jsonl").read_text(encoding="utf-8").splitlines()]
+    assert sorted(r["args"]["n"] for r in recs) == list(range(64))
+
+
+def test_read_jsonl_skips_only_an_unfinished_last_line(tmp_path):
+    import pytest
+    p = tmp_path / "a.jsonl"
+    p.write_text('{"a": 1}\n{"a": 2}\n{"a": 3, "b": "unfini', encoding="utf-8")
+    assert hunting._read_jsonl(p) == [{"a": 1}, {"a": 2}]          # another loop's record still being written
+    p.write_text('{"a": 1}\n{"a": \n{"a": 3}\n', encoding="utf-8")
+    with pytest.raises(ValueError):
+        hunting._read_jsonl(p)                                      # a broken record in the middle is an error
+
+
+def _plan_agent():
+    agent = hunting.HuntAgent.__new__(hunting.HuntAgent)
+    agent.hypothesis, agent.datasets, agent.coverage = "h", ["windows.sysmon"], {}
+    agent.inventory, agent.fields = {"datasets": [], "non_overlapping_time_windows": []}, {}
+    return agent
+
+
+def test_plan_batches_are_asked_together_and_applied_in_batch_order():
+    import threading
+    import time
+    agent, running, peak, lock = _plan_agent(), [0], [0], threading.Lock()
+
+    def ask_json(system, user, purpose):
+        n = int(purpose.split()[-1])
+        with lock:
+            running[0] += 1
+            peak[0] = max(peak[0], running[0])
+        time.sleep(0.05 * (6 - n))                                  # later batches answer first
+        with lock:
+            running[0] -= 1
+        return {"techniques": [{"technique": f"T{n}", "checks": [{"dataset": "windows.sysmon", "tool": "count", "args": {"query": "x"}}]}]}
+    agent.ask_json = ask_json
+    batches = [([{"id": f"T{n}", "name": "", "description": "", "detection_strategies": []}], None, f"plan batch {n}")
+               for n in range(1, 6)]
+    checks = []
+    agent._plan_batches({}, batches, checks)
+    assert peak[0] == 5                                             # all five were waiting at the same time
+    assert [c["technique"] for c in checks] == ["T1", "T2", "T3", "T4", "T5"]
+    assert list(agent.coverage) == ["T1", "T2", "T3", "T4", "T5"]
+    sequential = _plan_agent()
+    sequential.ask_json = lambda system, user, purpose: ask_json(system, user, purpose)
+    seq_checks = []
+    for batch, only, purpose in batches:
+        sequential._plan_batch({}, batch, only, seq_checks, purpose)
+    assert seq_checks == checks and sequential.coverage == agent.coverage
+
+
+def test_triage_families_run_together_and_merge_in_family_order():
+    import asyncio
+    agent = hunting.HuntAgent.__new__(hunting.HuntAgent)
+    agent.state, agent.context, agent.technique_status, agent.corrections = {}, [], {}, []
+    agent.scope_techniques = {"T1003": "a", "T1003.001": "b", "T1110": "c", "T1555": "d"}
+    agent.inventory, agent.fields, agent.hypothesis = {"datasets": [], "non_overlapping_time_windows": []}, {}, "h"
+    running, peak = [0], [0]
+
+    async def loop(tools, system, user, steps, phase, verify_on_submit, allowed=None, required=None):
+        fam = phase.split()[1]
+        running[0] += 1
+        peak[0] = max(peak[0], running[0])
+        agent.technique_status.setdefault(max(allowed), {"status": "not_observed", "reason": "set inside the loop"})
+        await asyncio.sleep({"T1003": 0.15, "T1555": 0.01}[fam])     # T1555 finishes first
+        running[0] -= 1
+        agent.context.append({"phase": phase, "title": fam})
+        return [{"technique": min(allowed), "title": fam}], {min(allowed): {"status": "malicious", "reason": fam}}
+    agent._loop = loop
+    r = {"dataset": "d", "tool": "count", "args": {}, "query_id": "q", "result": {}}
+    results = [{**r, "technique": "T1003.001", "total": 3, "check_id": "C1"}, {**r, "technique": "T1555", "total": 1, "check_id": "C2"},
+               {**r, "technique": "T1110", "total": 0, "check_id": "C3"}]
+    fs = asyncio.run(agent.triage(None, results))
+    assert peak[0] == 2 and [f["title"] for f in fs] == ["T1003", "T1555"]
+    assert [c["title"] for c in agent.context] == ["T1003", "T1555"]
+    assert list(agent.technique_status) == ["T1003", "T1003.001", "T1110", "T1555"]
+    assert agent.technique_status["T1003"]["status"] == "malicious"
+    assert agent.technique_status["T1003.001"]["reason"] == "set inside the loop"
+    assert agent.technique_status["T1110"] == {"status": "not_observed", "reason": "1 planned checks, all with zero hits"}
 
 
 def test_verified_part_keeps_only_verified_evidence():
@@ -169,7 +285,7 @@ def _loop_agent(replies):
             return {"role": "assistant", "tool_calls": [{"id": t.id, "type": "function", "function": {
                 "name": t.function.name, "arguments": t.function.arguments}} for t in self.tool_calls]}
 
-    def chat(messages, tools, purpose):
+    async def chat(messages, tools, purpose):
         seen.append(json.loads(json.dumps(messages)))
         calls, finish = replies.pop(0) if len(replies) > 1 else replies[0]
         return Msg(calls), finish

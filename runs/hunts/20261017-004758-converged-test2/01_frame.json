@@ -1,8 +1,0 @@
-{
-  "tactics": [
-    "credential-access"
-  ],
-  "restated": "An adversary with existing access to Windows hosts on this network harvested credentials from those hosts.",
-  "what_would_confirm": "Evidence of credential theft tooling or artifacts on Windows hosts, such as LSASS process memory access (e.g., procdump, comsvcs.dll MiniDump, Mimikatz), SAM/SECURITY/SYSTEM registry hive or NTDS.dit extraction, DPAPI master key or Credential Manager access, cached domain credential dumping, or suspicious access to browser/credential stores, correlated with adversary process lineage.",
-  "what_would_refute": "No credential-dumping tool execution, no LSASS handle access by non-standard processes, no registry hive or NTDS.dit copies, no DPAPI or Credential Manager access, and no credential-store reads on the compromised Windows hosts."
-}

@@ -16,6 +16,7 @@ import json
 import logging
 import os
 import re
+import threading
 import time
 import uuid
 
@@ -27,6 +28,7 @@ logging.getLogger("elastic_transport").setLevel(logging.WARNING)   # stdout is t
 
 MAX_SIZE = 100
 TRUNCATE = 400
+_AUDIT_LOCK = threading.Lock()
 DEFAULT_FIELDS = ["@timestamp", "host.name", "observer.name", "event.dataset", "event.code", "user.name",
                   "process.executable", "process.command_line", "source.ip", "destination.ip", "message"]
 
@@ -58,15 +60,17 @@ def _audited(tool: str, args: dict, request: dict, run):
         result, error = {"error": f"{type(exc).__name__}: {reason}"}, reason
     result = {"query_id": qid, **result}
     blob = json.dumps(result, sort_keys=True, default=str)
-    with open(_audit_path(), "a", encoding="utf-8") as f:
-        f.write(json.dumps({
-            "ts": dt.datetime.now(dt.timezone.utc).isoformat(timespec="milliseconds"), "query_id": qid,
-            "tool": tool, "args": args, "request": request, "error": error,
-            "hits_total": result.get("total"),
-            "returned_ids": [h.get("_id") for h in result.get("hits", [])] + list(result.get("_ids", [])),
-            "rows": len(result.get("values", [])) if "values" in result else None,
-            "result_sha256": hashlib.sha256(blob.encode()).hexdigest(), "duration_ms": int((time.time() - t0) * 1000),
-        }, default=str) + "\n")
+    record = json.dumps({
+        "ts": dt.datetime.now(dt.timezone.utc).isoformat(timespec="milliseconds"), "query_id": qid,
+        "tool": tool, "args": args, "request": request, "error": error,
+        "hits_total": result.get("total"),
+        "returned_ids": [h.get("_id") for h in result.get("hits", [])] + list(result.get("_ids", [])),
+        "rows": len(result.get("values", [])) if "values" in result else None,
+        "result_sha256": hashlib.sha256(blob.encode()).hexdigest(), "duration_ms": int((time.time() - t0) * 1000),
+    }, default=str) + "\n"
+    with _AUDIT_LOCK:      # sync tools run in worker threads; parallel hunt loops call them at the same time
+        with open(_audit_path(), "a", encoding="utf-8") as f:
+            f.write(record)
     return result
 
 
