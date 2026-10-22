@@ -1,0 +1,194 @@
+[
+  {
+    "title": "Hidden PowerShell loader (monkey.png steganography) compiles Add-Type payloads and opens LSASS with full access on scranton",
+    "technique": "T1003.001",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F09",
+      "F21",
+      "F30",
+      "F35",
+      "F45",
+      "F51",
+      "F61",
+      "F64",
+      "F69"
+    ],
+    "rationale": "All describe the same LSASS-access action by PowerShell-family processes attributable to pbeesly: hidden PowerShell PID 2976 on scranton opened lsass.exe with 0x1f3fff/0x1fffff and UNKNOWN call-trace frames, plus the lower-privilege 0x1000 opens and the wsmprovhost LSASS open on nashua. The csc.exe Add-Type compiles from the same hidden loader are part of this action chain. Best fit is LSASS Memory (T1003.001); no dump file was written, hence suspicious.",
+    "incident_id": "I01"
+  },
+  {
+    "title": "Hands-on-keyboard credential-access toolkit in pbeesly's PowerShell session on scranton (discovery, accesschk, private-key export, screen capture, exfil staging)",
+    "technique": "T1056",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F12"
+    ],
+    "rationale": "Single finding describing the combined hands-on-keyboard session; the umbrella Input Capture technique (T1056) is the best single fit for the session that includes screen capture and keystroke collection alongside other credential tooling.",
+    "incident_id": "I02"
+  },
+  {
+    "title": "Get-Keystrokes keylogger job on scranton",
+    "technique": "T1056.001",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F56"
+    ],
+    "rationale": "Get-Keystrokes background job launched, viewed and removed is keylogging.",
+    "incident_id": "I03"
+  },
+  {
+    "title": "Screen capture loop (Invoke-ScreenCapture) on scranton",
+    "technique": "T1056.002",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F08"
+    ],
+    "rationale": "Invoke-ScreenCapture background job writing .bmp screenshots of the desktop is GUI input capture.",
+    "incident_id": "I04"
+  },
+  {
+    "title": "WebDAV/UNC forced-authentication channel used to exfiltrate OfficeSupplies.7z to 192.168.0.4",
+    "technique": "T1187",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F19",
+      "F63"
+    ],
+    "rationale": "Both describe the same Invoke-Exfil action mapping \\\\192.168.0.4\\webdav and copying the archive; the WebDAV/UNC forced-authentication channel is T1187.",
+    "incident_id": "I05"
+  },
+  {
+    "title": "Credential-adjacent file harvesting and archiving on scranton and nashua",
+    "technique": "T1552",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F24",
+      "F59"
+    ],
+    "rationale": "Both describe the same collection action: enumerating user files matching *pass*/*psw*/*login*/*admin*/*vpn* patterns and archiving them (Draft.Zip on scranton, working.zip on nashua).",
+    "incident_id": "I06"
+  },
+  {
+    "title": "Plaintext password on PsExec command line to NASHUA; accesschk passwordsDB on scranton",
+    "technique": "T1552.001",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F25",
+      "F58"
+    ],
+    "rationale": "Both describe credentials in files/command lines: accesschk writing passwordsDB and PsExec64 run with '-p Fl0nk3rt0n!T0by' against NASHUA.",
+    "incident_id": "I07"
+  },
+  {
+    "title": "Private keys packed into 7z and pushed to attacker WebDAV",
+    "technique": "T1552.004",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F60"
+    ],
+    "rationale": "Invoke-Exfil compressing Downloads containing the exported .pfx keys and copying to the WebDAV share is theft of private keys (T1552.004).",
+    "incident_id": "I08"
+  },
+  {
+    "title": "GptTmpl.inf read from NEWYORK sysvol by external hosts and GroupPolicy DataStore writes",
+    "technique": "T1552.006",
+    "in_scope": true,
+    "assessment": "suspicious",
+    "confidence": "medium",
+    "finding_ids": [
+      "F29"
+    ],
+    "rationale": "Reading the SYSVOL security-template GptTmpl.inf is Group Policy Preferences credential access (T1552.006).",
+    "incident_id": "I09"
+  },
+  {
+    "title": "hostui.exe elevated via runas from PowerShell on scranton",
+    "technique": "T1552.006",
+    "in_scope": true,
+    "assessment": "suspicious",
+    "confidence": "low",
+    "finding_ids": [
+      "F68"
+    ],
+    "rationale": "Elevation via runas from PowerShell; assessed under Group Policy Preferences (T1552.006) at low confidence.",
+    "incident_id": "I10"
+  },
+  {
+    "title": "Get-PrivateKeys certificate export treated as credential-store access on scranton",
+    "technique": "T1555",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F65"
+    ],
+    "rationale": "Same Get-PrivateKeys action; grouped separately as the credential-store access characterization (T1555).",
+    "incident_id": "I11"
+  },
+  {
+    "title": "Get-PrivateKeys .pfx export characterized as Windows Credential Manager access",
+    "technique": "T1555.004",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F57"
+    ],
+    "rationale": "Same Get-PrivateKeys action; the finding characterizes it as credential-store access (T1555.004).",
+    "incident_id": "I12"
+  },
+  {
+    "title": "sdclt.exe UAC-bypass pattern preceding Add-Type compile on scranton",
+    "technique": "T1556",
+    "in_scope": true,
+    "assessment": "suspicious",
+    "confidence": "low",
+    "finding_ids": [
+      "F67"
+    ],
+    "rationale": "sdclt.exe launches following HKCU Folder shell open command writes; assessed as Modify Authentication Process (T1556) at low confidence.",
+    "incident_id": "I13"
+  },
+  {
+    "title": "No SAML token forgery; certificate private keys exported for theft",
+    "technique": "T1606.002",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "medium",
+    "finding_ids": [
+      "F52"
+    ],
+    "rationale": "Finding explicitly reports no SAML token forging but the Get-PrivateKeys export; the observed action is certificate private-key theft, assessed under the SAML-token hypothesis as negative.",
+    "incident_id": "I14"
+  },
+  {
+    "title": "Certificate private-key export (Get-PrivateKeys) to .pfx on scranton",
+    "technique": "T1649",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F54",
+      "F62"
+    ],
+    "rationale": "Same Get-PrivateKeys action exporting LocalMachine certificate private keys to password-protected .pfx files; best fit is Steal or Forge Authentication Certificates (T1649).",
+    "incident_id": "I15"
+  }
+]

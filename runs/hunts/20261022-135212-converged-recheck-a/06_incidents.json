@@ -1,0 +1,120 @@
+[
+  {
+    "title": "LSASS memory access with full-access rights by hidden PowerShell on SCRANTON (and via WinRM on NASHUA)",
+    "technique": "T1003.001",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F01",
+      "F09",
+      "F12",
+      "F18",
+      "F19",
+      "F28",
+      "F31"
+    ],
+    "rationale": "All describe the same action: PowerShell.exe PID 2976 (pbeesly, spawned by control.exe stager) opened lsass.exe with 0x1F3FFF/0x1FFFFF and read process memory on scranton, with UNKNOWN call-trace frames; F19 is the same LSASS-access pattern via wsmprovhost.exe on nashua during the pbeesly remote session. Best fit is LSASS Memory (T1003.001).",
+    "incident_id": "I01"
+  },
+  {
+    "title": "SAM server full-access handle requests on SCRANTON",
+    "technique": "T1003.002",
+    "in_scope": true,
+    "assessment": "suspicious",
+    "confidence": "medium",
+    "finding_ids": [
+      "F55"
+    ],
+    "rationale": "4656 events show SAM_SERVER handles with 0xf003f requested by lsass.exe; consistent with Security Account Manager access, though brokered by lsass and not confirmed as dumping. Best fit T1003.002.",
+    "incident_id": "I02"
+  },
+  {
+    "title": "Screen-capture loop writing BMPs to Downloads on SCRANTON",
+    "technique": "T1056.002",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F06"
+    ],
+    "rationale": "Invoke-ScreenCapture loop capturing the desktop to BMP files is GUI input capture; best in-scope fit is GUI Input Capture (T1056.002).",
+    "incident_id": "I03"
+  },
+  {
+    "title": "Forced-authentication artifacts: Folder handler hijack and StartUp hostui.lnk on SCRANTON",
+    "technique": "T1187",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "medium",
+    "finding_ids": [
+      "F16",
+      "F57"
+    ],
+    "rationale": "Same action: PowerShell planted HKCU Folder\\shell\\open\\command hijack and StartUp hostui.lnk, and later launched hostui.exe. Forced Authentication (T1187) fits the handler-hijack/forced-auth mechanism.",
+    "incident_id": "I04"
+  },
+  {
+    "title": "accesschk.exe writing passwordsDB in SysinternalsSuite on SCRANTON",
+    "technique": "T1552",
+    "in_scope": true,
+    "assessment": "suspicious",
+    "confidence": "low",
+    "finding_ids": [
+      "F24"
+    ],
+    "rationale": "File named passwordsDB created by accesschk.exe in the malicious session; content unobserved, so unconfirmed credential store. Best fit Unsecured Credentials (T1552).",
+    "incident_id": "I05"
+  },
+  {
+    "title": "Credential-bearing file harvesting, archiving, and plaintext-password lateral use (SCRANTON to NASHUA)",
+    "technique": "T1552.001",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F23",
+      "F54",
+      "F56"
+    ],
+    "rationale": "Same action chain: enumeration of credential-named files and Compress-Archive/Rar staging on scranton and nashua, plus use of the plaintext domain password Fl0nk3rt0n!T0by with PsExec64. Credentials In Files (T1552.001) fits the observed credential collection from files.",
+    "incident_id": "I06"
+  },
+  {
+    "title": "Get-PrivateKeys export of LocalMachine certificate private keys to .pfx on SCRANTON",
+    "technique": "T1649",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F22",
+      "F51"
+    ],
+    "rationale": "Both describe the same Get-PrivateKeys script block exporting cert:\\LocalMachine certificates to password-protected .pfx files in Downloads and subsequent cleanup. Best fit is Steal or Forge Authentication Certificates (T1649).",
+    "incident_id": "I07"
+  },
+  {
+    "title": "Root certificate store Blob modification on NASHUA by Sysmon.exe",
+    "technique": "T1649",
+    "in_scope": true,
+    "assessment": "suspicious",
+    "confidence": "low",
+    "finding_ids": [
+      "F52"
+    ],
+    "rationale": "Single 4657 event modifying a ROOT certificate Blob; no corroborating theft. Best fit Steal or Forge Authentication Certificates (T1649).",
+    "incident_id": "I08"
+  },
+  {
+    "title": "Credential-access tooling staging and anti-forensic cleanup on SCRANTON and NASHUA",
+    "technique": "out-of-scope:T1070",
+    "in_scope": false,
+    "assessment": "malicious",
+    "confidence": "medium",
+    "finding_ids": [
+      "F02"
+    ],
+    "rationale": "Fake .scr staging, folder enumeration, and sdelete64 wiping of tooling/archives is defense evasion/indicator removal, not credential access; best ATT&CK fit is T1070.",
+    "incident_id": "I09"
+  }
+]

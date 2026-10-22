@@ -1,0 +1,214 @@
+[
+  {
+    "title": "LSASS memory access with full-access masks by attacker PowerShell on scranton and WMI/WinRM host on nashua",
+    "technique": "T1003.001",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F01",
+      "F16",
+      "F31",
+      "F55"
+    ],
+    "rationale": "All four findings describe the same LSASS handle opens: PowerShell.exe (PID 2976, pbeesly) on scranton with GrantedAccess 0x1f3fff/0x1fffff at 03:05:16Z and wsmprovhost.exe/python.exe on nashua with 0x1f3fff at 03:09:29Z. F16 and F31 are alternate interpretations of the same events; F55 adds the PsExec-pushed python.exe LSASS open and beacon. This is OS credential dumping from LSASS memory (T1003.001).",
+    "incident_id": "I01"
+  },
+  {
+    "title": "PowerShell keystroke logger and clipboard capture on scranton",
+    "technique": "T1056.001",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F59"
+    ],
+    "rationale": "pbeesly ran Get-Keystrokes (job 'Keystrokes') and Get-Clipboard on scranton — keylogging (T1056.001).",
+    "incident_id": "I02"
+  },
+  {
+    "title": "WebDAV forced authentication from scranton followed by SMB/ADMIN$ credential use against nashua and newyork",
+    "technique": "T1187",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F20"
+    ],
+    "rationale": "scranton (10.0.1.4) probed SMB then pivoted to WebDAV against 192.168.0.4 using DavClnt/MiniRedir user agents, followed by ADMIN$ access to nashua as pbeesly and SCRANTON$ activity on newyork — forced authentication to capture/relay credentials (T1187).",
+    "incident_id": "I03"
+  },
+  {
+    "title": "Steganographic hidden PowerShell stager (control.exe parent) that opened LSASS on scranton",
+    "technique": "T1212",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F09",
+      "F22"
+    ],
+    "rationale": "Both findings describe the same process entity: the hidden, execution-policy-bypassing PowerShell (PID 2976) spawned by control.exe that decoded monkey.png and IEX'd the payload, then opened LSASS with full access. The credential-access action is exploitation/execution of the stager enabling credential access (T1212).",
+    "incident_id": "I04"
+  },
+  {
+    "title": "WMI remote-exec host opened LSASS on nashua",
+    "technique": "T1212",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "medium",
+    "finding_ids": [
+      "F23"
+    ],
+    "rationale": "wsmprovhost.exe (pbeesly) created via WMI/WinRM remote execution opened lsass.exe with 0x1F3FFF on nashua; the credential-access action is exploitation of the remote-execution channel to reach LSASS (T1212).",
+    "incident_id": "I05"
+  },
+  {
+    "title": "accesschk.exe credential reconnaissance creating passwordsDB and querying LSA registry key on scranton",
+    "technique": "T1552",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F27",
+      "F61"
+    ],
+    "rationale": "Both findings describe the same accesschk.exe execution by pbeesly that created passwordsDB and queried HKLM\\SYSTEM\\ControlSet001\\Control\\Lsa — credential hunting for unsecured credentials on the host (T1552).",
+    "incident_id": "I06"
+  },
+  {
+    "title": "Plaintext password on PsExec64 command line used against NASHUA",
+    "technique": "T1552.001",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F28",
+      "F56"
+    ],
+    "rationale": "Both findings describe the same PsExec64 invocations with -u dmevals\\pbeesly -p Fl0nk3rt0n!T0by in cleartext on the command line and in script blocks, producing 4648 logons on nashua — credentials in files/command lines (T1552.001).",
+    "incident_id": "I07"
+  },
+  {
+    "title": "Credential-named file collection and password-protected archive on nashua",
+    "technique": "T1552.001",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F58"
+    ],
+    "rationale": "PowerShell collected *pass*,*login*,*admin*,*vpn* files into working.zip and Rar.exe re-archived with a password, then sdelete64 wiped artifacts — searching for credentials in files (T1552.001).",
+    "incident_id": "I08"
+  },
+  {
+    "title": "PowerShell opened Microsoft Edge browser processes with full access on scranton",
+    "technique": "T1555.003",
+    "in_scope": true,
+    "assessment": "suspicious",
+    "confidence": "medium",
+    "finding_ids": [
+      "F25"
+    ],
+    "rationale": "PowerShell (PID 2976) opened MicrosoftEdge.exe and its subprocesses with 0x1FFFFF during the intrusion, consistent with extracting credentials from the web browser (T1555.003).",
+    "incident_id": "I09"
+  },
+  {
+    "title": "Browser processes opened with full access on nashua",
+    "technique": "T1555.003",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "medium",
+    "finding_ids": [
+      "F57"
+    ],
+    "rationale": "wsmprovhost (pbeesly) opened MicrosoftEdge.exe and MicrosoftEdgeCP.exe with 0x1f3fff on nashua, consistent with extracting credentials from the web browser (T1555.003).",
+    "incident_id": "I10"
+  },
+  {
+    "title": "Kerberos ticket requests for krbtgt alongside LSASS access on scranton",
+    "technique": "T1558",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F44"
+    ],
+    "rationale": "Full-access LSASS handles plus 4769 ticket requests for krbtgt from pbeesly on the DC indicate Kerberos ticket theft/forgery activity (T1558).",
+    "incident_id": "I11"
+  },
+  {
+    "title": "No SAML token forgery observed; certificate export is closest precursor",
+    "technique": "T1606.002",
+    "in_scope": true,
+    "assessment": "suspicious",
+    "confidence": "medium",
+    "finding_ids": [
+      "F51"
+    ],
+    "rationale": "No SAML assertion or token artifacts were found; the only related activity is the private-key/certificate export, which is a precursor to forging SAML tokens (T1606.002).",
+    "incident_id": "I12"
+  },
+  {
+    "title": "Certificate/private-key export via Get-PrivateKeys on scranton",
+    "technique": "T1649",
+    "in_scope": true,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F49",
+      "F53",
+      "F60"
+    ],
+    "rationale": "All three findings describe the same Get-PrivateKeys execution that enumerated cert:\\LocalMachine and exported certificates with private keys to password-protected .pfx files (coyn5igj.3io.pfx), with F60 adding exfil staging — stealing authentication certificates (T1649).",
+    "incident_id": "I13"
+  },
+  {
+    "title": "In-memory DLL compilation via csc.exe on scranton",
+    "technique": "out-of-scope:T1027",
+    "in_scope": false,
+    "assessment": "malicious",
+    "confidence": "medium",
+    "finding_ids": [
+      "F63"
+    ],
+    "rationale": "PowerShell invoked csc.exe to compile DLLs in the user Temp directory — this is obfuscated/compiled payload execution (T1027), not credential access.",
+    "incident_id": "I14"
+  },
+  {
+    "title": "Masqueraded .scr stager in ProgramData\\victim on scranton",
+    "technique": "out-of-scope:T1204",
+    "in_scope": false,
+    "assessment": "malicious",
+    "confidence": "high",
+    "finding_ids": [
+      "F62"
+    ],
+    "rationale": "A masqueraded .scr launched from explorer spawned cmd/powershell to start the intrusion — this is execution/user execution (T1204), not credential access.",
+    "incident_id": "I15"
+  },
+  {
+    "title": "hostui.exe launched with -verb runas for elevation on scranton",
+    "technique": "out-of-scope:T1548",
+    "in_scope": false,
+    "assessment": "suspicious",
+    "confidence": "medium",
+    "finding_ids": [
+      "F64"
+    ],
+    "rationale": "PowerShell launched hostui.exe with -verb runas to force a UAC elevation prompt — privilege escalation (T1548), not credential access.",
+    "incident_id": "I16"
+  },
+  {
+    "title": "sdclt.exe spawned by cmd on scranton",
+    "technique": "out-of-scope:T1548",
+    "in_scope": false,
+    "assessment": "suspicious",
+    "confidence": "low",
+    "finding_ids": [
+      "F65"
+    ],
+    "rationale": "sdclt.exe, a known UAC-bypass binary, was spawned by cmd during the intrusion — privilege escalation/UAC bypass (T1548), not credential access.",
+    "incident_id": "I17"
+  }
+]

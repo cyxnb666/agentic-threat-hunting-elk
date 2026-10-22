@@ -1,0 +1,180 @@
+
+=== reset project data (data streams, generated templates, registry, dropzone) ===
+$ C:\Users\yaoxi\Downloads\project\.venv\Scripts\python.exe -m hunt reset --yes
+deleted data stream logs-windows.other-default
+deleted data stream logs-windows.powershell-default
+deleted data stream logs-windows.security-default
+deleted data stream logs-windows.sysmon-default
+deleted data stream logs-zeek-default
+deleted generated template windows-other
+deleted generated template zeek
+deleted generated template windows-powershell
+registry cleared
+dropzone cleared
+logstash sincedb cleared and logstash restarted
+--- exit 0 after 8 s
+
+=== remove containers and volumes ===
+$ docker compose down -v
+ Container agentic-hunt-logstash-1 Stopping 
+ Container agentic-hunt-kibana-1 Stopping 
+ Container agentic-hunt-logstash-1 Stopped 
+ Container agentic-hunt-logstash-1 Removing 
+ Container agentic-hunt-logstash-1 Removed 
+ Container agentic-hunt-kibana-1 Stopped 
+ Container agentic-hunt-kibana-1 Removing 
+ Container agentic-hunt-kibana-1 Removed 
+ Container agentic-hunt-setup-1 Stopping 
+ Container agentic-hunt-setup-1 Stopped 
+ Container agentic-hunt-setup-1 Removing 
+ Container agentic-hunt-setup-1 Removed 
+ Container agentic-hunt-es01-1 Stopping 
+ Container agentic-hunt-es01-1 Stopped 
+ Container agentic-hunt-es01-1 Removing 
+ Container agentic-hunt-es01-1 Removed 
+ Container agentic-hunt-certs-1 Stopping 
+ Container agentic-hunt-certs-1 Stopped 
+ Container agentic-hunt-certs-1 Removing 
+ Container agentic-hunt-certs-1 Removed 
+ Volume agentic-hunt_esdata01 Removing 
+ Volume agentic-hunt_kibanadata Removing 
+ Volume agentic-hunt_certs Removing 
+ Network agentic-hunt_default Removing 
+ Volume agentic-hunt_kibanadata Removed 
+ Volume agentic-hunt_lsdata Removing 
+ Volume agentic-hunt_esdata01 Removed 
+ Volume agentic-hunt_certs Removed 
+ Volume agentic-hunt_lsdata Removed 
+ Network agentic-hunt_default Removed 
+--- exit 0 after 4 s
+
+=== start the stack ===
+$ docker compose up -d
+ Network agentic-hunt_default Creating 
+ Volume agentic-hunt_esdata01 Creating 
+ Volume agentic-hunt_esdata01 Creating 
+ Volume agentic-hunt_lsdata Creating 
+ Volume agentic-hunt_kibanadata Creating 
+ Volume agentic-hunt_kibanadata Creating 
+ Network agentic-hunt_default Creating 
+ Volume agentic-hunt_lsdata Creating 
+ Volume agentic-hunt_certs Creating 
+ Volume agentic-hunt_certs Creating 
+ Volume agentic-hunt_esdata01 Created 
+ Volume agentic-hunt_esdata01 Created 
+ Volume agentic-hunt_kibanadata Created 
+ Volume agentic-hunt_kibanadata Created 
+ Volume agentic-hunt_lsdata Created 
+ Volume agentic-hunt_lsdata Created 
+ Volume agentic-hunt_certs Created 
+ Volume agentic-hunt_certs Created 
+ Network agentic-hunt_default Created 
+ Network agentic-hunt_default Created 
+ Container agentic-hunt-certs-1 Creating 
+ Container agentic-hunt-certs-1 Created 
+ Container agentic-hunt-es01-1 Creating 
+ Container agentic-hunt-es01-1 Created 
+ Container agentic-hunt-setup-1 Creating 
+ Container agentic-hunt-setup-1 Created 
+ Container agentic-hunt-logstash-1 Creating 
+ Container agentic-hunt-kibana-1 Creating 
+ Container agentic-hunt-kibana-1 Created 
+ Container agentic-hunt-logstash-1 Created 
+ Container agentic-hunt-certs-1 Starting 
+ Container agentic-hunt-certs-1 Started 
+ Container agentic-hunt-certs-1 Waiting 
+ Container agentic-hunt-certs-1 Exited 
+ Container agentic-hunt-es01-1 Starting 
+ Container agentic-hunt-es01-1 Started 
+ Container agentic-hunt-es01-1 Waiting 
+ Container agentic-hunt-es01-1 Healthy 
+ Container agentic-hunt-setup-1 Starting 
+ Container agentic-hunt-setup-1 Started 
+ Container agentic-hunt-setup-1 Waiting 
+ Container agentic-hunt-setup-1 Waiting 
+ Container agentic-hunt-setup-1 Exited 
+ Container agentic-hunt-logstash-1 Starting 
+ Container agentic-hunt-setup-1 Exited 
+ Container agentic-hunt-kibana-1 Starting 
+ Container agentic-hunt-logstash-1 Started 
+ Container agentic-hunt-kibana-1 Started 
+--- exit 0 after 25 s
+healthy: {'es01': 'healthy', 'kibana': 'healthy', 'logstash': 'healthy'}
+
+=== export CA certificate ===
+$ docker compose cp es01:/usr/share/elasticsearch/config/certs/ca/ca.crt elk/certs/ca.crt
+ agentic-hunt-es01-1 Copying agentic-hunt-es01-1:/usr/share/elasticsearch/config/certs/ca/ca.crt to elk/certs/ca.crt
+ agentic-hunt-es01-1 Copied agentic-hunt-es01-1:/usr/share/elasticsearch/config/certs/ca/ca.crt to elk/certs/ca.crt
+--- exit 0 after 0 s
+
+=== stack checks ===
+$ C:\Users\yaoxi\Downloads\project\.venv\Scripts\python.exe scripts/verify_stack.py --pre-ingest
+PASS  TLS rejects clients without our CA  (SSLCertVerificationError)
+PASS  anonymous request rejected  (HTTP 401)
+PASS  Elasticsearch version is 9.5.5  (HTTP 200, version 9.5.5)
+PASS  cluster health green or yellow  (status=green)
+INFO  Elasticsearch heap max = 2.00 GiB
+PASS  logstash_internal authenticates with role logstash_writer  (roles=['logstash_writer'])
+PASS  logstash_internal is denied search on logs-*  (HTTP 403)
+PASS  logstash_internal is denied user management  (HTTP 403)
+SKIP  Logstash delivered events into parsed data streams  (--pre-ingest)
+PASS  Kibana overall status available  (HTTP 200, level=available)
+PASS  all published ports bind to 127.0.0.1  ([('127.0.0.1', 9200), ('127.0.0.1', 5601), ('127.0.0.1', 5514), ('127.0.0.1', 5514), ('127.0.0.1', 8080)])
+
+9/9 checks passed
+--- exit 0 after 21 s
+
+=== install parsing templates ===
+$ C:\Users\yaoxi\Downloads\project\.venv\Scripts\python.exe -m hunt templates install
+installed hunt-tpl-windows-security (builtin, dataset windows.security)
+installed hunt-tpl-windows-sysmon (builtin, dataset windows.sysmon)
+  windows-security             builtin   dataset=windows.security       match={"format": "json", "required_keys": ["Channel", "EventID", "Hostname", "EventTime"], "equals": {"Channel": ["Security", "security"]}}
+  windows-sysmon               builtin   dataset=windows.sysmon         match={"format": "json", "required_keys": ["Channel", "EventID", "Hostname", "EventTime"], "equals": {"Channel": ["Microsoft-Windows-Sysmon/Operational"]}}
+--- exit 0 after 3 s
+
+=== ingest all sources ===
+$ C:\Users\yaoxi\Downloads\project\.venv\Scripts\python.exe scripts/ingest_all.py
+apt29-sysmon           pull   records= 143884 parsed= 143884 errors=0 {'decision': 'reused', 'template': 'windows-sysmon', 'dataset': 'windows.sysmon', 'reason': 'All 200 sampled r
+apt29-security         push   records=  41002 parsed=  41002 errors=0 {'decision': 'reused', 'template': 'windows-security', 'dataset': 'windows.security', 'reason': 'All 200 sampl
+apt29-windows-other    push   records=    216 parsed=    216 errors=0 {'decision': 'created', 'template': 'windows-other', 'dataset': 'windows.other', 'reason': 'No existing templa
+apt29-powershell       stream records=  10979 parsed=  10979 errors=0 {'decision': 'created', 'template': 'windows-powershell', 'dataset': 'windows.powershell', 'reason': 'No exist
+zeek-scranton          pull   records=    415 parsed=    415 errors=0 {'decision': 'created', 'template': 'zeek', 'dataset': 'zeek', 'reason': "New Zeek JSON source (183 records, @
+zeek-nashua            pull   records=   1725 parsed=   1725 errors=0 {'decision': 'reused', 'template': 'zeek', 'dataset': 'zeek', 'reason': "All 193 sampled records are Zeek JSON
+--- exit 0 after 221 s
+
+=== Kibana data views ===
+$ C:\Users\yaoxi\Downloads\project\.venv\Scripts\python.exe scripts/kibana_dataviews.py
+created  Hunt: all parsed logs (logs-*,-logs-hunt.unparsed-*)
+created  Hunt: Windows Sysmon (logs-windows.sysmon-*)
+created  Hunt: Windows Security (logs-windows.security-*)
+created  Hunt: Windows PowerShell (logs-windows.powershell-*)
+created  Hunt: other Windows channels (logs-windows.other-*)
+created  Hunt: Zeek (logs-zeek-*)
+created  Hunt: unparsed backlog (logs-hunt.unparsed-*)
+--- exit 0 after 22 s
+
+=== full verification ===
+$ C:\Users\yaoxi\Downloads\project\.venv\Scripts\python.exe scripts/verify_all.py
+PASS  stack checks (scripts/verify_stack.py)  (10/10 checks passed)
+PASS  source apt29-sysmon: 143884 records parsed, no pipeline errors  ({"parsed": 143884, "pipeline_errors": 0, "first_event": "2020-05-02T02:55:23.551Z", "last_event": "2020-05-02T03:28:17.683Z"})
+PASS  source apt29-security: 41002 records parsed, no pipeline errors  ({"parsed": 41002, "pipeline_errors": 0, "first_event": "2020-05-02T02:55:25.000Z", "last_event": "2020-05-02T03:28:09.000Z"})
+PASS  source apt29-windows-other: 216 records parsed, no pipeline errors  ({"parsed": 216, "pipeline_errors": 0, "first_event": "2020-05-02T02:56:47.000Z", "last_event": "2020-05-02T03:23:08.000Z"})
+PASS  source apt29-powershell: 10979 records parsed, no pipeline errors  ({"parsed": 10979, "pipeline_errors": 0, "first_event": "2020-05-02T02:56:14.000Z", "last_event": "2020-05-02T03:21:30.000Z"})
+PASS  source zeek-scranton: 415 records parsed, no pipeline errors  ({"parsed": 415, "pipeline_errors": 0, "first_event": "2020-04-30T00:06:38.899Z", "last_event": "2020-04-30T00:45:00.760Z"})
+PASS  source zeek-nashua: 1725 records parsed, no pipeline errors  ({"parsed": 1725, "pipeline_errors": 0, "first_event": "2020-04-30T00:06:39.824Z", "last_event": "2020-04-30T00:45:00.042Z"})
+PASS  unparsed backlog empty  ({})
+PASS  logstash pipelines pull/push/stream running  (['pull', 'push', 'stream'])
+PASS  registry apt29-powershell -> template windows-powershell installed and saved
+PASS  registry apt29-security -> template windows-security installed and saved
+PASS  registry apt29-sysmon -> template windows-sysmon installed and saved
+PASS  registry apt29-windows-other -> template windows-other installed and saved
+PASS  registry zeek-nashua -> template zeek installed and saved
+PASS  registry zeek-scranton -> template zeek installed and saved
+PASS  MCP server over stdio: 9 tools listed and exercised  (tools: ['list_data_sources', 'get_fields', 'search', 'count', 'aggregate', 'timeline', 'esql', 'get_event', 'get_registry'])
+PASS  unit tests  (26 passed in 1.81s)
+
+17/17 checks passed
+--- exit 0 after 45 s
+
+REBUILD OK
+exit=0

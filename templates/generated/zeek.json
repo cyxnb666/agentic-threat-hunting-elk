@@ -3,7 +3,7 @@
   "version": 1,
   "origin": "generated",
   "dataset": "zeek",
-  "description": "Zeek (Bro) JSON logs pulled from a sensor, all log streams (conn, dns, http, files, ssl, dhcp, notice, ...). Keeps every original field under zeek.*, maps the common ones to ECS. The sensor is the observer, not the host.",
+  "description": "Zeek JSON logs (conn, http, dns, files, smb_files, pe, ...) pulled from a Zeek sensor. Keeps every original field under zeek.*, maps the common ones to ECS. The sensor (@system) is the observer, not the host.",
   "match": {
     "format": "json",
     "required_keys": [
@@ -67,7 +67,7 @@
     {
       "set": {
         "field": "observer.type",
-        "value": "sensor"
+        "value": "ids"
       }
     },
     {
@@ -152,43 +152,6 @@
     },
     {
       "set": {
-        "field": "source.bytes",
-        "copy_from": "zeek.orig_bytes",
-        "if": "ctx.zeek?.orig_bytes != null"
-      }
-    },
-    {
-      "convert": {
-        "field": "source.bytes",
-        "type": "long",
-        "ignore_missing": true,
-        "ignore_failure": true
-      }
-    },
-    {
-      "set": {
-        "field": "destination.bytes",
-        "copy_from": "zeek.resp_bytes",
-        "if": "ctx.zeek?.resp_bytes != null"
-      }
-    },
-    {
-      "convert": {
-        "field": "destination.bytes",
-        "type": "long",
-        "ignore_missing": true,
-        "ignore_failure": true
-      }
-    },
-    {
-      "set": {
-        "field": "network.community_id",
-        "copy_from": "zeek.community_id",
-        "if": "ctx.zeek?.community_id != null"
-      }
-    },
-    {
-      "set": {
         "field": "dns.question.name",
         "copy_from": "zeek.query",
         "if": "ctx.zeek?.query != null"
@@ -254,8 +217,8 @@
     {
       "set": {
         "field": "file.path",
-        "copy_from": "zeek.filename",
-        "if": "ctx.zeek?.filename != null"
+        "copy_from": "zeek.name",
+        "if": "ctx.zeek?.name != null"
       }
     },
     {
@@ -289,65 +252,15 @@
     },
     {
       "set": {
-        "field": "tls.client.ja3",
-        "copy_from": "zeek.ja3",
-        "if": "ctx.zeek?.ja3 != null"
-      }
-    },
-    {
-      "set": {
-        "field": "tls.server.ja3s",
-        "copy_from": "zeek.ja3s",
-        "if": "ctx.zeek?.ja3s != null"
-      }
-    },
-    {
-      "set": {
-        "field": "tls.server.subject",
-        "copy_from": "zeek.subject",
-        "if": "ctx.zeek?.subject != null"
-      }
-    },
-    {
-      "set": {
-        "field": "tls.server.issuer",
-        "copy_from": "zeek.issuer",
-        "if": "ctx.zeek?.issuer != null"
-      }
-    },
-    {
-      "set": {
-        "field": "event.code",
-        "copy_from": "zeek.note",
-        "if": "ctx.zeek?.note != null"
+        "field": "file.mime_type",
+        "copy_from": "zeek.mime_type",
+        "if": "ctx.zeek?.mime_type != null"
       }
     },
     {
       "set": {
         "field": "message",
-        "copy_from": "zeek.msg",
-        "if": "ctx.zeek?.msg != null"
-      }
-    },
-    {
-      "set": {
-        "field": "message",
-        "copy_from": "zeek.query",
-        "if": "ctx.zeek?.msg == null && ctx.zeek?.query != null"
-      }
-    },
-    {
-      "set": {
-        "field": "message",
-        "copy_from": "zeek.uri",
-        "if": "ctx.zeek?.msg == null && ctx.zeek?.query == null && ctx.zeek?.uri != null"
-      }
-    },
-    {
-      "set": {
-        "field": "message",
-        "copy_from": "zeek.filename",
-        "if": "ctx.zeek?.msg == null && ctx.zeek?.query == null && ctx.zeek?.uri == null && ctx.zeek?.filename != null"
+        "value": "Zeek {{zeek.@stream}} log from {{zeek.@system}}"
       }
     },
     {
@@ -357,11 +270,11 @@
       }
     }
   ],
-  "created_at": "2026-10-20T12:27:40+00:00",
+  "created_at": "2026-10-22T05:50:16+00:00",
   "created_by": "onboarding agent (deepseek-flash) for source zeek-scranton",
   "validation": {
-    "records": 181,
-    "records_ok": 181,
+    "records": 183,
+    "records_ok": 183,
     "source_id": "zeek-scranton"
   }
 }

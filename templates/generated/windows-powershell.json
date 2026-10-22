@@ -58,8 +58,7 @@
     {
       "set": {
         "field": "event.code",
-        "copy_from": "win.EventID",
-        "if": "ctx.win?.EventID != null"
+        "copy_from": "win.EventID"
       }
     },
     {
@@ -144,17 +143,16 @@
     },
     {
       "set": {
-        "field": "process.thread.id",
-        "copy_from": "win.ThreadID",
-        "if": "ctx.win?.ThreadID != null"
+        "field": "process.executable",
+        "copy_from": "win.ImagePath",
+        "if": "ctx.win?.ImagePath != null"
       }
     },
     {
-      "convert": {
-        "field": "process.thread.id",
-        "type": "long",
-        "ignore_missing": true,
-        "ignore_failure": true
+      "set": {
+        "field": "file.path",
+        "copy_from": "win.ImagePath",
+        "if": "ctx.win?.ImagePath != null"
       }
     },
     {
@@ -171,11 +169,11 @@
       }
     }
   ],
-  "created_at": "2026-10-20T12:27:03+00:00",
+  "created_at": "2026-10-22T05:49:38+00:00",
   "created_by": "onboarding agent (deepseek-flash) for source apt29-powershell",
   "validation": {
-    "records": 194,
-    "records_ok": 194,
+    "records": 197,
+    "records_ok": 197,
     "source_id": "apt29-powershell"
   }
 }
