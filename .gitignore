@@ -13,7 +13,7 @@ data/
 # copies of the sources delivered through the pull channel
 dropzone/*
 !dropzone/.gitkeep
-# full LLM transcripts are large (~70 MB); reports, plans, results and MCP audit logs are kept
+# full LLM transcripts are too large for the repository; reports, plans, results and MCP audit logs are kept
 runs/**/llm_calls.jsonl
 runs/**/mcp_server.log
 

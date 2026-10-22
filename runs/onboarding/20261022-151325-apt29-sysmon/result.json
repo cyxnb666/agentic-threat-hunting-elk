@@ -1,0 +1,74 @@
+{
+  "source_id": "apt29-sysmon",
+  "channel": "pull",
+  "sample_records": 200,
+  "outcome": {
+    "decision": "reused",
+    "template": "windows-sysmon",
+    "dataset": "windows.sysmon",
+    "reason": "All 200 sampled records are NXLog im_msvistalog exports from Channel Microsoft-Windows-Sysmon/Operational (SourceName Microsoft-Windows-Sysmon), matching the builtin windows-sysmon template at ratio 1.0. test_template passed on all 200 records: @timestamp parsed from UtcTime (UTC), host.name from Hostname, event.module=sysmon, event.dataset=windows.sysmon, event.original preserved, hunt.template set, no processor failures. No new template needed.",
+    "validation": {
+      "records": 200,
+      "records_ok": 200,
+      "match_ratio": 1.0
+    }
+  },
+  "created_templates": [],
+  "tool_trace": [
+    {
+      "step": 1,
+      "tool": "inspect_sample",
+      "args": {},
+      "result_summary": {
+        "records": 200
+      }
+    },
+    {
+      "step": 1,
+      "tool": "list_templates",
+      "args": {},
+      "result_summary": "list of 2"
+    },
+    {
+      "step": 2,
+      "tool": "get_template",
+      "args": {
+        "name": "windows-sysmon"
+      },
+      "result_summary": {}
+    },
+    {
+      "step": 2,
+      "tool": "test_template",
+      "args": {
+        "name": "windows-sysmon"
+      },
+      "result_summary": {
+        "passed": true,
+        "records": 200,
+        "records_ok": 200,
+        "match_ratio": 1.0,
+        "failure_counts": {}
+      }
+    },
+    {
+      "step": 3,
+      "tool": "register_source",
+      "args": {
+        "template": "windows-sysmon",
+        "reason": "All 200 sampled records are NXLog im_msvistalog exports from Channel Microsoft-Windows-Sysmon/Operational (SourceName Microsoft-Windows-Sysmon), matching the builtin windows-sysmon template at ratio 1.0. test_template passed on all 200 records: @timestamp parsed from UtcTime (UTC), host.name from Hostname, event.module=sysmon, event.dataset=windows.sysmon, event.original preserved, hunt.template set, no processor failures. No new template needed."
+      },
+      "result_summary": {
+        "registered": true,
+        "decision": "reused",
+        "template": "windows-sysmon"
+      }
+    }
+  ],
+  "llm_calls": 3,
+  "llm_tokens": {
+    "prompt": 12516,
+    "completion": 358
+  },
+  "model": "deepseek-flash"
+}
