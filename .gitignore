@@ -18,7 +18,9 @@ runs/
 # templates the onboarding agent creates at run time; every rebuild deletes them and the agent creates them again
 templates/generated/*
 !templates/generated/.gitkeep
-# the registry files stay in git as empty {}: Logstash reads them at startup; the onboarding agent fills them
+# source registry, filled by the onboarding agent; the setup container creates empty files on a fresh checkout
+registry/*
+!registry/.gitkeep
 
 # Editor / OS
 .vscode/

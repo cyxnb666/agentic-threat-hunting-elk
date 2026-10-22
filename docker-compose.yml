@@ -1,12 +1,13 @@
 # Single-node Elastic Stack (Elasticsearch + Kibana + Logstash) with TLS on HTTP and transport.
 # Base: the official Elastic docker-compose example
 #   https://github.com/elastic/elasticsearch/blob/main/docs/reference/setup/install/docker/docker-compose.yml
-# Changes from the official file (each one is recorded in the project log):
+# Changes from the official file:
 #   - 3 Elasticsearch nodes -> 1 node (discovery.type=single-node)
 #   - the one-shot "setup" service is split in two: "certs" (runs before es01) and "setup" (runs after es01 is
 #     healthy). The official single service relies on a healthcheck of a container that exits; on a re-run
 #     it exits before Compose sees it healthy and dependants fail with "dependency failed to start".
 #   - added a Logstash service that writes to Elasticsearch as a least-privilege user over TLS
+#   - "setup" also creates empty source-registry files (./registry) when they are missing
 #   - every published port is bound to 127.0.0.1 (values come from .env)
 #   - obsolete top-level "version" key removed (Compose v2 ignores it)
 
@@ -27,6 +28,8 @@ services:
     volumes:
       - certs:/usr/share/elasticsearch/config/certs
       - ./elk/setup/setup.sh:/usr/share/elasticsearch/setup.sh:ro
+      # creates the empty source-registry files on a fresh checkout (Logstash cannot start without them)
+      - ./registry:/registry
     user: "0"
     environment:
       - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}

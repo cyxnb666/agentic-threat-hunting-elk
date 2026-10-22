@@ -11,6 +11,14 @@ for v in ELASTIC_PASSWORD KIBANA_PASSWORD LOGSTASH_WRITER_PASSWORD HUNT_AGENT_PA
   if [ -z "${!v:-}" ]; then echo "Set $v in .env (run scripts/init-env.ps1)"; exit 1; fi
 done
 
+# Source registry (./registry, written by the onboarding agent, not in git). Logstash's translate filter refuses to
+# start a pipeline whose dictionary file is missing ("File does not exist or cannot be opened", checked 2026-10-22
+# with logstash 9.5.5), and Logstash starts only after this container. Missing files are created empty; existing
+# ones are left as they are.
+for f in sources.json sources_meta.json; do
+  if [ ! -f "/registry/$f" ]; then echo '{}' > "/registry/$f"; echo "Created empty registry/$f"; fi
+done
+
 CA=config/certs/ca/ca.crt
 ES=https://es01:9200
 

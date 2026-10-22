@@ -24,7 +24,7 @@ Step-by-step instructions: [docs/usage.md](docs/usage.md).
 | `hunt/onboarding.py`, `hunt/templates.py`, `hunt/registry.py` | onboarding agent, template library + validation contract, source registry |
 | `templates/builtin` | parsing templates written by hand (Sysmon, Windows Security) |
 | `templates/generated` | parsing templates the onboarding agent creates at run time (empty in git) |
-| `registry/` | which template each source uses, written by the onboarding agent and read by Logstash (empty in git) |
+| `registry/` | which template each source uses, written by the onboarding agent and read by Logstash (not in git; `docker compose up` creates empty files) |
 | `dropzone/` | drop folder of the pull channel |
 | `hunt/mcp_server.py` | MCP server: list_data_sources, get_fields, search, count, aggregate, timeline, esql, get_event, get_registry |
 | `hunt/hunting.py`, `hunt/report.py` | hunt agent (scope, frame, plan, execute, investigate, verify, verdict) and report writer |
