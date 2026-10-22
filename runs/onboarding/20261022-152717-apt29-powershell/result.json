@@ -1,0 +1,279 @@
+{
+  "source_id": "apt29-powershell",
+  "channel": "stream",
+  "sample_records": 195,
+  "outcome": {
+    "decision": "created",
+    "template": "windows-powershell",
+    "dataset": "windows.powershell",
+    "reason": "New NXLog-exported Windows PowerShell records (channels \"Windows PowerShell\" and \"Microsoft-Windows-PowerShell/Operational\", EventIDs 600/800/4103/4104/40961/40962/53504). No existing template matched (all 0.0); created windows-powershell which parses EventTime as UTC-4, keeps originals under win.*, maps host.name, event.code/provider, process.pid, user.*, and PowerShell script block fields. Validated 195/195 records.",
+    "validation": {
+      "records": 195,
+      "records_ok": 195,
+      "match_ratio": 1.0
+    }
+  },
+  "created_templates": [
+    "windows-powershell"
+  ],
+  "tool_trace": [
+    {
+      "step": 1,
+      "tool": "inspect_sample",
+      "args": {},
+      "result_summary": {
+        "records": 195
+      }
+    },
+    {
+      "step": 1,
+      "tool": "list_templates",
+      "args": {},
+      "result_summary": "list of 3"
+    },
+    {
+      "step": 2,
+      "tool": "get_template",
+      "args": {
+        "name": "windows-other"
+      },
+      "result_summary": {}
+    },
+    {
+      "step": 3,
+      "tool": "create_template",
+      "args": {
+        "name": "windows-powershell",
+        "dataset": "windows.powershell",
+        "description": "Windows PowerShell event log records (Windows PowerShell and Microsoft-Windows-PowerShell/Operational channels) exported as flat NXLog JSON (im_msvistalog). Keeps every original field under win.*, maps the common ones to ECS.",
+        "match": {
+          "format": "json",
+          "required_keys": [
+            "Channel",
+            "EventID",
+            "Hostname",
+            "EventTime"
+          ],
+          "equals": {
+            "Channel": [
+              "Windows PowerShell",
+              "Microsoft-Windows-PowerShell/Operational"
+            ]
+          }
+        },
+        "processors": [
+          {
+            "json": {
+              "field": "message",
+              "target_field": "win"
+            }
+          },
+          {
+            "date": {
+              "field": "win.EventTime",
+              "target_field": "@timestamp",
+              "formats": [
+                "yyyy-MM-dd HH:mm:ss"
+              ],
+              "timezone": "-04:00",
+              "if": "ctx.win?.EventTime != null"
+            }
+          },
+          {
+            "set": {
+              "field": "event.kind",
+              "value": "event"
+            }
+          },
+          {
+            "set": {
+              "field": "event.module",
+              "value": "windows"
+            }
+          },
+          {
+            "set": {
+              "field": "event.dataset",
+              "value": "windows.powershell"
+            }
+          },
+          {
+            "set": {
+              "field": "event.code",
+              "copy_from": "win.EventID"
+            }
+          },
+          {
+            "set": {
+              "field": "event.provider",
+              "copy_from": "win.SourceName",
+              "if": "ctx.win?.SourceName != null"
+            }
+          },
+          {
+            "set": {
+              "field": "host.name",
+              "copy_from": "win.Hostname"
+            }
+          },
+          {
+            "lowercase": {
+              "field": "host.name"
+            }
+          },
+          {
+            "set": {
+              "field": "winlog.channel",
+              "copy_from": "win.Channel"
+            }
+          },
+          {
+            "set": {
+              "field": "winlog.computer_name",
+              "copy_from": "win.Hostname"
+            }
+          },
+          {
+            "set": {
+              "field": "winlog.record_id",
+              "copy_from": "win.RecordNumber",
+              "if": "ctx.win?.RecordNumber != null"
+            }
+          },
+          {
+            "set": {
+              "field": "message",
+              "copy_from": "win.Message",
+              "if": "ctx.win?.Message != null"
+            }
+          },
+          {
+            "set": {
+              "field": "user.name",
+              "copy_from": "win.AccountName",
+              "if": "ctx.win?.AccountName != null"
+            }
+          },
+          {
+            "set": {
+              "field": "user.domain",
+              "copy_from": "win.Domain",
+              "if": "ctx.win?.Domain != null"
+            }
+          },
+          {
+            "set": {
+              "field": "user.id",
+              "copy_from": "win.UserID",
+              "if": "ctx.win?.UserID != null"
+            }
+          },
+          {
+            "set": {
+              "field": "process.pid",
+              "copy_from": "win.ExecutionProcessID",
+              "if": "ctx.win?.ExecutionProcessID != null"
+            }
+          },
+          {
+            "convert": {
+              "field": "process.pid",
+              "type": "long",
+              "ignore_missing": true,
+              "ignore_failure": true
+            }
+          },
+          {
+            "set": {
+              "field": "process.thread.id",
+              "copy_from": "win.ThreadID",
+              "if": "ctx.win?.ThreadID != null"
+            }
+          },
+          {
+            "convert": {
+              "field": "process.thread.id",
+              "type": "long",
+              "ignore_missing": true,
+              "ignore_failure": true
+            }
+          },
+          {
+            "set": {
+              "field": "process.executable",
+              "copy_from": "win.ProcessName",
+              "if": "ctx.win?.ProcessName != null"
+            }
+          },
+          {
+            "set": {
+              "field": "process.command_line",
+              "copy_from": "win.ScriptBlockText",
+              "if": "ctx.win?.ScriptBlockText != null"
+            }
+          },
+          {
+            "set": {
+              "field": "powershell.script_block.text",
+              "copy_from": "win.ScriptBlockText",
+              "if": "ctx.win?.ScriptBlockText != null"
+            }
+          },
+          {
+            "set": {
+              "field": "powershell.script_block.id",
+              "copy_from": "win.ScriptBlockId",
+              "if": "ctx.win?.ScriptBlockId != null"
+            }
+          },
+          {
+            "set": {
+              "field": "powershell.script_block.total",
+              "copy_from": "win.MessageTotal",
+              "if": "ctx.win?.MessageTotal != null"
+            }
+          },
+          {
+            "set": {
+              "field": "powershell.script_block.number",
+              "copy_from": "win.MessageNumber",
+              "if": "ctx.win?.MessageNumber != null"
+            }
+          },
+          {
+            "set": {
+              "field": "hunt.template",
+              "value": "windows-powershell"
+            }
+          }
+        ]
+      },
+      "result_summary": {
+        "passed": true,
+        "records": 195,
+        "records_ok": 195,
+        "match_ratio": 1.0,
+        "failure_counts": {}
+      }
+    },
+    {
+      "step": 4,
+      "tool": "register_source",
+      "args": {
+        "template": "windows-powershell",
+        "reason": "New NXLog-exported Windows PowerShell records (channels \"Windows PowerShell\" and \"Microsoft-Windows-PowerShell/Operational\", EventIDs 600/800/4103/4104/40961/40962/53504). No existing template matched (all 0.0); created windows-powershell which parses EventTime as UTC-4, keeps originals under win.*, maps host.name, event.code/provider, process.pid, user.*, and PowerShell script block fields. Validated 195/195 records."
+      },
+      "result_summary": {
+        "registered": true,
+        "decision": "created",
+        "template": "windows-powershell"
+      }
+    }
+  ],
+  "llm_calls": 4,
+  "llm_tokens": {
+    "prompt": 15829,
+    "completion": 1313
+  },
+  "model": "deepseek-flash"
+}

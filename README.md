@@ -32,11 +32,12 @@ Step-by-step record: the project log (a Google Doc, written in Chinese).
 
 ## One command
 
-After the one-time setup below: `.venv\Scripts\python scripts\rebuild_all.py --wipe` deletes all project data and
+After the one-time setup below: `.venv\Scripts\python scripts\rebuild_all.py` deletes all project data and
 volumes, starts the stack, checks it, installs templates, ingests all six sources through the three channels
-(onboarding agent included), creates Kibana data views and runs the full verification (`scripts\verify_all.py`).
-Without `--wipe` it keeps existing data and ingests every source again on top of it, so use `--wipe` whenever data
-is already there. After a restart of the computer or Docker Desktop, run `scripts\verify_all.py` first.
+(onboarding agent included), checks that the agent onboarded every source, creates Kibana data views and runs the
+full verification (`scripts\verify_all.py`). Every rebuild starts from nothing, whether the stack is running or
+stopped (`--wipe` is still accepted and changes nothing). The containers do not restart by themselves: after a
+restart of the computer or Docker Desktop, run `docker compose up -d`, then `scripts\verify_all.py`.
 
 ## Setup (Windows 11, Docker Desktop, Python 3.13)
 

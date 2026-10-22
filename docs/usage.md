@@ -33,13 +33,13 @@ cd C:\Users\yaoxi\Downloads\project
 
 ## One-command rebuild and self-check
 
-After part 1, `.venv\Scripts\python scripts\rebuild_all.py --wipe` deletes the project data and the Docker volumes,
-then starts ELK, runs the security checks, installs the templates, ingests all 6 sources, creates the Kibana data
-views, runs the full self-check and finally prints `REBUILD OK` (about 6 minutes).
-Without `--wipe` it keeps the existing data but ingests every source again, so the data is duplicated; always add
-`--wipe` when data is already there.
-After a restart of the computer or Docker Desktop, first run `.venv\Scripts\python scripts\verify_all.py` and check
-that everything passes.
+After part 1, `.venv\Scripts\python scripts\rebuild_all.py` deletes the project data and the Docker volumes,
+then starts ELK, runs the security checks, installs the templates, ingests all 6 sources, checks that the onboarding
+agent onboarded every source, creates the Kibana data views, runs the full self-check and finally prints
+`REBUILD OK` (about 6 minutes).
+Every rebuild starts from nothing, whether ELK is running or stopped; `--wipe` is still accepted and changes nothing.
+The containers do not restart by themselves. After a restart of the computer or Docker Desktop, first run
+`docker compose up -d`, then `.venv\Scripts\python scripts\verify_all.py`, and check that everything passes.
 Parts 2 and 3 below are what this command does internally; they can also be run on their own.
 
 ## 2. Start ELK

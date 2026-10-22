@@ -1,0 +1,394 @@
+{
+  "source_id": "zeek-scranton",
+  "channel": "pull",
+  "sample_records": 177,
+  "outcome": {
+    "decision": "created",
+    "template": "zeek",
+    "dataset": "zeek",
+    "reason": "Zeek JSON logs (@proc=zeek, @system=simplerockbuild.simplerock.lan) of mixed types (conn, http, dns, files, ssl, x509, smb, dpd). No existing template matched; new 'zeek' template parses ts with UNIX format, keeps all fields under zeek.*, sets observer.name to the sensor (no host.name for network sensor), maps ECS network/dns/http/file/tls fields, and passed 177/177 sampled records.",
+    "validation": {
+      "records": 177,
+      "records_ok": 177,
+      "match_ratio": 1.0
+    }
+  },
+  "created_templates": [
+    "zeek"
+  ],
+  "tool_trace": [
+    {
+      "step": 1,
+      "tool": "inspect_sample",
+      "args": {},
+      "result_summary": {
+        "records": 177
+      }
+    },
+    {
+      "step": 1,
+      "tool": "list_templates",
+      "args": {},
+      "result_summary": "list of 4"
+    },
+    {
+      "step": 2,
+      "tool": "get_template",
+      "args": {
+        "name": "windows-sysmon"
+      },
+      "result_summary": {}
+    },
+    {
+      "step": 3,
+      "tool": "create_template",
+      "args": {
+        "name": "zeek",
+        "dataset": "zeek",
+        "description": "Zeek (Bro) JSON logs of all types (conn, http, dns, files, ssl, x509, smb_mapping, smb_files, dpd, etc.) shipped with @stream/@system/@proc metadata. Keeps every original field under zeek.*, maps the common ones to ECS. Network sensor: observer.name is the sensor, host.name is not set.",
+        "match": {
+          "format": "json",
+          "required_keys": [
+            "ts",
+            "@stream",
+            "@system",
+            "@proc"
+          ],
+          "equals": {
+            "@proc": [
+              "zeek"
+            ]
+          }
+        },
+        "processors": [
+          {
+            "json": {
+              "field": "message",
+              "target_field": "zeek"
+            }
+          },
+          {
+            "date": {
+              "field": "zeek.ts",
+              "target_field": "@timestamp",
+              "formats": [
+                "UNIX"
+              ],
+              "ignore_failure": true
+            }
+          },
+          {
+            "set": {
+              "field": "event.kind",
+              "value": "event"
+            }
+          },
+          {
+            "set": {
+              "field": "event.module",
+              "value": "zeek"
+            }
+          },
+          {
+            "set": {
+              "field": "event.dataset",
+              "value": "zeek"
+            }
+          },
+          {
+            "set": {
+              "field": "event.action",
+              "copy_from": "zeek.@stream"
+            }
+          },
+          {
+            "set": {
+              "field": "observer.name",
+              "copy_from": "zeek.@system"
+            }
+          },
+          {
+            "set": {
+              "field": "observer.type",
+              "value": "ids"
+            }
+          },
+          {
+            "set": {
+              "field": "network.protocol",
+              "copy_from": "zeek.proto",
+              "if": "ctx.zeek?.proto != null"
+            }
+          },
+          {
+            "set": {
+              "field": "network.transport",
+              "copy_from": "zeek.proto",
+              "if": "ctx.zeek?.proto != null"
+            }
+          },
+          {
+            "set": {
+              "field": "source.ip",
+              "copy_from": "zeek.id_orig_h",
+              "if": "ctx.zeek?.id_orig_h != null"
+            }
+          },
+          {
+            "set": {
+              "field": "source.port",
+              "copy_from": "zeek.id_orig_p",
+              "if": "ctx.zeek?.id_orig_p != null"
+            }
+          },
+          {
+            "set": {
+              "field": "destination.ip",
+              "copy_from": "zeek.id_resp_h",
+              "if": "ctx.zeek?.id_resp_h != null"
+            }
+          },
+          {
+            "set": {
+              "field": "destination.port",
+              "copy_from": "zeek.id_resp_p",
+              "if": "ctx.zeek?.id_resp_p != null"
+            }
+          },
+          {
+            "convert": {
+              "field": "source.port",
+              "type": "long",
+              "ignore_missing": true,
+              "ignore_failure": true
+            }
+          },
+          {
+            "convert": {
+              "field": "destination.port",
+              "type": "long",
+              "ignore_missing": true,
+              "ignore_failure": true
+            }
+          },
+          {
+            "set": {
+              "field": "network.bytes",
+              "copy_from": "zeek.orig_ip_bytes",
+              "if": "ctx.zeek?.orig_ip_bytes != null"
+            }
+          },
+          {
+            "convert": {
+              "field": "network.bytes",
+              "type": "long",
+              "ignore_missing": true,
+              "ignore_failure": true
+            }
+          },
+          {
+            "set": {
+              "field": "network.community_id",
+              "copy_from": "zeek.uid",
+              "if": "ctx.zeek?.uid != null"
+            }
+          },
+          {
+            "set": {
+              "field": "event.id",
+              "copy_from": "zeek.uid",
+              "if": "ctx.zeek?.uid != null"
+            }
+          },
+          {
+            "set": {
+              "field": "dns.question.name",
+              "copy_from": "zeek.query",
+              "if": "ctx.zeek?.query != null"
+            }
+          },
+          {
+            "set": {
+              "field": "dns.question.type",
+              "copy_from": "zeek.qtype_name",
+              "if": "ctx.zeek?.qtype_name != null"
+            }
+          },
+          {
+            "set": {
+              "field": "dns.response_code",
+              "copy_from": "zeek.rcode_name",
+              "if": "ctx.zeek?.rcode_name != null"
+            }
+          },
+          {
+            "set": {
+              "field": "url.original",
+              "copy_from": "zeek.uri",
+              "if": "ctx.zeek?.uri != null"
+            }
+          },
+          {
+            "set": {
+              "field": "url.domain",
+              "copy_from": "zeek.host",
+              "if": "ctx.zeek?.host != null"
+            }
+          },
+          {
+            "set": {
+              "field": "http.request.method",
+              "copy_from": "zeek.method",
+              "if": "ctx.zeek?.method != null"
+            }
+          },
+          {
+            "set": {
+              "field": "http.response.status_code",
+              "copy_from": "zeek.status_code",
+              "if": "ctx.zeek?.status_code != null"
+            }
+          },
+          {
+            "convert": {
+              "field": "http.response.status_code",
+              "type": "long",
+              "ignore_missing": true,
+              "ignore_failure": true
+            }
+          },
+          {
+            "set": {
+              "field": "user_agent.original",
+              "copy_from": "zeek.user_agent",
+              "if": "ctx.zeek?.user_agent != null"
+            }
+          },
+          {
+            "set": {
+              "field": "file.path",
+              "copy_from": "zeek.filename",
+              "if": "ctx.zeek?.filename != null"
+            }
+          },
+          {
+            "set": {
+              "field": "file.path",
+              "copy_from": "zeek.name",
+              "if": "ctx.zeek?.filename == null && ctx.zeek?.name != null"
+            }
+          },
+          {
+            "set": {
+              "field": "file.mime_type",
+              "copy_from": "zeek.mime_type",
+              "if": "ctx.zeek?.mime_type != null"
+            }
+          },
+          {
+            "set": {
+              "field": "file.size",
+              "copy_from": "zeek.total_bytes",
+              "if": "ctx.zeek?.total_bytes != null"
+            }
+          },
+          {
+            "convert": {
+              "field": "file.size",
+              "type": "long",
+              "ignore_missing": true,
+              "ignore_failure": true
+            }
+          },
+          {
+            "set": {
+              "field": "file.hash.md5",
+              "copy_from": "zeek.md5",
+              "if": "ctx.zeek?.md5 != null"
+            }
+          },
+          {
+            "set": {
+              "field": "file.hash.sha1",
+              "copy_from": "zeek.sha1",
+              "if": "ctx.zeek?.sha1 != null"
+            }
+          },
+          {
+            "set": {
+              "field": "tls.client.server_name",
+              "copy_from": "zeek.server_name",
+              "if": "ctx.zeek?.server_name != null"
+            }
+          },
+          {
+            "set": {
+              "field": "tls.version",
+              "copy_from": "zeek.version",
+              "if": "ctx.zeek?.version != null"
+            }
+          },
+          {
+            "set": {
+              "field": "tls.cipher",
+              "copy_from": "zeek.cipher",
+              "if": "ctx.zeek?.cipher != null"
+            }
+          },
+          {
+            "set": {
+              "field": "tls.client.ja3",
+              "copy_from": "zeek.ja3",
+              "if": "ctx.zeek?.ja3 != null"
+            }
+          },
+          {
+            "set": {
+              "field": "tls.server.ja3s",
+              "copy_from": "zeek.ja3s",
+              "if": "ctx.zeek?.ja3s != null"
+            }
+          },
+          {
+            "set": {
+              "field": "message",
+              "value": "Zeek {{zeek.@stream}} log"
+            }
+          },
+          {
+            "set": {
+              "field": "hunt.template",
+              "value": "zeek"
+            }
+          }
+        ]
+      },
+      "result_summary": {
+        "passed": true,
+        "records": 177,
+        "records_ok": 177,
+        "match_ratio": 1.0,
+        "failure_counts": {}
+      }
+    },
+    {
+      "step": 4,
+      "tool": "register_source",
+      "args": {
+        "template": "zeek",
+        "reason": "Zeek JSON logs (@proc=zeek, @system=simplerockbuild.simplerock.lan) of mixed types (conn, http, dns, files, ssl, x509, smb, dpd). No existing template matched; new 'zeek' template parses ts with UNIX format, keeps all fields under zeek.*, sets observer.name to the sensor (no host.name for network sensor), maps ECS network/dns/http/file/tls fields, and passed 177/177 sampled records."
+      },
+      "result_summary": {
+        "registered": true,
+        "decision": "created",
+        "template": "zeek"
+      }
+    }
+  ],
+  "llm_calls": 4,
+  "llm_tokens": {
+    "prompt": 19839,
+    "completion": 1956
+  },
+  "model": "deepseek-flash"
+}
